@@ -29,7 +29,6 @@
 #include <glibconfig.h>
 #include <gmacros.h>
 #include <gversionmacros.h>
-#include <time.h>
 
 G_BEGIN_DECLS
 
