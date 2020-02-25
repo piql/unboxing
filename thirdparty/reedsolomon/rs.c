@@ -148,6 +148,7 @@ static void encode_8(rs_codec *rs, gvector * data, gvector * data_encode)
 			data_encode_pointer[position_next + message_size + i] = (uint8_t)LFSR[parity_size - 1 - i];
 		}
 	}
+    BOXING_STACK_FREE( LFSR );    
 }
 
 static void encode_16(rs_codec *rs, gvector * data, gvector * data_encode)
@@ -181,6 +182,7 @@ static void encode_16(rs_codec *rs, gvector * data, gvector * data_encode)
             data_encode_pointer[position_next + message_size + i] = (uint16_t)LFSR[parity_size - 1 - i];
         }
     }
+    BOXING_STACK_FREE( LFSR );    
 }
 
 void rs_decode(rs_codec *rs, gvector * data, gvector * data_decode, unsigned int *resolved_errors, unsigned int *fatal_errors, int *max_errors_per_block)
@@ -313,6 +315,8 @@ static void rs_generate_polynomial(rs_codec * rs)
     }
 
     rs->generator_polynomial = polynomial;
+    BOXING_STACK_FREE( tp1 );    
+    BOXING_STACK_FREE( tp );    
 }
 
 static void compute_modified_omega(
@@ -401,6 +405,10 @@ static void modified_berlekamp_massey(
     memcpy(error_locator_polynomial, psi, sizeof(uint32_t) * parity_size * 2); // parity_size
 
     compute_modified_omega(rs, error_locator_polynomial, error_evaluator_polynomial, syndrome_bytes); // parity size
+
+    BOXING_STACK_FREE( psi );    
+    BOXING_STACK_FREE( psi2 );    
+    BOXING_STACK_FREE( D );    
 }
 
 static uint32_t find_roots(rs_codec *rs, uint32_t *error_locator_polynomial, uint32_t *error_locations)
@@ -465,6 +473,9 @@ static uint32_t correct_errors_erasures(
         for (r = 0; r < errors_number; r++) {
             if (error_locations[r] >= codeword_size) {
                 *fatal_errors += errors_number;
+                BOXING_STACK_FREE( error_locator_polynomial );
+                BOXING_STACK_FREE( error_evaluator_polynomial );
+                BOXING_STACK_FREE( error_locations );
                 return errors_number;
             }
         }
@@ -485,6 +496,9 @@ static uint32_t correct_errors_erasures(
             codeword[codeword_size - i - 1] ^= err;
         }
         *resolved_errors += errors_number;
+        BOXING_STACK_FREE( error_locator_polynomial );
+        BOXING_STACK_FREE( error_evaluator_polynomial );
+        BOXING_STACK_FREE( error_locations );
         return errors_number;
     }
     else {
@@ -492,6 +506,9 @@ static uint32_t correct_errors_erasures(
         {
             *fatal_errors += errors_number;
         }
+        BOXING_STACK_FREE( error_locator_polynomial );
+        BOXING_STACK_FREE( error_evaluator_polynomial );
+        BOXING_STACK_FREE( error_locations );
         return errors_number;
     }
 }

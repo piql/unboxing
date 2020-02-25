@@ -304,6 +304,8 @@ void encode_bch(struct bch_control *bch, const uint8_t *data,
 	/* store ecc parity bytes into original parity buffer */
 	if (ecc)
 		store_ecc8(bch, ecc, bch->ecc_buf);
+
+    BOXING_STACK_FREE( r );
 }
 
 static int modulo(struct bch_control *bch, unsigned int v)
@@ -526,18 +528,22 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 	if (k > 0) {
 		p = k;
 		for (r = m-1; r >= 0; r--) {
-			if ((r > m-1-k) && rows[r])
+			if ((r > m-1-k) && rows[r]) {
 				/* system has no solution */
+                BOXING_STACK_FREE(param);
 				return 0;
+            }
 
 			rows[r] = (p && (r == param[p-1])) ?
 				p--, 1u << (m-r) : rows[r-p];
 		}
 	}
 
-	if (nsol != (1 << k))
+	if (nsol != (1 << k)) {
 		/* unexpected number of solutions */
+        BOXING_STACK_FREE(param);
 		return 0;
+    }
 
 	for (p = 0; p < nsol; p++) {
 		/* set parameters for p-th solution */
@@ -552,6 +558,8 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 		}
 		sol[p] = tmp >> 1;
 	}
+    
+    BOXING_STACK_FREE(param);
 	return nsol;
 }
 

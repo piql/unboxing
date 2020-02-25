@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([libunboxing], [0.5], [boxing@piql.com])
+AC_INIT([libunboxing], [0.5.1], [boxing@piql.com])
 AM_INIT_AUTOMAKE([
 	foreign
 	1.11
@@ -16,7 +16,7 @@ AM_INIT_AUTOMAKE([
 #	dist-xz
 #	check-news
 
-AC_COPYRIGHT([Copyright (C) 2018 Piql AS])
+AC_COPYRIGHT([Copyright (C) 2020 Piql AS])
 
 # Check that we are in the correct dir
 AC_CONFIG_SRCDIR([src/unboxer.c])
@@ -35,7 +35,6 @@ AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(subunit, subunit_test_start)
 
 # Checks for header files.
-AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([float.h inttypes.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -54,6 +53,7 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
+AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor memmove memset pow sqrt strcasecmp strchr strtol strtoull])

@@ -513,7 +513,9 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
 
     if (unboxer->parameters.pre_filter.process)
     {
-        return unboxer->parameters.pre_filter.process(user_data, image, filter_coeff.coeff, coeff_count);
+        int pre_res = unboxer->parameters.pre_filter.process(user_data, image, filter_coeff.coeff, coeff_count);
+        BOXING_STACK_FREE( filter_coeff.coeff );
+        return pre_res;
     }
     else
     {
@@ -522,6 +524,7 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
         if (destination.data == NULL)
         {
             DLOG_ERROR( "unboxer_sharpness_filter:  Can't allocate temporary image data! Filter is not applied!");
+            BOXING_STACK_FREE( filter_coeff.coeff );
             return BOXING_FILTER_CALLBACK_ERROR;
         }
         boxing_image8_pixel * destination_pixel = destination.data;
@@ -559,6 +562,7 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
         boxing_memory_free(destination.data);
     }
 
+    BOXING_STACK_FREE( filter_coeff.coeff );
     return BOXING_FILTER_CALLBACK_OK;
 }
 

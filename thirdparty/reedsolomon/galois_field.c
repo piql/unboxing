@@ -164,6 +164,8 @@ void gf_multiply_polynomial(galois_field *gf, uint32_t *dst, uint32_t *p1, uint3
             dst[j] ^= tmp1[j];
         }
     }
+
+    BOXING_STACK_FREE( tmp1 );
 }
 
 // PRIVATE RS FUNCTIONS

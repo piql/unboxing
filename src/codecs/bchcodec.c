@@ -237,6 +237,8 @@ static DBOOL codec_decode_blocks(struct bch_control * bch, const uint8_t * src, 
         }
 
     }
+
+    BOXING_STACK_FREE( errloc );
     return success;
 }
 

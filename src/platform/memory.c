@@ -72,7 +72,19 @@
 
 //----------------------------------------------------------------------------
 /*!
- *  \def BOXING_NULL_POINTER(type, count) memory.h
+ *  \def BOXING_STACK_FREE(pointer_to_memory) memory.h
+ *  \brief Releases memory allocated by BOXING_STACK_ALLOCATE_TYPE_ARRAY
+ *
+ *  Allocates memory previously allocated by BOXING_STACK_ALLOCATE_TYPE_ARRAY.
+ *  Note: For platforms supporting alloca() this function does noting.
+ *
+ *  \param[in]  pointer_to_memory   Pointer.
+ */
+
+
+//----------------------------------------------------------------------------
+/*!
+ *  \def BOXING_NULL_POINTER memory.h
  *  \brief Define null pointer value.
  *
  *  Define null pointer value.
@@ -168,6 +180,46 @@ void boxing_memory_copy(void * pointer_to_memory_destination, const void * point
     {
         memcpy(pointer_to_memory_destination, pointer_to_memory_source, size_in_bytes);
     }
+}
+
+
+//----------------------------------------------------------------------------
+/*!
+ *  \def boxing_stack_allocate(size_in_bytes) memory.h
+ *  \brief Allocates memory on the stack
+ *
+ *  Allocates memory on the stack.
+ *
+ *  \param[in]  size_in_bytes   Size of memory to allocate.
+ */
+
+void* boxing_stack_allocate(size_t size_in_bytes)
+{
+#if defined(HAVE_ALLOCA)    
+    return alloca(size_in_bytes);
+#else
+    return boxing_memory_allocate(size_in_bytes);
+#endif
+}
+
+
+//----------------------------------------------------------------------------
+/*!
+ *  \def boxing_stack_free(pointer_to_memory) memory.h
+ *  \brief Free memory previously allocated on the stack
+ *
+ *  Allocates memory previously allocated by boxing_stack_allocate.
+ *  Note: For platforms supporting alloca() this function does noting.
+ *
+ *  \param[in]  pointer_to_memory Pointer to memory
+ */
+
+void boxing_stack_free(void* pointer_to_memory)
+{
+#if defined(HAVE_ALLOCA)    
+#else
+    boxing_memory_free(pointer_to_memory);
+#endif
 }
 
 
