@@ -40,7 +40,7 @@ void    boxing_memory_free(void* pointer_to_memory);
 void    boxing_memory_clear(void* pointer_to_memory, size_t size_in_bytes);
 void    boxing_memory_copy(void* pointer_to_memory_destination, const void* pointer_to_memory_source, size_t size_in_bytes);
 void*   boxing_stack_allocate(size_t size_in_bytes);
-void*   boxing_stack_free(void* pointer_to_memory);
+void    boxing_stack_free(void* pointer_to_memory);
     
 #ifdef __cplusplus
 } /* extern "C" */
