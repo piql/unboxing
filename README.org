@@ -82,6 +82,16 @@ cd boxing
 make
 #+END_SRC
 
+** iVM
+The iVM virtual machine is a minimal execution environment for file format decoders. It's design goal is to minimize future implementation effort by providing an unabmbigious and compact implementation description.
+
+The boxing library is one of the formats the iVM natively supports.
+
+To target the iVM and use the ivm64 compiler:
+#+BEGIN_SRC shell
+CC=ivm64-gcc CFLAGS="-DBOXING_USE_C99_LIBRARIES" ./configure --host=ivm64
+#+END_SRC
+
 * Sample Applications                                         :afsdoc:gitdoc:
 - *tests/unboxingdata*: Unittests for the unboxing library.
 - *tests/unboxer*: Command line sample application for decoding 2D barcodes.

@@ -1,4 +1,4 @@
-# Boxinglib     
+# Boxinglib     :afsdoc:
 
 **boxinglib** is a cross-platform software library for **decoding** high-capacity 2D barcode images. The flexbible barcode format is fully customizeable in terms of **frame geometry**, number of **symbols per pixel** and **forward-error-correction** (FEC) method. This makes it a sutiable choice for storing large amounts of any kind of digital data on storage mediums such paper, photographic film or similar.
 
@@ -15,17 +15,21 @@ The library is released under GPLv3 licence for research and private use, for an
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1. Boxinglib&#xa0;&#xa0;&#xa0;<span class="tag"><span class=""></span></span></a></li>
-<li><a href="#sec-2">2. Features&#xa0;&#xa0;&#xa0;<span class="tag"><span class=""></span></span></a></li>
-<li><a href="#sec-3">3. Requirements&#xa0;&#xa0;&#xa0;<span class="tag"><span class=""></span></span></a></li>
-<li><a href="#sec-4">4. Installation</a></li>
-<li><a href="#sec-5">5. Sample Applications&#xa0;&#xa0;&#xa0;<span class="tag"><span class=""></span></span></a></li>
+<li><a href="#sec-1">1. Boxinglib&#xa0;&#xa0;&#xa0;<span class="tag"><span class="afsdoc">afsdoc</span></span></a></li>
+<li><a href="#sec-2">2. Features&#xa0;&#xa0;&#xa0;<span class="tag"><span class="afsdoc">afsdoc</span></span></a></li>
+<li><a href="#sec-3">3. Requirements&#xa0;&#xa0;&#xa0;<span class="tag"><span class="afsdoc">afsdoc</span></span></a></li>
+<li><a href="#sec-4">4. Installation</a>
+<ul>
+<li><a href="#sec-4-1">4.1. iVM</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Sample Applications&#xa0;&#xa0;&#xa0;<span class="tag"><span class="afsdoc">afsdoc</span></span></a></li>
 <li><a href="#sec-6">6. Contact</a></li>
 </ul>
 </div>
 </div>
 
-# Features     
+# Features     :afsdoc:
 
 -   Flexible and user configurable 2D barcode format, including bit depth, geometry and forward error correction method.
 -   Support for interleaved error correction where the data (and error correction codes) are spread across multiple barcodes.
@@ -35,7 +39,7 @@ The library is released under GPLv3 licence for research and private use, for an
 -   Cross-platform: Tested on Windows, Linux and OS-X.
 -   Stand alone: Minimal dependecies to other libraries or operation system functions.
 
-# Requirements     
+# Requirements     :afsdoc:
 
 C language compiler supporting C99 (ISO/IEC 9899:1999).
 
@@ -80,7 +84,17 @@ For detailed copyright and licencing description, inspect source code under thir
     ./configure
     make
 
-# Sample Applications     
+## iVM
+
+The iVM virtual machine is a minimal execution environment for file format decoders. It's design goal is to minimize future implementation effort by providing an unabmbigious and compact implementation description.
+
+The boxing library is one of the formats the iVM natively supports.
+
+To target the iVM and use the ivm64 compiler:
+
+    CC=ivm64-gcc CFLAGS="-DBOXING_USE_C99_LIBRARIES" ./configure --host=ivm64
+
+# Sample Applications     :afsdoc:
 
 -   **tests/unboxingdata**: Unittests for the unboxing library.
 -   **tests/unboxer**: Command line sample application for decoding 2D barcodes.
