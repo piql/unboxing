@@ -55,8 +55,8 @@ AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
 #AC_FUNC_ALLOCA
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+#AC_FUNC_MALLOC
+#AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor memmove memset pow sqrt strcasecmp strchr strtol strtoull])
 
 # Checks for command line options

@@ -1,15 +1,15 @@
 
 lib_LIBRARIES = libunboxing.a
 libunboxing_a_CFLAGS = \
-	-I${top_srcdir}/inc \
-	-I${top_srcdir}/thirdparty/glib \
-	-I${top_srcdir}/thirdparty/ldpc \
+    -I${top_srcdir}/inc \
+    -I${top_srcdir}/thirdparty/glib \
+    -I${top_srcdir}/thirdparty/ldpc \
     -I${top_srcdir}/thirdparty/bch \
-	-I${top_srcdir}/./thirdparty/reedsolomon \
+    -I${top_srcdir}/./thirdparty/reedsolomon \
     -I${top_srcdir}/src/unboxer \
     -I${top_srcdir}/src/frame \
-	-I${top_srcdir}/../boxingdata/inc \
-	-D RAND_FILE="\"./randfile\""
+    -I${top_srcdir}/../boxingdata/inc \
+    -D RAND_FILE="\"./randfile\""
 
 libunboxing_a_SOURCES = \
     ../thirdparty/reedsolomon/rs.c \
@@ -35,7 +35,6 @@ libunboxing_a_SOURCES = \
     ../thirdparty/glib/glist.c \
     ../thirdparty/glib/gvector.c \
     ../thirdparty/glib/gutils.c \
-    ../thirdparty/bch/bch_test.c \
     ../thirdparty/bch/bch.c \
     log.c \
     unboxer.c \
