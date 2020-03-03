@@ -73,7 +73,7 @@ AC_ARG_WITH([unit_tests],
 AM_CONDITIONAL([UNIT_TESTS_ENABLED], [test x$with_unit_tests = xyes])
 AS_IF([test "x$with_unit_tests" = "xyes"], [
    AC_CHECK_LIB(pthread, pthread_create)
-   PKG_CHECK_MODULES([CHECKLIB], [check-0.10.0])
+   PKG_CHECK_MODULES([CHECKLIB], [check])
 ])
 
 AC_CONFIG_FILES([
