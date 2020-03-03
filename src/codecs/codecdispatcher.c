@@ -18,6 +18,7 @@
 #include "boxing/globals.h"
 #include "boxing/log.h"
 #include "boxing/platform/memory.h"
+#include "boxing/platform/types.h"
 #include "boxing/config.h"
 #include "boxing/utils.h"
 
@@ -694,11 +695,10 @@ uint32_t boxing_codecdispatcher_get_decoded_packet_size_step(boxing_codecdispatc
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief The function gives the current value of bytes per frame.
+ *  \brief Get bytes per frame
  *
- *  Function retrieves the current value of bytes per frame from given codec dispatcher and returns it.
- *  If boxing_codecdispatcher pointer equal to NULL
- *  then function return 0.
+ *  Function retrieves number of bytes per frame from given codec dispatcher and returns it.
+ *  If boxing_codecdispatcher is NULL, 0 is returned.
  *
  *  \param[in]  dispatcher   Pointer to the boxing_codecdispatcher structure.
  *  \return the current value of bytes per frame.
@@ -711,7 +711,7 @@ uint32_t boxing_codecdispatcher_get_bytes_per_frame(boxing_codecdispatcher *disp
         return 0;
     }
 
-    return dispatcher->packet_size * dispatcher->color_depth / CHAR_BIT;
+    return dispatcher->packet_size * dispatcher->color_depth / BITS_PER_CHAR;
 }
 
 

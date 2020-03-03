@@ -26,7 +26,7 @@ extern "C" {
 #define BOXING_MEMORY_ALLOCATE_TYPE( type ) (type*)malloc( sizeof( type ) )
 #define BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( type, count ) (type*)malloc( sizeof( type ) * (count) )
 #define BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR( type, count ) (type*)boxing_memory_allocate_and_clear( sizeof( type ) * (count) )
-#define BOXING_STACK_ALLOCATE_TYPE_ARRAY( type, count ) (type*)alloca( sizeof( type ) * (count) )
+#define BOXING_STACK_ALLOCATE_TYPE_ARRAY( type, count ) (type*)boxing_stack_allocate( sizeof( type ) * (count) )
 #if defined (HAVE_ALLOCA)
 #  define BOXING_STACK_FREE( pointer_to_memory )
 #else

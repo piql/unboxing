@@ -193,7 +193,7 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
  *  \return created image with specified sizes.
  */
 
-boxing_image8 * boxing_image8_create2(boxing_image8_pixel * buffer, unsigned int width, unsigned int height)
+boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
@@ -212,7 +212,7 @@ boxing_image8 * boxing_image8_create2(boxing_image8_pixel * buffer, unsigned int
     image->height = height;
     image->data = boxing_memory_allocate(width * height);
     image->is_owning_data = DTRUE;
-    if (image->data == NULL && width * height != 0)
+    if (image->data == NULL)
     {
         boxing_memory_free(image);
         DLOG_ERROR("failed to allocate image buffer!");
@@ -220,11 +220,7 @@ boxing_image8 * boxing_image8_create2(boxing_image8_pixel * buffer, unsigned int
     }
     else
     {
-        const unsigned int buffer_size = width * height;
-        for (unsigned int i = 0; i < buffer_size; ++i)
-        {
-            image->data[i] = buffer[i];
-        }
+	boxing_memory_copy(image->data, buffer, width * height);
     }
     return image;
 }
@@ -423,7 +419,7 @@ boxing_image8 * boxing_image8_copy(const boxing_image8 * image)
     }
 
     boxing_image8 * copy = boxing_image8_create(image->width, image->height);
-    memcpy(copy->data, image->data, image->width * image->height);
+    boxing_memory_copy(copy->data, image->data, image->width * image->height);
     return copy;
 }
 
@@ -448,7 +444,7 @@ boxing_image8 * boxing_image8_copy_use_buffer(const boxing_image8 * image)
     }
 
     boxing_image8 * copy = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
-    memcpy(copy, image, sizeof(boxing_image8));
+    boxing_memory_copy(copy, image, sizeof(boxing_image8));
     copy->is_owning_data = DFALSE;
     return copy;
 }
@@ -525,7 +521,7 @@ boxing_image8 * boxing_image8_crop(const boxing_image8 * image, int x_offset, in
     {
         const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
         boxing_image8_pixel *dst = crop->data + y * width;
-        memcpy(dst, src, width);
+        boxing_memory_copy(dst, src, width);
     }
 
     return crop;

@@ -40,8 +40,7 @@
 #       define  inline __inline
 #   endif
 #else
-#   define  size_t           int
-    typedef int              size_t;
+    typedef unsigned int     size_t;
     typedef char             int8_t;
     typedef short int        int16_t;
     typedef int              int32_t;
@@ -65,6 +64,11 @@ typedef uint8_t     boxing_uint8;
 typedef uint16_t    boxing_uint16;
 typedef uint32_t    boxing_uint32;
 typedef uint64_t    boxing_uint64;
+
+
+//  CHAR
+//
+#define BITS_PER_CHAR  8
 
 
 //  FLOATING POINT 

@@ -46,7 +46,7 @@ typedef struct boxing_image8_s
 //
 
 boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height);
-boxing_image8 * boxing_image8_create2(boxing_image8_pixel * buffer, unsigned int width, unsigned int height);
+boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsigned int width, unsigned int height);
 boxing_image8 * boxing_image8_recreate(boxing_image8 * image, unsigned int width, unsigned int height);
 void            boxing_image8_init_in_place(boxing_image8 * image, unsigned int width, unsigned int height);
 void            boxing_image8_reinit_in_place(boxing_image8 * image, unsigned int width, unsigned int height);

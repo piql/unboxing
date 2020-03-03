@@ -279,8 +279,11 @@ static command_line_parameters get_parameters(int argc, char *argv[])
             {
                 break;
             }
-            parameters.x_size = atoi(argv[++arg_index]);
-            parameters.y_size = atoi(argv[++arg_index]);
+	    int x, y;
+	    boxing_string_to_integer(&x, argv[++arg_index]);
+	    boxing_string_to_integer(&y, argv[++arg_index]);
+	    parameters.x_size = x;
+	    parameters.y_size = y;
             arg_index++;
         }
         else if (boxing_string_equal(argv[arg_index], "-f") == DTRUE)
@@ -490,7 +493,7 @@ int main(int argc, char *argv[])
             
             while (end_of_cycle == DFALSE)
             {
-                char* current_file_name = (char *)malloc(boxing_string_length(file_name) + 8);
+                char* current_file_name = boxing_string_allocate(boxing_string_length(file_name) + 8);
                 sprintf(current_file_name, file_name, current_file);
                 
                 if (access(current_file_name, 0) == -1)

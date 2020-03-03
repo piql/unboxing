@@ -31,8 +31,9 @@ AC_PROG_LN_S
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])
 AC_CHECK_LIB(m, floor)
 AC_CHECK_LIB(rt, setitimer)
-AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(subunit, subunit_test_start)
+
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([float.h inttypes.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h])
@@ -53,7 +54,7 @@ AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AC_FUNC_ALLOCA
+#AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([floor memmove memset pow sqrt strcasecmp strchr strtol strtoull])
@@ -66,13 +67,23 @@ AS_IF([test "x$enable_callback" = "xyes"], [
         AC_DEFINE(ENABLE_CALLBACKS, [1], [Progress callbacks.])
 ])
 
+AC_ARG_WITH([unit_tests],
+   AS_HELP_STRING([--with-unit-tests], [Build unit tests (requires check library)]),
+   [], [with_unit_tests=no])
+AM_CONDITIONAL([UNIT_TESTS_ENABLED], [test x$with_unit_tests = xyes])
+AS_IF([test "x$with_unit_tests" = "xyes"], [
+   AC_CHECK_LIB(pthread, pthread_create)
+   PKG_CHECK_MODULES([CHECKLIB], [check-0.10.0])
+])
+
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
     tests/Makefile
     tests/unboxingdata/Makefile
     tests/testutils/Makefile
-    tests/unboxer/Makefile])
+    tests/unboxer/Makefile
+    tests/static_unboxer/Makefile])
 AC_OUTPUT
 AC_MSG_RESULT([
         $PACKAGE $VERSION
@@ -88,4 +99,5 @@ AC_MSG_RESULT([
         ldflags:                ${LDFLAGS}
 
         callbacks:              ${enable_callbacks}
+        tests:                  ${with_unit_tests}
 ])

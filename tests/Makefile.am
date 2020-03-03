@@ -1,8 +1,12 @@
 
 SUBDIRS = \
-	unboxingdata \
 	testutils \
+        static_unboxer \
 	unboxer
+
+if UNIT_TESTS_ENABLED
+        SUBDIRS += unboxingdata
+endif
 
 EXTRA_DIST = testdata
 dist-hook:
