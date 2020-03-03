@@ -188,8 +188,8 @@ static int metadata_complete_callback(void * user, int* res, boxing_metadata_lis
 
 static int unbox_data(const unsigned char* data, unsigned int data_size, boxing_unboxer_utility* utility)
 {
-    const unsigned width = 4096;
-    const unsigned height = 2160;
+    const unsigned width = 4096/4;
+    const unsigned height = 2160/4;
 
     boxing_image8* input_image = boxing_image8_create2(data, width, height);
 
