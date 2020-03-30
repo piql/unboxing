@@ -9,7 +9,12 @@ testunboxing_CFLAGS = \
    -I${top_srcdir}/thirdparty/glib \
    -I${top_srcdir}/tests/testutils/inc
 
-testunboxing_LDADD = ${top_builddir}/src/libunboxing.a -lcheck -lm
+testunboxing_LDADD = ${top_builddir}/src/libunboxing.a
+
+if UNIT_TESTS_ENABLED
+testunboxing_LDADD += -lcheck -lm -lpthread
+endif
+
 testunboxing_SOURCES = \
     matrixtests.c      \
     metadatatests.c    \
