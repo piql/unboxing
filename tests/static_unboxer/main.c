@@ -12,15 +12,18 @@
 **
 *****************************************************************************/
 
+//  DEFINES
+//
+#define BOXINGLIB_CALLBACK
+#define LOGGING_ENABLED
+
 //  PROJECT INCLUDES
 //
+#include <stdio.h>
+#include <stdarg.h>
 #include "unboxingutility.h"
 #include "boxing/utils.h"
 #include "dataframe.h"
-
-//  DEFINES
-//
-#undef LOGGING_ENABLED
 
 static const char * result_names[] =
 {
@@ -75,20 +78,16 @@ static int unboxing_complete_callback(void * user, int* res, boxing_stats_decode
 
     if (*res == BOXING_UNBOXER_OK)
     {
-      /*
         printf("Unboxing success!\n");
 
         printf("\tFEC Accumulated Amount: %f\n", stats->fec_accumulated_amount);
         printf("\tFEC Accumulated Weight: %f\n", stats->fec_accumulated_weight);
         printf("\tResolved Errors: %i\n", stats->resolved_errors);
         printf("\tUnresolved Errors: %i\n\n", stats->unresolved_errors);
-      */
     }
     else
     {
-      /*
-        fprintf(stderr, "Unboxing failed! Errorcode = %i - %s\n", *res, get_process_result_name(*res));
-      */
+        printf("Unboxing failed! Errorcode = %i - %s\n", *res, get_process_result_name(*res));
     }
 
     return 0;
@@ -145,38 +144,38 @@ static int metadata_complete_callback(void * user, int* res, boxing_metadata_lis
             switch (type)
             {
             case BOXING_METADATA_TYPE_JOBID:
-	      //printf("\tJob id: %d\n", ((boxing_metadata_item_job_id*)item)->value);
-                break;
+	      printf("\tJob id: %d\n", ((boxing_metadata_item_job_id*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_FRAMENUMBER:
-	      //printf("\tFrame number: %d\n", ((boxing_metadata_item_frame_number*)item)->value);
-                break;
+	      printf("\tFrame number: %d\n", ((boxing_metadata_item_frame_number*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_FILEID:
-	      //printf("\tFile id: %d\n", ((boxing_metadata_item_file_id*)item)->value);
-                break;
+	      printf("\tFile id: %d\n", ((boxing_metadata_item_file_id*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_FILESIZE:
-	      //printf("\tFile size: %llu\n", (unsigned long long)((boxing_metadata_item_file_size*)item)->value);
-                break;
+	      printf("\tFile size: %llu\n", (unsigned long long)((boxing_metadata_item_file_size*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_DATACRC:
-	      //printf("\tData CRC: %llu\n", (unsigned long long)((boxing_metadata_item_data_crc*)item)->value);
-                break;
+	      printf("\tData CRC: %llu\n", (unsigned long long)((boxing_metadata_item_data_crc*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_DATASIZE:
-	      //printf("\tData size: %d\n", ((boxing_metadata_item_data_size*)item)->value);
-                break;
+	      printf("\tData size: %d\n", ((boxing_metadata_item_data_size*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_SYMBOLSPERPIXEL:
-	      //printf("\tSymbols per pixel: %d\n", ((boxing_metadata_item_symbols_per_pixel*)item)->value);
-                break;
+	      printf("\tSymbols per pixel: %d\n", ((boxing_metadata_item_symbols_per_pixel*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_CONTENTTYPE:
-	      //printf("\tContent type: %s\n", content_types[((boxing_metadata_item_content_type*)item)->value]);
-                break;
+	      printf("\tContent type: %s\n", content_types[((boxing_metadata_item_content_type*)item)->value]);
+              break;
             case BOXING_METADATA_TYPE_CIPHERKEY:
-	      //printf("\tCipher key: %d\n", ((boxing_metadata_item_cipher_key*)item)->value);
-                break;
+	      printf("\tCipher key: %d\n", ((boxing_metadata_item_cipher_key*)item)->value);
+              break;
             case BOXING_METADATA_TYPE_CONTENTSYMBOLSIZE:
-	      //printf("\tContent symbol size: %d\n", ((boxing_metadata_item_content_symbol_size*)item)->value);
-                break;
+	      printf("\tContent symbol size: %d\n", ((boxing_metadata_item_content_symbol_size*)item)->value);
+              break;
             default:
-	      //printf("\tWarning: Unknown meta data type: %d\n", type);
-                break;
+	      printf("\tWarning: Unknown meta data type: %d\n", type);
+              break;
             }
         }
     }
@@ -224,7 +223,7 @@ static int unbox_data(const unsigned char* data, unsigned int data_size, boxing_
 int main(int argc, char *argv[])
 {
     DBOOL is_raw = DTRUE;
-    const char* format = "4kv9";
+    const char* format = "4k-controlframe-v7";
     
 #if defined (BOXINGLIB_CALLBACK)
     boxing_unboxer_utility* utility = boxing_unboxer_utility_create(format, is_raw, unboxing_complete_callback, metadata_complete_callback);
@@ -236,6 +235,7 @@ int main(int argc, char *argv[])
     const unsigned int data_size = tiff_fish_n_chips_x12_0000_raw_len;
     int result = unbox_data(data, data_size, utility);
 
+    
     boxing_unboxer_utility_free(utility);
     
     return result;
@@ -266,3 +266,5 @@ void boxing_log_args(int log_level, const char * format, ...) { BOXING_UNUSED_PA
 
 //void(*boxing_log_custom)(int log_level, const char * string) = NULL;
 //void(*boxing_log_args_custom)(int log_level, const char * format, va_list args) = NULL;
+
+#endif
