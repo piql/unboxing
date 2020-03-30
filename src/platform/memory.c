@@ -121,7 +121,10 @@ void * boxing_memory_allocate(size_t size)
 void * boxing_memory_allocate_and_clear( size_t size )
 {
     void* buffer = malloc( size );
-    memset( buffer, 0, size );
+    if ( buffer != NULL )
+    {
+        memset( buffer, 0, size );
+    }
     return buffer;
 }
 
