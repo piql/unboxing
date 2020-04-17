@@ -10,7 +10,7 @@ typedef struct config_pair_s
 {
     const char* key;
     const char* value;
-}config_pair;
+} config_pair;
 
 typedef struct config_class_s
 {
@@ -18,14 +18,14 @@ typedef struct config_class_s
     const char* version;
     config_pair * pairs;
     unsigned int count;
-}config_class;
+} config_class;
 
 typedef struct config_structure_s
 {
     const char * version;
     config_class * classes;
     const unsigned int count;
-}config_structure;
+} config_structure;
 
 #endif // CONFIG_SOURCE_DEFINITIONS
 

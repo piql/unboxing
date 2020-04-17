@@ -42,24 +42,23 @@ static config_structure* boxing_control_frame_formats[] = { &config_source_v1, &
 //
 
 static config_structure* find_boxing_format(const char* boxing_format_name);
-static DBOOL             format_setting(boxing_config * config, config_structure * source_config_data);
-static const char *      get_format_info(config_structure* config);
+static const char *      get_format_name(config_structure* config);
 
 // PUBLIC BOXING CONFIG FUNCTIONS
 //
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief Get boxing config
+ *  \brief Create boxing config
  *
- *  Get config instance from format name.
+ *  Create config instance from format name.
  *
  *  \ingroup unboxtests
  *  \param[in]   format_name  Boxing format name.
  *  \return boxing_config instance.
  */
 
-boxing_config * boxing_get_boxing_config(const char* format_name)
+boxing_config * boxing_create_boxing_config(const char* format_name)
 {
     if (format_name == NULL)
     {
@@ -76,17 +75,12 @@ boxing_config * boxing_get_boxing_config(const char* format_name)
         return NULL;
     }
 
-    // Create an instance of a configuration
-    boxing_config * config = boxing_config_create();
-
     // Populate boxing format configuration
-    if (!format_setting(config, boxing_format))
+    // Create an instance of a configuration
+    boxing_config * config = boxing_config_create_from_structure(boxing_format);
+    if (!config)
     {
         DLOG_INFO("Failed to setting the config data from source!\n");
-        
-        boxing_config_free(config);
-
-        return NULL;
     }
 
     return config;
@@ -95,7 +89,7 @@ boxing_config * boxing_get_boxing_config(const char* format_name)
 
 //----------------------------------------------------------------------------
 /*!
-*  \brief The function provides the number of boxing formats.
+*  \brief Get boxing format count.
 *
 *  The function provides the number of boxing formats.
 *
@@ -119,15 +113,15 @@ int boxing_get_format_count()
 *  \return the name of boxing format.
 */
 
-const char* boxing_get_configuration_name(int number)
+const char* boxing_get_configuration_name(int index)
 {
-    return get_format_info(boxing_formats[number]);
+    return get_format_name(boxing_formats[index]);
 }
 
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief The function provides the number of control frame formats.
+ *  \brief Get control frame count.
  *
  *  The function provides the number of control frame formats.
  *
@@ -143,7 +137,7 @@ int boxing_get_control_frame_format_count()
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief The function provides the name of control frame format.
+ *  \brief Get control frame format name
  *
  *  The function provides the name of control frame format by its number in the control frame formats array.
  *
@@ -151,9 +145,9 @@ int boxing_get_control_frame_format_count()
  *  \return the name of control frame format.
  */
 
-const char* boxing_get_control_frame_configuration_name(int number)
+const char* boxing_get_control_frame_configuration_name(int index)
 {
-    return get_format_info(boxing_control_frame_formats[number]);
+    return get_format_name(boxing_control_frame_formats[index]);
 }
 
 
@@ -172,15 +166,14 @@ const char* boxing_get_control_frame_configuration_name(int number)
 
 static config_structure* find_boxing_format(const char* boxing_format_name)
 {
-    unsigned int count = CONFIG_ARRAY_SIZE(boxing_formats); // : CONFIG_ARRAY_SIZE(boxing_control_frame_formats);
+    unsigned int count = CONFIG_ARRAY_SIZE(boxing_formats); 
 
     // Looking for formats for data frames
     for (unsigned int i = 0; i < count; i++)
     {
-        const char* format_info = get_format_info(boxing_formats[i]); // Get the name of the configuration from the configuration structure
-        if (format_info && boxing_string_equal(format_info, boxing_format_name) == DTRUE)
+        const char* format_name = get_format_name(boxing_formats[i]);
+        if (format_name && boxing_string_equal(format_name, boxing_format_name) == DTRUE)
         {
-            // If we have found the right name, saves the current configuration structure in the pointer boxing_format
             return boxing_formats[i];
         }
     }
@@ -190,10 +183,9 @@ static config_structure* find_boxing_format(const char* boxing_format_name)
     // Looking for formats for control frames
     for (unsigned int i = 0; i < count; i++)
     {
-        const char* format_info = get_format_info(boxing_control_frame_formats[i]); // Get the name of the configuration from the configuration structure
-        if (format_info && boxing_string_equal(format_info, boxing_format_name) == DTRUE)
+        const char* format_name = get_format_name(boxing_control_frame_formats[i]);
+        if (format_name && boxing_string_equal(format_name, boxing_format_name) == DTRUE)
         {
-            // If we have found the right name, saves the current configuration structure in the pointer boxing_format
             return boxing_control_frame_formats[i];
         }
     }
@@ -205,57 +197,13 @@ static config_structure* find_boxing_format(const char* boxing_format_name)
 //---------------------------------------------------------------------------- 
 /*! \ingroup testutils
  *
- *  Reading the configuration data from the source.
- * 
- *  \param config               Configuration data
- *  \param source_config_data   Source.
- *  \return DTRUE if reading the configuration data from the source was successful.
- */
-
-static DBOOL format_setting(boxing_config * config, config_structure * source_config_data)
-{
-    // If the input data is incorrect, then exit with an error
-    if (config == NULL || source_config_data == NULL || source_config_data->count == 0)
-    {
-        return DFALSE;
-    }
-
-    config_class * classes = source_config_data->classes;
-
-    // Pass on all classes
-    for (unsigned int i = 0; i < source_config_data->count; i++)
-    {
-        if (classes->version != NULL && classes->version[0] != '\0')
-        {
-            boxing_config_set_property(config, classes->name, "version", classes->version);
-        }
-
-        config_pair * pairs = classes->pairs;
-
-        // Pass on all properties
-        for (unsigned int j = 0; j < classes->count; j++)
-        {
-            boxing_config_set_property(config, classes->name, pairs->key, pairs->value);
-            pairs++;
-        }
-
-        classes++;
-    }
-
-    return DTRUE;
-}
-
-
-//---------------------------------------------------------------------------- 
-/*! \ingroup testutils
- *
- * Get the name of the configuration from the configuration structure.
+ *  Get format name.
  *
  *  \param[in] config   Input configuration structure.
  *  \return name of the input configuration structure or NULL if the name does not exist.
  */
 
-static const char* get_format_info(config_structure* config)
+static const char* get_format_name(config_structure* config)
 {
     config_class * temp_classes = config->classes;
     for (unsigned int i = 0; i < config->count; i++)

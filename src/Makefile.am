@@ -38,6 +38,7 @@ libunboxing_a_SOURCES = \
     ../thirdparty/bch/bch.c \
     log.c \
     unboxer.c \
+    unboxer_utility.c \
     string.c \
     matrix.c \
     math/bitutils.c \
@@ -129,6 +130,7 @@ nobase_include_HEADERS = \
     ../inc/boxing/codecs/ldpccodec.h \
     ../inc/boxing/log.h \
     ../inc/boxing/unboxer.h \
+    ../inc/boxing/unboxer_utility.h \
     ../inc/boxing/bool.h \
     ../inc/boxing/matrix.h \
     ../inc/boxing/unboxer/abstractframeutil.h \

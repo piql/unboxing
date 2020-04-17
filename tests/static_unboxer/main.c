@@ -267,4 +267,3 @@ void boxing_log_args(int log_level, const char * format, ...) { BOXING_UNUSED_PA
 //void(*boxing_log_custom)(int log_level, const char * string) = NULL;
 //void(*boxing_log_args_custom)(int log_level, const char * format, va_list args) = NULL;
 
-#endif

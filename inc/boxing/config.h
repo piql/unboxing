@@ -32,9 +32,12 @@ typedef struct boxing_config_s
     GHashTable * aliases;
 } boxing_config;
 
+struct config_structure_s;  
+  
 extern const char * PROPERTIES_SEPARATOR;
 
 boxing_config *   boxing_config_create();
+boxing_config *   boxing_config_create_from_structure(struct config_structure_s* structure);    
 void              boxing_config_free(boxing_config * config);
 boxing_config *   boxing_config_clone(const boxing_config * config);
 DBOOL             boxing_config_is_equal(const boxing_config *a, const boxing_config *b);

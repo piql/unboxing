@@ -21,7 +21,9 @@ extern "C" {
 
 #include "boxing/config.h"
 
-boxing_config *   boxing_get_boxing_config(const char* format_name);
+struct config_structure_s;
+  
+boxing_config*    boxing_create_boxing_config(const char* format_name);
 int               boxing_get_format_count();
 const char*       boxing_get_configuration_name(int index);
 int               boxing_get_control_frame_format_count();

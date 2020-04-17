@@ -29,14 +29,41 @@
 // PRIVATE INTERFACE
 //
 
+#if !defined(CONFIG_SOURCE_DEFINITIONS)
+#define CONFIG_SOURCE_DEFINITIONS
+#define CONFIG_ARRAY_SIZE(a)   sizeof(a) / sizeof(a[0])
+
+typedef struct config_pair_s
+{
+    const char* key;
+    const char* value;
+} config_pair;
+
+typedef struct config_class_s
+{
+    const char* name;
+    const char* version;
+    config_pair * pairs;
+    unsigned int count;
+} config_class;
+
+typedef struct config_structure_s
+{
+    const char * version;
+    config_class * classes;
+    const unsigned int count;
+} config_structure;
+
+#endif // CONFIG_SOURCE_DEFINITIONS
+
 static DBOOL         is_instance_initialized = DFALSE;
 static boxing_config instance;
 static const g_variant* boxing_config_property_g_variant(const boxing_config * config, const char * name, const char * key);
 
 //----------------------------------------------------------------------------
 /*!
-  * Properties separator.
-  */
+ * Properties separator.
+ */
 
 const char * PROPERTIES_SEPARATOR              = ",";
 
@@ -54,28 +81,28 @@ const char * PROPERTIES_SEPARATOR              = ",";
 
 //----------------------------------------------------------------------------
 /*! 
-  * \addtogroup config
-  * \{
-  */
+ * \addtogroup config
+ * \{
+ */
 
 
 //----------------------------------------------------------------------------
 /*! 
-  * \struct boxing_config_s config.h
-  * \brief  Frame configuration.
-  *
-  * \param  groups   Hash map of configuration groups.
-  * \param  aliases  Group aliases.
-  *
-  * The config object has a list of property groups. Each property group has a
-  * set of parameters (key / value pairs) where the key must be unique for the 
-  * group.
-  *
-  * A config property value is accessed using the group and property name (key). 
-  *
-  * The alias consept allows to have alternative names for a group. The goal is 
-  * to remove this feature in a future release.
-  */
+ * \struct boxing_config_s config.h
+ * \brief  Frame configuration.
+ *
+ * \param  groups   Hash map of configuration groups.
+ * \param  aliases  Group aliases.
+ *
+ * The config object has a list of property groups. Each property group has a
+ * set of parameters (key / value pairs) where the key must be unique for the 
+ * group.
+ *
+ * A config property value is accessed using the group and property name (key). 
+ *
+ * The alias consept allows to have alternative names for a group. The goal is 
+ * to remove this feature in a future release.
+ */
 
 
 // PUBLIC CONFIG FUNCTIONS
@@ -83,13 +110,13 @@ const char * PROPERTIES_SEPARATOR              = ",";
 
 //----------------------------------------------------------------------------
 /*! 
-  * \brief Create config object.
-  *
-  * Allocate memory for the boxing_config type and initializes internal hash 
-  * tables.
-  *
-  * \return New config instance.
-  */
+ * \brief Create config object.
+ *
+ * Allocate memory for the boxing_config type and initializes internal hash 
+ * tables.
+ *
+ * \return New config instance.
+ */
 
 boxing_config * boxing_config_create()
 {
@@ -97,6 +124,51 @@ boxing_config * boxing_config_create()
     return_value->groups =  g_hash_table_new_full(g_str_hash, g_str_equal, boxing_utils_g_hash_table_destroy_item_string, boxing_utils_g_hash_table_destroy_item_ghash);
     return_value->aliases =  g_hash_table_new_full(g_str_hash, g_str_equal, boxing_utils_g_hash_table_destroy_item_string, boxing_utils_g_hash_table_destroy_item_string);
     return return_value;
+}
+
+
+//---------------------------------------------------------------------------- 
+/*!
+ *  Convert config_structure to boxing_config.
+ * 
+ *  \param config               Configuration data
+ *  \param source_config_data   Source.
+ *  \return DTRUE on success
+ */
+
+boxing_config* boxing_create_from_structure(config_structure* source_config_data)
+{
+    // If the input data is incorrect, then exit with an error
+    if ( source_config_data == NULL || source_config_data->count == 0)
+    {
+        return NULL;
+    }
+
+    boxing_config* config = boxing_config_create();
+    
+    config_class * classes = source_config_data->classes;
+
+    // Pass on all classes
+    for (unsigned int i = 0; i < source_config_data->count; i++)
+    {
+        if (classes->version != NULL && classes->version[0] != '\0')
+        {
+            boxing_config_set_property(config, classes->name, "version", classes->version);
+        }
+
+        config_pair * pairs = classes->pairs;
+
+        // Pass on all properties
+        for (unsigned int j = 0; j < classes->count; j++)
+        {
+            boxing_config_set_property(config, classes->name, pairs->key, pairs->value);
+            pairs++;
+        }
+
+        classes++;
+    }
+
+    return config;
 }
 
 
@@ -272,15 +344,15 @@ DBOOL boxing_config_is_equal(const boxing_config * a, const boxing_config * b)
 
 //----------------------------------------------------------------------------
 /*! 
-  * \brief Get global config instance.
-  *
-  *  Ig global configuration is not initialized,
-  *  than initializes internal hash tables and
-  *  set is_instance_initialized variable.
-  *
-  * \note Local config objects can be created using boxing_config_create.
-  * \return pointer to the global config instance.
-  */
+ * \brief Get global config instance.
+ *
+ *  Ig global configuration is not initialized,
+ *  than initializes internal hash tables and
+ *  set is_instance_initialized variable.
+ *
+ * \note Local config objects can be created using boxing_config_create.
+ * \return pointer to the global config instance.
+ */
 
 boxing_config * boxing_config_instance()
 {
@@ -631,8 +703,8 @@ gvector * boxing_config_parse_list_properties(const boxing_config * config, cons
 
 //----------------------------------------------------------------------------
 /*!
-  * \} end of config group
-  */
+ * \} end of config group
+ */
 
 
 // PRIVATE CONFIG FUNCTIONS
@@ -640,8 +712,8 @@ gvector * boxing_config_parse_list_properties(const boxing_config * config, cons
 
 //----------------------------------------------------------------------------
 /*!
-  * \brief Get g_variant property.
-  */
+ * \brief Get g_variant property.
+ */
 static const g_variant* boxing_config_property_g_variant(const boxing_config * config, const char * name, const char * key)
 {
     GHashTable * class_hash;

@@ -15,22 +15,21 @@
 //  PROJECT INCLUDES
 //
 
-#include "unboxingutility.h"
+#include "boxing/unboxer_utility.h"
 #include "boxing/platform/memory.h"
 #include "boxing/string.h"
 #include "boxing/config.h"
-#include "boxing_config.h"
 
 //----------------------------------------------------------------------------
 /*!
- *  \ingroup testutils
- *  \struct  boxing_unboxer_utility_s   unboxingutility.h
+ *  \ingroup boxing
+ *  \struct  boxing_unboxer_utility_s   unboxer_utility.h
  *  \brief   Utility structure to unboxing data.
  *
- *  \param unboxer               Boxer instance.
- *  \param parameters            Structure to storage unboxer parameters..
+ *  \param unboxer               Unboxer instance.
+ *  \param parameters            Unboxer settings.
  *
- *  Structure to storage all neccessary tools to unboxing data.
+ *  Wrapper around an unboxer and its configuration.
  */
 
 
@@ -38,40 +37,28 @@
 //
 
 
+//----------------------------------------------------------------------------
+/*!
+ *  \brief Create the unboxer utility
+ *
+ *  \ingroup testutils
+ *  \param[in]   format_name           Format name for data boxing.
+ *  \param[in]   is_raw                A sign that the input data is generated.
+ *  \param[in]   on_all_complete       Unboxing complete callback (requires BOXINGLIB_CALLBACK define)
+ *  \param[in]   on_metadata_complete  Metadata complete callback (requires BOXINGLIB_CALLBACK define)
+ *  \return instance of boxing_unboxer_utility or NULL.
+ */
+
+boxing_unboxer_utility* boxing_unboxer_utility_create(
+    boxing_config * format,
+    DBOOL is_raw
 #ifdef BOXINGLIB_CALLBACK
-//----------------------------------------------------------------------------
-/*!
- *  \brief The function creates a structure for unboxing data.
- *
- *  The function creates a structure for unboxing data with all neccessary tools.
- *  If creates is successful, then function return instance, else function return NULL.
- *
- *  \ingroup testutils
- *  \param[in]   format_name           Format name for data boxing.
- *  \param[in]   is_raw                A sign that the input data is generated.
- *  \param[in]   on_all_complete       Pointer to a function that is called after the end of unboxing.
- *  \param[in]   on_metadata_complete  Pointer to a function that is called after the completion of metadata generation.
- *  \return instance of boxing_unboxer_utility structure or NULL.
- */
-boxing_unboxer_utility* boxing_unboxer_utility_create(const char* format_name, DBOOL is_raw, boxing_all_complete_cb on_all_complete, boxing_metadata_complete_cb  on_metadata_complete)
-#else
-//----------------------------------------------------------------------------
-/*!
- *  \brief The function creates a structure for unboxing data.
- *
- *  The function creates a structure for unboxing data with all neccessary tools.
- *  If creates is successful, then function return instance, else function return NULL.
- *
- *  \ingroup testutils
- *  \param[in]   format_name           Format name for data boxing.
- *  \param[in]   is_raw                A sign that the input data is generated.
- *  \return instance of boxing_unboxer_utility structure or NULL.
- */
-boxing_unboxer_utility* boxing_unboxer_utility_create(const char* format_name, DBOOL is_raw)
+    ,boxing_all_complete_cb on_all_complete, boxing_metadata_complete_cb  on_metadata_complete
 #endif
+    )
 {
     // Check the input data
-    if (format_name == NULL)
+    if (format == NULL)
     {
         return NULL;
     }
@@ -86,11 +73,8 @@ boxing_unboxer_utility* boxing_unboxer_utility_create(const char* format_name, D
     boxing_unboxer_parameters_init(utility->parameters);
     boxing_memory_clear(utility->parameters, sizeof(utility->parameters));
 
-    // Setting the frame format by its name
-    if (boxing_unboxer_set_frame_format(utility, format_name) == DFALSE)
-    {
-        return NULL;
-    }
+    // Set the format
+    utility->parameters->format = format;
 
     // Set the parameters
     utility->parameters->is_raw = is_raw;
@@ -108,45 +92,9 @@ boxing_unboxer_utility* boxing_unboxer_utility_create(const char* format_name, D
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief The function sets the frame format by its name.
+ *  \brief Unbox data
  *
- *  The function sets the frame format by its name.
- *  If sets is successful, then function return DTRUE, else function return DFALSE.
- *
- *  \ingroup testutils
- *  \param[in]   utility           Instance of boxing_unboxer_utility structure.
- *  \param[in]   format_name       Name of the format.
- *  \return sign of successful completion of the function.
- */
-
-DBOOL boxing_unboxer_set_frame_format(boxing_unboxer_utility* utility, const char* format_name)
-{
-    if (utility == NULL || format_name == NULL)
-    {
-        return DFALSE;
-    }
-
-    if (utility->parameters == NULL)
-    {
-        return DFALSE;
-    }
-
-    // Create an instance of the configuration
-    boxing_config * config = boxing_create_boxing_config(format_name);
-
-    // Set the format
-    utility->parameters->format = config;
-
-    return DTRUE;
-}
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \brief The function makes data unboxing.
- *
- *  The function processes the input image data and generates a source file data.
- *  If the input unboxer_utility instance is NULL or input image pointer is NULL then the function returns an error.
+ *  Processes the input image and returns a array of decoded data on success.
  *
  *  \ingroup testutils
  *  \param[in]   unboxer_utility  Unboxing utility instance.
@@ -166,7 +114,7 @@ int boxing_unboxer_utility_unbox(boxing_unboxer_utility* unboxer_utility, boxing
     
     int extract_result;
     int process_result = boxing_unboxer_unbox(output_data, metadata, input_image, unboxer_utility->unboxer, &extract_result, output_data);
-	 
+ 
     boxing_metadata_list_free(metadata);
 
     return process_result;
@@ -175,9 +123,7 @@ int boxing_unboxer_utility_unbox(boxing_unboxer_utility* unboxer_utility, boxing
 
 //----------------------------------------------------------------------------
 /*!
- *  \brief Frees occupied memory of boxing_unboxer_utility structure.
- *
- *  Frees occupied memory of all internal structure pointers and structure pointer.
+ *  \brief Frees unboxer utility
  *
  *  \ingroup testutils
  *  \param[in]   unboxer_utility  Unboxing utility instance.
