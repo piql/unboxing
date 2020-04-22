@@ -136,7 +136,7 @@ boxing_config * boxing_config_create()
  *  \return DTRUE on success
  */
 
-boxing_config* boxing_create_from_structure(config_structure* source_config_data)
+boxing_config* boxing_config_create_from_structure(config_structure* source_config_data)
 {
     // If the input data is incorrect, then exit with an error
     if ( source_config_data == NULL || source_config_data->count == 0)
