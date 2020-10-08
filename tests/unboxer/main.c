@@ -16,6 +16,7 @@
 //
 #include "unboxingutility.h"
 #include "boxing/utils.h"
+#include "boxing/unboxer_utility.h"
 #include <stdarg.h>
 #include <stdio.h>
 #if defined (D_OS_WIN32)
@@ -23,6 +24,7 @@
 #else
 #include <unistd.h>
 #endif
+#include "boxing_config.h"
 
 //  DEFINES
 //
@@ -467,10 +469,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    boxing_config * config = boxing_create_boxing_config(parameters.format);
+
 #if defined (BOXINGLIB_CALLBACK)
-    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(parameters.format, parameters.is_raw, unboxing_complete_callback, metadata_complete_callback);
+    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(config, parameters.is_raw, unboxing_complete_callback, metadata_complete_callback);
 #else
-    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(parameters.format, parameters.is_raw);
+    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(config, parameters.is_raw);
 #endif
 
     int result = 1;
@@ -501,7 +505,7 @@ int main(int argc, char *argv[])
                     end_of_cycle = DTRUE;
                     if (current_file == 0)
                     {
-                        fprintf(stderr, "Filed to read files from input wildcard!\n");
+                        fprintf(stderr, "Failed to read files from input wildcard!\n");
                     }
 
                     boxing_string_free(current_file_name);

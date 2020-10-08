@@ -23,7 +23,9 @@
 #include <stdarg.h>
 #include "unboxingutility.h"
 #include "boxing/utils.h"
+#include "boxing/unboxer_utility.h"
 #include "dataframe.h"
+#include "boxing_config.h"
 
 static const char * result_names[] =
 {
@@ -223,12 +225,14 @@ static int unbox_data(const unsigned char* data, unsigned int data_size, boxing_
 int main(int argc, char *argv[])
 {
     DBOOL is_raw = DTRUE;
-    const char* format = "4k-controlframe-v7";
-    
+    const char* format_name = "4k-controlframe-v7";
+
+    boxing_config * config = boxing_create_boxing_config(format_name);
+
 #if defined (BOXINGLIB_CALLBACK)
-    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(format, is_raw, unboxing_complete_callback, metadata_complete_callback);
+    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(config, is_raw, unboxing_complete_callback, metadata_complete_callback);
 #else
-    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(format, is_raw);
+    boxing_unboxer_utility* utility = boxing_unboxer_utility_create(config, is_raw);
 #endif
 
     const unsigned char * data = tiff_fish_n_chips_x12_0000_raw;
