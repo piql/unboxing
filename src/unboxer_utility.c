@@ -42,7 +42,7 @@
  *  \brief Create the unboxer utility
  *
  *  \ingroup testutils
- *  \param[in]   format_name           Format name for data boxing.
+ *  \param[in]   format                Boxing format.
  *  \param[in]   is_raw                A sign that the input data is generated.
  *  \param[in]   on_all_complete       Unboxing complete callback (requires BOXINGLIB_CALLBACK define)
  *  \param[in]   on_metadata_complete  Metadata complete callback (requires BOXINGLIB_CALLBACK define)
@@ -133,7 +133,6 @@ void boxing_unboxer_utility_free(boxing_unboxer_utility* unboxer_utility)
 {
     if (unboxer_utility != NULL)
     {
-        boxing_config_free((boxing_config *)unboxer_utility->parameters->format);
         boxing_unboxer_free(unboxer_utility->unboxer);
         boxing_unboxer_parameters_free(unboxer_utility->parameters);
         boxing_memory_free(unboxer_utility->parameters);
