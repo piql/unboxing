@@ -21,11 +21,11 @@ extern "C" {
 
 #include "boxing/codecs/codecbase.h"
 #include "boxing/platform/types.h"
-#include "bch.h"
 
 
 static const char codec_bch_name[] = "BCH";
-
+struct bch_control;
+    
 typedef struct boxing_codec_bch_s
 {
     boxing_codec         base;

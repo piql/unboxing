@@ -19,6 +19,10 @@
 #include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
+//  THIRDPARTY INCLUDES
+//
+#include "bch.h"
+
 //  DEFINES
 //
 
