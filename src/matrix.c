@@ -379,9 +379,9 @@ void boxing_matrixf_init_in_place(boxing_matrixf * matrix, unsigned int width, u
     matrix->width = width;
     matrix->height = height;
     matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( boxing_pointf, width * height);
-    if (matrix->data == NULL && width * height != 0)
+    if (matrix->data == NULL)
     {
-        boxing_throw("failed to init matrixf in place!");
+        boxing_throw("out of memory");
     }
 }
 
@@ -411,9 +411,9 @@ void boxing_matrixi_init_in_place(boxing_matrixi * matrix, unsigned int width, u
     matrix->width = width;
     matrix->height = height;
     matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( boxing_pointi, width * height );
-    if (matrix->data == NULL && width * height != 0)
+    if (matrix->data == NULL)
     {
-        boxing_throw("failed to init matrixf in place!");
+        boxing_throw("out of memory");
     }
 }
 
