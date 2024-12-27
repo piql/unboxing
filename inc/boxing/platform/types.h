@@ -31,10 +31,7 @@
 //  PLATFORM DEPENDENT TYPES
 //
 
-#if defined BOXING_USE_C99_LIBRARIES
-#   include <inttypes.h>
-#   include <stddef.h>
-#elif defined BOXING_USE_C89_LIBRARIES
+#if defined(BOXING_USE_C99_LIBRARIES) || defined(BOXING_USE_C89_LIBRARIES)
 #   include <stdint.h>
 #   if !defined (__cplusplus)
 #       define  inline __inline

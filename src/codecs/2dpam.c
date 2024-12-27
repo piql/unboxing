@@ -20,6 +20,9 @@
 #include "boxing/image8.h"
 #include "horizontalmeasures.h"
 
+// SYSTEM INCLUDES
+#include <stddef.h> /* ptrdiff_t */
+
 //  DEFINES
 //
 
@@ -323,7 +326,7 @@ static DBOOL get_next_symbol(struct symbol_tracker * tracker)
         }
     }
 
-    return DFALSE;    
+    return DFALSE;
 }
 
 

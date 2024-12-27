@@ -29,9 +29,9 @@
 #ifndef __G_MACROS_H__
 #define __G_MACROS_H__
 
-/* We include stddef.h to get the system's definition of NULL
- */
-#include <stddef.h>
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 /* Here we provide G_GNUC_EXTENSION as an alias for __extension__,
  * where this is valid. This allows for warningless compilation of

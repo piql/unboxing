@@ -22,7 +22,6 @@
 #if defined (D_OS_WIN32)
 #include <io.h>
 #else
-#include <unistd.h>
 #endif
 #include "boxing_config.h"
 
@@ -378,7 +377,7 @@ static int unbox_file(const char* file_name, command_line_parameters input_param
     if (file == NULL)
     {
         fprintf(stderr, "Failed to read file '%s'.\n", file_name);
-        return -1;
+        return -2;
     }
 
     // Obtain file size
@@ -490,36 +489,29 @@ int main(int argc, char *argv[])
         else
         {
             int current_file = 0;
-            DBOOL end_of_cycle = DFALSE;
             replace_wildcard(file_name);
 
             printf("Input file wildcard: '%s'\n", file_name);
             
-            while (end_of_cycle == DFALSE)
-            {
+            while (1) {
                 char* current_file_name = boxing_string_allocate(boxing_string_length(file_name) + 8);
                 sprintf(current_file_name, file_name, current_file);
-                
-                if (access(current_file_name, 0) == -1)
+
                 {
-                    end_of_cycle = DTRUE;
-                    if (current_file == 0)
-                    {
-                        fprintf(stderr, "Failed to read files from input wildcard!\n");
+                    FILE *access_check = fopen(current_file_name, "r");
+                    if (access_check == NULL) {
+                        if (current_file == 0) {
+                            fprintf(stderr, "Failed to read files from input wildcard!\n");
+                        }
+                        break;
                     }
-
-                    boxing_string_free(current_file_name);
-
-                    continue;
+                    fclose(access_check);
                 }
 
                 result = unbox_file(current_file_name, parameters, utility);
                 boxing_string_free(current_file_name);
 
-                if (result != BOXING_UNBOXER_OK)
-                {
-                    break;
-                }
+                if (result != BOXING_UNBOXER_OK) break;
 
                 current_file++;
             }
