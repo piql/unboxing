@@ -23,7 +23,7 @@ typedef int pid_t;
 #define START_TEST( name ) void name(void) { printf("%s\n", #name); int _i;
 #define END_TEST }
 typedef void TCase;
-#define tcase_create( s ) (void*)printf("%s\n", s)
+#define tcase_create( s ) (void*)(printf("%s\n", s), NULL)
 #define tcase_add_test(a, func) func();
 
 typedef void Suite;
@@ -43,10 +43,11 @@ typedef void SRunner;
 #define ck_assert_str_eq( a, b) 
 
 #define BOXING_ASSERT(x) assert(x)
+extern int strcmp(const char *s1, const char *s2);
 #define BOXING_ASSERT_STR_EQ(a, b) assert(strcmp(a,b) == 0)
 #define BOXING_ASSERT_MESSAGE( a, ... ) if (!(a)) { assert(a); printf( __VA_ARGS__ ); }  
 
-#define srunner_ntests_failed(a)  (void*)0;
+#define srunner_ntests_failed(a) 0
 #define srunner_free(a)
 #endif
 

@@ -26,21 +26,22 @@ extern "C" {
 #define BOXING_MEMORY_ALLOCATE_TYPE( type ) (type*)malloc( sizeof( type ) )
 #define BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( type, count ) (type*)malloc( sizeof( type ) * (count) )
 #define BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR( type, count ) (type*)boxing_memory_allocate_and_clear( sizeof( type ) * (count) )
-#define BOXING_STACK_ALLOCATE_TYPE_ARRAY( type, count ) (type*)boxing_stack_allocate( sizeof( type ) * (count) )
-#if defined (HAVE_ALLOCA)
-#  define BOXING_STACK_FREE( pointer_to_memory )
+#if defined(HAVE_ALLOCA)
+    #define BOXING_STACK_ALLOCATE(size_in_bytes) (alloca(size_in_bytes))
+    #define BOXING_STACK_FREE(pointer_to_memory)
 #else
-#  define BOXING_STACK_FREE( pointer_to_memory ) boxing_stack_free( pointer_to_memory )
+    #define BOXING_STACK_ALLOCATE(size_in_bytes) (boxing_memory_allocate(size_in_bytes))
+    #define BOXING_STACK_FREE(pointer_to_memory) (boxing_memory_free(pointer_to_memory))
 #endif
+#define BOXING_STACK_ALLOCATE_TYPE_ARRAY( type, count ) (type*)BOXING_STACK_ALLOCATE( sizeof( type ) * (count) )
 #define BOXING_NULL_POINTER NULL
+
 
 void*   boxing_memory_allocate(size_t size_in_bytes);
 void*   boxing_memory_allocate_and_clear( size_t size_in_bytes );
 void    boxing_memory_free(void* pointer_to_memory);
 void    boxing_memory_clear(void* pointer_to_memory, size_t size_in_bytes);
 void    boxing_memory_copy(void* pointer_to_memory_destination, const void* pointer_to_memory_source, size_t size_in_bytes);
-void*   boxing_stack_allocate(size_t size_in_bytes);
-void    boxing_stack_free(void* pointer_to_memory);
     
 #ifdef __cplusplus
 } /* extern "C" */

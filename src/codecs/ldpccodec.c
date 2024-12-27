@@ -20,6 +20,11 @@
 #include "mod2sparse.h"
 #include "mod2dense.h"
 #include "rcode.h"
+#include "distrib.h"
+#include "rand.h"
+#include "alloc.h"
+#include "check.h"
+#include "mod2convert.h"
 #include "boxing/codecs/ldpccodec.h"
 #include "enc.h"
 #include "dec.h"
@@ -43,33 +48,598 @@
 static DBOOL codec_encode(void * codec, gvector * data);
 static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxing_stats_decode * stats, void* user_data);
 
-
-/*! 
-  * \ingroup codecs
-  * \{
-  */
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \var    codec_ldpc_name
- *  \brief  Ldpc codec name constant.
- *  
- *  Ldpc codec name constant.
- */
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \struct     boxing_codec_ldpc_s  ldpccodec.h
- *  \brief      Ldpc codec data storage.
+/**
+ * @brief prprp_decode
  *
- *  \param base        Base boxing_codec instance.
- *  \param iterations  Iteration.
- *  \param gen_matrix  Generator matrix.
- *
- *  Structure for storing ldpc codec data.
+ * @param
+ 
+ * @param H         Parity check matrix
+ * @param lratio    Likelihood ratios for bits
+ * @param dblk      Place to store decoding
+ * @param pchk      Place to store parity checks
+ * @param bprb	    Place to store bit probabilities
+ * @param max_iter  Max iterations
+ * @return iterations
  */
+static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, char *pchk, double *bprb, int max_iter)
+{
+    int N, n, c;
+
+    N = mod2sparse_cols(H);
+
+    /* Initialize probability and likelihood ratios, and find initial guess. */
+
+    initprp(H, lratio, dblk, bprb);
+
+    /* Do up to abs(max_iter) iterations of probability propagation, stopping
+       early if a codeword is found, unless max_iter is negative. */
+
+    for (n = 0;; n++)
+    {
+        c = check(H, dblk, pchk);
+
+        if (table == 2)
+        {
+            printf("%7d %5d %8.1f %6d %+9.2f %8.1f %+9.2f  %7.1f\n",
+                block_no, n, changed(lratio, dblk, N), c, loglikelihood(lratio, dblk, N),
+                expected_parity_errors(H, bprb), expected_loglikelihood(lratio, bprb, N),
+                entropy(bprb, N));
+        }
+
+        if (n == max_iter || n == -max_iter || (max_iter > 0 && c == 0))
+        {
+            break;
+        }
+
+        iterprp(H, lratio, dblk, bprb);
+    }
+
+    return n;
+}
+
+/* The procedures in this module obtain the generator matrix to use for
+   encoding from the global variables declared in rcode.h */
+
+/**
+* @brief ENCODE A BLOCK ANY GENERATOR MATRIX.
+*
+* @param G
+* @param sblk
+* @param cblk
+*/
+
+static void ldpc_encode(generator_matrix *gm, char *sblk, char *cblk)
+{
+    H = gm->H;
+    M = gm->M;
+    N = gm->N;
+    type = gm->type;
+    cols = gm->cols;
+    L = gm->L;
+    U = gm->U;
+    rows = gm->rows;
+    G = gm->G;
+    switch (gm->type)
+    {
+    case 's':
+    { sparse_encode(sblk, cblk);
+    break;
+    }
+    case 'd':
+    { 
+        mod2dense *u = mod2dense_allocate(N - M, 1);
+        mod2dense *v = mod2dense_allocate(M, 1);
+        dense_encode(sblk, cblk, u, v);
+        mod2dense_free(v);
+        mod2dense_free(u);
+    break;
+    }
+    case 'm':
+    { 
+        mod2dense *u = mod2dense_allocate(M, 1);
+        mod2dense *v = mod2dense_allocate(M, 1);
+        mixed_encode(sblk, cblk, u, v);
+        mod2dense_free(v);
+        mod2dense_free(u);
+    break;
+    }
+    }
+
+}
+
+
+static void print_generator_check_info(generator_matrix *gen_matrix)
+{
+    int i, j, c, c2;
+    int M = gen_matrix->M;
+    int N = gen_matrix->N;
+
+    if (gen_matrix->type == 'd')
+    {
+        c = 0;
+        for (i = 0; i < M; i++)
+        {
+            for (j = 0; j < N - M; j++)
+            {
+                c += mod2dense_get(gen_matrix->G, i, j);
+            }
+        }
+        fprintf(stderr,
+            "Number of 1s per check in Inv(A) X B is %.1f\n", (double)c / M);
+    }
+
+    if (gen_matrix->type == 'm')
+    {
+        c = 0;
+        for (i = 0; i < M; i++)
+        {
+            for (j = 0; j < M; j++)
+            {
+                c += mod2dense_get(gen_matrix->G, i, j);
+            }
+        }
+        c2 = 0;
+        for (i = M; i < N; i++)
+        {
+            c2 += mod2sparse_count_col(gen_matrix->H, gen_matrix->cols[i]);
+        }
+        fprintf(stderr,
+            "Number of 1s per check in Inv(A) is %.1f, in B is %.1f, total is %.1f\n",
+            (double)c / M, (double)c2 / M, (double)(c + c2) / M);
+    }
+}
+
+
+static mod2sparse *mod2sparse_clone(mod2sparse *matrix)
+{
+    if (!matrix)
+    {
+        return NULL;
+    }
+
+    mod2sparse *clone = mod2sparse_allocate(matrix->n_rows, matrix->n_cols);
+
+    if (!clone)
+    {
+        return NULL;
+    }
+
+    mod2sparse_copy(matrix, clone);
+
+    return clone;
+}
+
+
+typedef enum
+{ 
+    gen_unknown,
+    gen_sparse, 
+    gen_dense, 
+    gen_mixed 
+} gen_make_method;      /* Ways of making it */
+
+
+/**
+* @brief MAKE DENSE OR MIXED REPRESENTATION OF GENERATOR MATRIX.
+*/
+
+static generator_matrix * ldpc_generator_make_dense_mixed(mod2sparse * H, gen_make_method method)
+{
+    mod2dense *DH, *A, *A2, *AI, *B;
+    int i, n;
+    int *rows_inv;
+    int M = mod2sparse_rows(H);
+    int N = mod2sparse_cols(H);
+    //mod2sparse * H = par_chk->H;
+    char type;
+
+    if (method == gen_dense)
+    {
+        type = 'd';
+    }
+    else if (method == gen_mixed)
+    {
+        type = 'm';
+    }
+    else
+    {
+        return NULL;
+    }
+
+    /* Allocate space for row and column permutations. */
+    generator_matrix *gen_matrix = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(generator_matrix, 1);
+
+    gen_matrix->H = mod2sparse_clone(H);
+    gen_matrix->M = mod2sparse_rows(H);
+    gen_matrix->N = mod2sparse_cols(H);
+    gen_matrix->cols = chk_alloc(N, sizeof *gen_matrix->cols);
+    gen_matrix->rows = chk_alloc(M, sizeof *gen_matrix->rows);
+    gen_matrix->type = type;
+
+    DH = mod2dense_allocate(M, N);
+    AI = mod2dense_allocate(M, M);
+    B = mod2dense_allocate(M, N - M);
+    gen_matrix->G = mod2dense_allocate(M, N - M);
+
+    mod2sparse_to_dense(gen_matrix->H, DH);
+
+
+    A = mod2dense_allocate(M, N);
+    A2 = mod2dense_allocate(M, N);
+
+    n = mod2dense_invert_selected(DH, A2, gen_matrix->rows, gen_matrix->cols);
+    mod2sparse_to_dense(gen_matrix->H, DH);  /* DH was destroyed by invert_selected */
+
+    if (n > 0)
+    {
+        fprintf(stderr, "Note: Parity check matrix has %d redundant checks\n", n);
+    }
+
+    rows_inv = chk_alloc(M, sizeof *rows_inv);
+
+    for (i = 0; i < M; i++)
+    {
+        rows_inv[gen_matrix->rows[i]] = i;
+    }
+
+    mod2dense_copyrows(A2, A, gen_matrix->rows);
+    mod2dense_copycols(A, A2, gen_matrix->cols);
+    mod2dense_copycols(A2, AI, rows_inv);
+
+    mod2dense_copycols(DH, B, gen_matrix->cols + M);
+
+    /* Form final generator matrix. */
+
+    if (method == gen_dense)
+    {
+        mod2dense_multiply(AI, B, gen_matrix->G);
+    }
+    else if (method == gen_mixed)
+    {
+        gen_matrix->G = AI;
+    }
+
+    /* Compute and print number of 1s. */
+
+    print_generator_check_info(gen_matrix);
+
+    return gen_matrix;
+}
+
+static void ldpc_generator_free(generator_matrix *gen_matrix)
+{
+    boxing_memory_free(gen_matrix->cols);
+    boxing_memory_free(gen_matrix->rows);
+    boxing_memory_free(gen_matrix->L);
+    boxing_memory_free(gen_matrix->U);
+    mod2sparse_free(gen_matrix->H);
+    mod2dense_free(gen_matrix->G);
+    boxing_memory_free(gen_matrix);
+}
+
+
+/**
+* @brief PARTITION THE COLUMNS ACCORDING TO THE SPECIFIED PROPORTIONS.  It
+* may not be possible to do this exactly.  Returns a pointer to an
+* array of integers containing the numbers of columns corresponding
+* to the entries in the distribution passed.
+*
+* @param d      List of proportions and number of check-bits
+* @param n		 Total number of columns to partition
+* @return      Returns a pointer to an array of integers on success, othervise NULL
+*/
+
+static int *column_partition(distrib *d, int n)
+{
+    double *trunc;
+    int *part;
+    int cur, used;
+    int i, j;
+
+    trunc = chk_alloc(distrib_size(d), sizeof(double));
+    part = chk_alloc(distrib_size(d), sizeof(int));
+
+    used = 0;
+    for (i = 0; i < distrib_size(d); i++)
+    {
+        cur = (int)floor(distrib_prop(d, i)*n);
+        part[i] = cur;
+        trunc[i] = distrib_prop(d, i)*n - cur;
+        used += cur;
+    }
+
+    if (used > n)
+    {
+        return NULL;
+    }
+
+    while (used < n)
+    {
+        cur = 0;
+        for (j = 1; j < distrib_size(d); j++)
+        {
+            if (trunc[j] > trunc[cur])
+            {
+                cur = j;
+            }
+        }
+        part[cur] += 1;
+        used += 1;
+        trunc[cur] = -1;
+    }
+
+    boxing_memory_free(trunc);
+    return part;
+}
+
+
+typedef enum
+{
+    pchk_unknown,
+    pchk_evencol, 	/**< Uniform number of bits per column, with number specified */
+    pchk_evenboth 	/**< Uniform (as possible) over both columns and rows */
+} pchk_make_method;
+
+/**
+* @brief CREATE A SPARSE PARITY-CHECK MATRIX.  Of size M by N
+*
+* @param seed      Random number seed
+* @param method    How to make it
+* @param d         Distribution list specified
+* @param no4cycle  Eliminate cycles of length four?
+* @param M Random  Check bits
+* @param N Random  Message size including check bits
+* @return a sparse parity check matrix on success, othervise NULL
+*/
+
+static mod2sparse * ldcp_pchk_make(int seed, pchk_make_method method, distrib *d, int no4cycle, int M, int N)
+{
+    mod2entry *e, *f, *g, *h;
+    int added, uneven, elim4, all_even, n_full, left;
+    int i, j, k, t, z, cb_N;
+    int *part, *u;
+
+    rand_seed(10 * seed + 1);
+
+    mod2sparse * H = mod2sparse_allocate(M, N);
+    part = column_partition(d, N);
+    if (!part)
+    {
+        mod2sparse_free(H);
+        return NULL;
+    }
+    /* Create the initial version of the parity check matrix. */
+
+    switch (method)
+    {
+    case pchk_evencol:
+    {
+        z = 0;
+        left = part[z];
+
+        for (j = 0; j < N; j++)
+        {
+            while (left == 0)
+            {
+                z += 1;
+                if (z > distrib_size(d))
+                {
+                    mod2sparse_free(H);
+                    return NULL;
+                }
+                left = part[z];
+            }
+            for (k = 0; k < distrib_num(d, z); k++)
+            {
+                do
+                {
+                    i = rand_int(M);
+                } while (mod2sparse_find(H, i, j));
+                mod2sparse_insert(H, i, j);
+            }
+            left -= 1;
+        }
+
+        break;
+    }
+
+    case pchk_evenboth:
+    {
+        cb_N = 0;
+        for (z = 0; z < distrib_size(d); z++)
+        {
+            cb_N += distrib_num(d, z) * part[z];
+        }
+
+        u = chk_alloc(cb_N, sizeof *u);
+
+        for (k = cb_N - 1; k >= 0; k--)
+        {
+            u[k] = k%M;
+        }
+
+        uneven = 0;
+        t = 0;
+        z = 0;
+        left = part[z];
+
+        for (j = 0; j < N; j++)
+        {
+            while (left == 0)
+            {
+                z += 1;
+                if (z > distrib_size(d))
+                {
+                    mod2sparse_free(H);
+                    return NULL;
+                }
+                left = part[z];
+            }
+
+            for (k = 0; k < distrib_num(d, z); k++)
+            {
+                for (i = t; i < cb_N && mod2sparse_find(H, u[i], j); i++);
+
+                if (i == cb_N)
+                {
+                    uneven += 1;
+                    do
+                    {
+                        i = rand_int(M);
+                    } while (mod2sparse_find(H, i, j));
+                    mod2sparse_insert(H, i, j);
+                }
+                else
+                {
+                    do
+                    {
+                        i = t + rand_int(cb_N - t);
+                    } while (mod2sparse_find(H, u[i], j));
+                    mod2sparse_insert(H, u[i], j);
+                    u[i] = u[t];
+                    t += 1;
+                }
+            }
+
+            left -= 1;
+        }
+
+        if (uneven > 0)
+        {
+            fprintf(stderr, "Had to place %d checks in rows unevenly\n", uneven);
+        }
+
+        break;
+    }
+
+    default:
+        mod2sparse_free(H);
+        return NULL;
+    }
+
+    /* Add extra bits to avoid rows with less than two checks. */
+
+    added = 0;
+
+    for (i = 0; i < M; i++)
+    {
+        e = mod2sparse_first_in_row(H, i);
+        if (mod2sparse_at_end(e))
+        {
+            j = rand_int(N);
+            e = mod2sparse_insert(H, i, j);
+            added += 1;
+        }
+        e = mod2sparse_first_in_row(H, i);
+        if (mod2sparse_at_end(mod2sparse_next_in_row(e)) && N>1)
+        {
+            do
+            {
+                j = rand_int(N);
+            } while (j == mod2sparse_col(e));
+            mod2sparse_insert(H, i, j);
+            added += 1;
+        }
+    }
+
+    if (added > 0)
+    {
+        fprintf(stderr, "Added %d extra bit-checks to make row counts at least two\n", added);
+    }
+
+    /* Add extra bits to try to avoid problems with even column counts. */
+
+    n_full = 0;
+    all_even = 1;
+    for (z = 0; z < distrib_size(d); z++)
+    {
+        if (distrib_num(d, z) == M)
+        {
+            n_full += part[z];
+        }
+        if (distrib_num(d, z) % 2 == 1)
+        {
+            all_even = 0;
+        }
+    }
+
+    if (all_even && N - n_full > 1 && added < 2)
+    {
+        int a;
+        for (a = 0; added + a < 2; a++)
+        {
+            do
+            {
+                i = rand_int(M);
+                j = rand_int(N);
+            } while (mod2sparse_find(H, i, j));
+            mod2sparse_insert(H, i, j);
+        }
+        fprintf(stderr, "Added %d extra bit-checks to try to avoid problems from even column counts\n", a);
+    }
+
+    /* Eliminate cycles of length four, if asked, and if possible. */
+
+    if (no4cycle)
+    {
+        elim4 = 0;
+
+        for (t = 0; t < 10; t++)
+        {
+            k = 0;
+            for (j = 0; j < N; j++)
+            {
+                for (e = mod2sparse_first_in_col(H, j);
+                    !mod2sparse_at_end(e);
+                    e = mod2sparse_next_in_col(e))
+                {
+                    for (f = mod2sparse_first_in_row(H, mod2sparse_row(e));
+                        !mod2sparse_at_end(f);
+                        f = mod2sparse_next_in_row(f))
+                    {
+                        if (f == e) continue;
+                        for (g = mod2sparse_first_in_col(H, mod2sparse_col(f));
+                            !mod2sparse_at_end(g);
+                            g = mod2sparse_next_in_col(g))
+                        {
+                            if (g == f) continue;
+                            for (h = mod2sparse_first_in_row(H, mod2sparse_row(g));
+                                !mod2sparse_at_end(h);
+                                h = mod2sparse_next_in_row(h))
+                            {
+                                if (mod2sparse_col(h) == j)
+                                {
+                                    do
+                                    {
+                                        i = rand_int(M);
+                                    } while (mod2sparse_find(H, i, j));
+                                    mod2sparse_delete(H, e);
+                                    mod2sparse_insert(H, i, j);
+                                    elim4 += 1;
+                                    k += 1;
+                                    goto nextj;
+                                }
+                            }
+                        }
+                    }
+                }
+            nextj:;
+            }
+            if (k == 0) break;
+        }
+
+        if (elim4 > 0)
+        {
+            fprintf(stderr, "Eliminated %d cycles of length four by moving checks within column\n", elim4);
+        }
+
+        if (t == 10)
+        {
+            fprintf(stderr, "Couldn't eliminate all cycles of length four in 10 passes\n");
+        }
+    }
+    return H;
+}
 
 
 // PUBLIC LDPC FUNCTIONS

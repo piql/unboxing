@@ -22,8 +22,53 @@ extern "C" {
 #include "boxing/codecs/codecbase.h"
 #include "boxing/platform/types.h"
 
+
+/*! 
+  * \ingroup codecs
+  * \{
+  */
+
+
+//----------------------------------------------------------------------------
+/*!
+ *  \var    codec_ldpc_name
+ *  \brief  Ldpc codec name constant.
+ *  
+ *  Ldpc codec name constant.
+ */
 static const char codec_ldpc_name[] = "LDPC";
 
+typedef struct ldpc_generator_s
+{
+    mod2sparse *H;	/**< Parity check matrix */
+
+    int M;		    /**< Number of rows in parity check matrix */
+    int N;		    /**< Number of columns in parity check matrix */
+                    
+    char type;	    /**< Type of generator matrix representation */
+    int *cols;	    /**< Ordering of columns in generator matrix */
+    int *rows;	    /**< Ordering of rows in generator matrix (type 's') */
+    mod2sparse *L;  /**< Sparse L decomposition, if type=='s' */
+    mod2sparse *U;  /**< Sparse U decomposition, if type=='s' */
+
+    mod2dense *G;	/**< Dense or mixed representation of generator matrix,
+                    if type=='d' or type=='m' */
+}ldpc_generator;
+
+typedef ldpc_generator generator_matrix;
+
+
+//----------------------------------------------------------------------------
+/*!
+ *  \struct     boxing_codec_ldpc_s  ldpccodec.h
+ *  \brief      Ldpc codec data storage.
+ *
+ *  \param base        Base boxing_codec instance.
+ *  \param iterations  Iteration.
+ *  \param gen_matrix  Generator matrix.
+ *
+ *  Structure for storing ldpc codec data.
+ */
 typedef struct boxing_codec_ldpc_s
 {
     boxing_codec       base;

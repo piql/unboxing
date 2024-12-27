@@ -88,20 +88,16 @@ boxinggraphicsinclude_HEADERS = \
 include_HEADERS = \
     thirdparty/reedsolomon/rs.h \
     thirdparty/reedsolomon/galois_field.h \
-    thirdparty/ldpc/alloc.h \
-    thirdparty/ldpc/blockio.h \
-    thirdparty/ldpc/channel.h \
-    thirdparty/ldpc/check.h \
-    thirdparty/ldpc/dec.h \
-    thirdparty/ldpc/distrib.h \
-    thirdparty/ldpc/enc.h \
-    thirdparty/ldpc/intio.h \
-    thirdparty/ldpc/mod2convert.h \
-    thirdparty/ldpc/mod2dense.h \
-    thirdparty/ldpc/mod2sparse.h \
-    thirdparty/ldpc/open.h \
-    thirdparty/ldpc/rand.h \
-    thirdparty/ldpc/rcode.h \
+    thirdparty/LDPC-codes/alloc.h \
+    thirdparty/LDPC-codes/check.h \
+    thirdparty/LDPC-codes/dec.h \
+    thirdparty/LDPC-codes/distrib.h \
+    thirdparty/LDPC-codes/enc.h \
+    thirdparty/LDPC-codes/mod2convert.h \
+    thirdparty/LDPC-codes/mod2dense.h \
+    thirdparty/LDPC-codes/mod2sparse.h \
+    thirdparty/LDPC-codes/rand.h \
+    thirdparty/LDPC-codes/rcode.h \
     thirdparty/glib/glib.h \
     thirdparty/glib/ghash.h \
     thirdparty/glib/gvector.h \

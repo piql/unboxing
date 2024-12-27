@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([libunboxing], [0.5.1], [boxing@piql.com])
+AC_INIT([libunboxing],[0.5.1],[boxing@piql.com])
 AM_INIT_AUTOMAKE([
 	foreign
 	1.11
@@ -23,9 +23,7 @@ AC_CONFIG_SRCDIR([src/unboxer.c])
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_CC_C99
 AC_PROG_RANLIB
-AC_PROG_LN_S
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.6])

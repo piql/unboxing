@@ -3,7 +3,7 @@ lib_LIBRARIES = libunboxing.a
 libunboxing_a_CFLAGS = \
     -I${top_srcdir}/inc \
     -I${top_srcdir}/thirdparty/glib \
-    -I${top_srcdir}/thirdparty/ldpc \
+    -I${top_srcdir}/thirdparty/LDPC-codes \
     -I${top_srcdir}/thirdparty/bch \
     -I${top_srcdir}/./thirdparty/reedsolomon \
     -I${top_srcdir}/src/unboxer \
@@ -14,20 +14,18 @@ libunboxing_a_CFLAGS = \
 libunboxing_a_SOURCES = \
     ../thirdparty/reedsolomon/rs.c \
     ../thirdparty/reedsolomon/galois_field.c \
-    ../thirdparty/ldpc/alloc.c \
-    ../thirdparty/ldpc/blockio.c \
-    ../thirdparty/ldpc/channel.c \
-    ../thirdparty/ldpc/check.c \
-    ../thirdparty/ldpc/dec.c \
-    ../thirdparty/ldpc/distrib.c \
-    ../thirdparty/ldpc/enc.c \
-    ../thirdparty/ldpc/intio.c \
-    ../thirdparty/ldpc/mod2convert.c \
-    ../thirdparty/ldpc/mod2dense.c \
-    ../thirdparty/ldpc/mod2sparse.c \
-    ../thirdparty/ldpc/open.c \
-    ../thirdparty/ldpc/rand.c \
-    ../thirdparty/ldpc/rcode.c \
+    ../thirdparty/LDPC-codes/alloc.c \
+    ../thirdparty/LDPC-codes/check.c \
+    ../thirdparty/LDPC-codes/dec.c \
+    ../thirdparty/LDPC-codes/distrib.c \
+    ../thirdparty/LDPC-codes/enc.c \
+    ../thirdparty/LDPC-codes/intio.c \
+    ../thirdparty/LDPC-codes/mod2convert.c \
+    ../thirdparty/LDPC-codes/mod2dense.c \
+    ../thirdparty/LDPC-codes/mod2sparse.c \
+    ../thirdparty/LDPC-codes/open.c \
+    ../thirdparty/LDPC-codes/rand.c \
+    ../thirdparty/LDPC-codes/rcode.c \
     ../thirdparty/glib/gnode.c \
     ../thirdparty/glib/ghash.c \
     ../thirdparty/glib/g_variant.c \
