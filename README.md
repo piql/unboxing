@@ -26,8 +26,8 @@ the storage medium and convert it to a digital image with 8bit resolution per
 pixel. The image should be read with ~2.7x oversampling compared to the original
 source resolution.
 
-The library is released under GPLv3 licence for research and private use, for
-any kind of commercial licensing or use, please contact Piql AS.
+The library is released under GPLv3 licence. If you want a closed source
+commercial licence, please contact Piql AS.
 
 ## Table of Contents
 
@@ -80,7 +80,7 @@ The following 3rd party libraries are included:
 
 - glib - LGPLv2
 - reedsolomon - GPLv3, see thirdparty/reedsolomon/gpl.txt
-- ldpc - see thirdparty/ldpc/COPYRIGHT
+- ldpc - see thirdparty/LDPC-codes/COPYRIGHT
 - bch - GPLv2
 
 The following dependencies must be installed to compile:
