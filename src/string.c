@@ -372,7 +372,7 @@ void boxing_string_trim(char** string)
     }
 
     size_t end_index = boxing_string_length(input_string_pointer);
-    while ((input_string_pointer[end_index - 1] == '\n' || input_string_pointer[end_index - 1] == '\r' || input_string_pointer[end_index - 1] == ' ') && end_index > 0)
+    while ((input_string_pointer[end_index - 1] == '\n' || input_string_pointer[end_index - 1] == '\r' || input_string_pointer[end_index - 1] == ' ') && end_index > 0 && end_index > start_index)
     {
         end_index--;
     }
@@ -393,8 +393,16 @@ void boxing_string_trim(char** string)
 
 void boxing_string_cut(char** string, size_t start_index, size_t end_index)
 {
-    if (*string == NULL || start_index >= end_index)
+    if (*string == NULL || start_index > end_index)
     {
+        return;
+    }
+
+    if (start_index == end_index)
+    {
+        char* new_string = boxing_string_allocate(1);
+        new_string[0] = '\0';
+        *string = new_string;
         return;
     }
 

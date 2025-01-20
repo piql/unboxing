@@ -445,7 +445,7 @@ boxing_unboxer * boxing_unboxer_create(boxing_unboxer_parameters * parameters)
         }
         else
         {
-            DLOG_WARNING( "boxing_unbox:  No frame util set.  Loading traing result file aborted" );
+            DLOG_WARNING( "(boxing_unboxer_create) No frame util set: Loading training result file aborted" );
         }
     }
 
@@ -645,7 +645,7 @@ int boxing_unboxer_decode(boxing_unboxer * unboxer, gvector * data, boxing_metad
 
 enum boxing_unboxer_result boxing_unboxer_unbox(gvector * data, boxing_metadata_list * metadata, boxing_image8 * image, boxing_unboxer * unboxer, int * extract_result, void *user_data)
 {
-	return (enum boxing_unboxer_result)boxing_dunboxerv1_process((boxing_dunboxerv1 *)unboxer, data, metadata, image, extract_result, user_data);
+    return (enum boxing_unboxer_result)boxing_dunboxerv1_process((boxing_dunboxerv1 *)unboxer, data, metadata, image, extract_result, user_data);
 }
 
 

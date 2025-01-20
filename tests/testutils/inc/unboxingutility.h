@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 #include "boxing/unboxer_utility.h"
-    
+
 DBOOL                   boxing_unboxer_set_frame_format(boxing_unboxer_utility* utility, const char* format_name);
 
 #ifdef __cplusplus

@@ -82,14 +82,14 @@ boxing_codec * boxing_codec_reedsolomon_create(GHashTable * properties, const bo
     g_variant * message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (message_size == NULL)
     {
-        DLOG_ERROR("Requires property 'messageSize' to be set");
+        DLOG_ERROR1( "(boxing_codec_reedsolomon_create) Required property '%s' not set", PARAM_NAME_MESSAGE_SIZE );
         return NULL;
     }
 
     g_variant * parity_size = g_hash_table_lookup(properties, PARAM_NAME_PARITY_SIZE);
     if (parity_size == NULL)
     {
-        DLOG_ERROR("Requires property 'byteParityNumber' to be set");
+        DLOG_ERROR1( "(boxing_codec_reedsolomon_create) Required property '%s' not set", PARAM_NAME_PARITY_SIZE );
         return NULL;
     }
 
@@ -106,7 +106,7 @@ boxing_codec * boxing_codec_reedsolomon_create(GHashTable * properties, const bo
     codec->rs = rs_create(codec->message_size, codec->parity_size, RS_PRIM_POLY_285);
     if (!codec->rs)
     {
-        DLOG_ERROR("Creating reed solomon codec failed");
+        DLOG_ERROR("(boxing_codec_reedsolomon_create) Codec creation failed");
         boxing_codec_reedsolomon_free((boxing_codec *)codec);
         return NULL;
     }

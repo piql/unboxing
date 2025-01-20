@@ -18,7 +18,7 @@
 #include "boxing/log.h"
 #include "boxing/platform/memory.h"
 #include "boxing/image8.h"
-#include "horizontalmeasures.h"
+#include "boxing/unboxer/horizontalmeasures.h"
 
 // SYSTEM INCLUDES
 #include <stddef.h> /* ptrdiff_t */

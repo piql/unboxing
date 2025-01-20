@@ -666,14 +666,14 @@ boxing_codec * boxing_codec_ldpc_create(GHashTable * properties, const boxing_co
     g_variant * var_message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (var_message_size == NULL)
     {
-        DLOG_ERROR("Requires property 'messageSize' to be set");
+        DLOG_ERROR1( "(boxing_codec_ldpc_create) Required property '%s' not set", PARAM_NAME_MESSAGE_SIZE );
         return NULL;
     }
     
     g_variant * var_parity_size = g_hash_table_lookup(properties, PARAM_NAME_PARITY_SIZE);
     if (var_parity_size == NULL)
     {
-        DLOG_ERROR("Requires property 'byteParityNumber' to be set");
+        DLOG_ERROR1( "(boxing_codec_ldpc_create) Required property '%s' not set", PARAM_NAME_PARITY_SIZE );
         return NULL;
     }
 

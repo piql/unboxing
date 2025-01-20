@@ -29,6 +29,7 @@ extern "C" {
 #define DLOG_LEVEL_WARNING 1
 #define DLOG_LEVEL_ERROR   2
 #define DLOG_LEVEL_FATAL   3
+#define DLOG_LEVEL_ALWAYS  4
 
 // Assign custom log function to static function pointers to override default log functions
 extern void(*boxing_log_custom)(int log_level, const char * string);
@@ -41,6 +42,9 @@ void boxing_log(int log_level, const char * string);
 void boxing_log_args(int log_level, const char * format, ...);
 
 #define DFATAL(expression, string) if ( !(expression) ) { boxing_log(DLOG_LEVEL_FATAL, string); if(boxing_fatal_exception) (*boxing_fatal_exception)(string); }
+
+#define DLOG_ALWAYS(string) boxing_log(DLOG_LEVEL_ALWAYS, string);
+#define DLOG_ALWAYS1(string, var1) boxing_log_args(DLOG_LEVEL_ALWAYS, string, var1);
 
 #define DLOG_FATAL(string) boxing_log(DLOG_LEVEL_FATAL, string);
 #define DLOG_FATAL1(string, var1) boxing_log_args(DLOG_LEVEL_FATAL, string, var1);
@@ -69,6 +73,15 @@ void boxing_log_args(int log_level, const char * format, ...);
 #else
 
 #define DFATAL(expression, string)
+
+#define DLOG_ALWAYS(string)
+#define DLOG_ALWAYS1(string, var1)
+
+#define DLOG_FATAL(string)
+#define DLOG_FATAL1(string, var1)
+#define DLOG_FATAL2(string, var1, var2)
+#define DLOG_FATAL3(string, var1, var2, var3)
+#define DLOG_FATAL4(string, var1, var2, var3, var4)
 
 #define DLOG_ERROR(string) 
 #define DLOG_ERROR1(string, var1) 

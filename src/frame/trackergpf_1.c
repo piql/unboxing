@@ -23,7 +23,7 @@
 #include    "boxing/unboxer/syncpoints.h"
 #include    "2polinomialsampler.h"
 #include    "areasampler.h"
-#include    "../unboxer/horizontalmeasures.h"
+#include    "boxing/unboxer/horizontalmeasures.h"
 #include    "../unboxer/datapoints.h"
 
 //  BASE INCLUDES
@@ -54,7 +54,7 @@ typedef struct {
 
 static int   track_frame(boxing_tracker * tracker, const boxing_image8 * frame);
 static void  tracker_gpf_1_free(boxing_tracker * tracker);
-static int   validate_coordinate(int width, int height, struct boxing_pointi_s *location);
+static int   validate_coordinate(int width, int w_margin, int height, int h_margin, struct boxing_pointi_s *location);
 static int   track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_image8 * input_image);
 static void  boxing_coordmapper_init_empty(boxing_coordmapper *mapper);
 static void  get_displacement_matrix(boxing_tracker_gpf_1 * tracker, const boxing_image8 * image, boxing_matrixf * displacement_matrix);
@@ -421,25 +421,25 @@ DBOOL boxing_calculate_sampling_location(
 
     if (left_bar_points_size != right_bar_points_size)
     {
-        DLOG_ERROR("boxing_calculate_sampling_location  Left bar points size != right bar points size");
+        DLOG_ERROR2( "(boxing_calculate_sampling_location) Different vertical bar sizes left=%d, right=%d", left_bar_points_size, right_bar_points_size );
         return DFALSE;
     }
 
     if (left_bar_points_size == 0)
     {
-        DLOG_ERROR("boxing_calculate_sampling_location  No vertical points");
+        DLOG_ERROR("(boxing_calculate_sampling_location) No vertical points");
         return DFALSE;
     }
 
     if (top_bar_points_size != bottom_bar_points_size)
     {
-        DLOG_ERROR("boxing_calculate_sampling_location  Top bar points size != bottom bar points size");
+        DLOG_ERROR2( "(boxing_calculate_sampling_location) Different horizontal bar sizes top=%d, bottom=%d", top_bar_points_size, bottom_bar_points_size );
         return DFALSE;
     }
 
     if (top_bar_points_size == 0)
     {
-        DLOG_ERROR("boxing_calculate_sampling_location  No horizontal points");
+        DLOG_ERROR("(boxing_calculate_sampling_location) No horizontal points");
         return DFALSE;
     }
 
@@ -650,9 +650,9 @@ static void tracker_gpf_1_free(boxing_tracker * tracker)
 }
 
 
-static int validate_coordinate(int width, int height, struct boxing_pointi_s *location)
+static int validate_coordinate(int width, int w_margin, int height, int h_margin, struct boxing_pointi_s *location)
 {
-    return ((width <= location->x) || (location->x < 0) || (height <= location->y) || (location->y < 0));
+    return ((location->x+w_margin >= width) || (location->x < w_margin) || (location->y+h_margin >= height ) || (location->y < h_margin));
 }
 
 
@@ -670,8 +670,8 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
 {
     DLOG_INFO("track_frame_analog_mode Retrieving marks");
 
-    BASEMEMBER(base.x_sampling_rate) = (boxing_float)input_image->width/(boxing_float)SMEMBER(frame_dimension).x;
-    BASEMEMBER(base.y_sampling_rate) = (boxing_float)input_image->height/(boxing_float)SMEMBER(frame_dimension).y;
+    BASEBASEMEMBER(x_sampling_rate) = (boxing_float)input_image->width/(boxing_float)SMEMBER(frame_dimension).x;
+    BASEBASEMEMBER(y_sampling_rate) = (boxing_float)input_image->height/(boxing_float)SMEMBER(frame_dimension).y;
      
     boxing_corner_mark_definition definition;
     definition.corner_mark_symbol = (boxing_float)SMEMBER(corner_mark_dimension).x;
@@ -691,10 +691,13 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
     }
 #endif
 
-    res |= validate_coordinate(input_image->width, input_image->height, &corner_marks.top_left);
-    res |= validate_coordinate(input_image->width, input_image->height, &corner_marks.top_right);
-    res |= validate_coordinate(input_image->width, input_image->height, &corner_marks.bottom_left);
-    res |= validate_coordinate(input_image->width, input_image->height, &corner_marks.bottom_right);
+    float raw_margin = definition.corner_mark_symbol/2 + definition.border_gap + definition.border;
+    int w_margin = (int)ceil( BASEBASEMEMBER(x_sampling_rate)*raw_margin) + 1;
+    int h_margin = (int)ceil(BASEBASEMEMBER(y_sampling_rate)*raw_margin) + 1;
+    res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.top_left);
+    res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.top_right);
+    res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.bottom_left);
+    res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.bottom_right);
 
     // update corner mark sampler locations
     *SMEMBER(top_left_corner_mark_sampler)->location_matrix.data = boxing_math_pointi_to_float( &corner_marks.top_left );
@@ -712,7 +715,7 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
 
     if (res != BOXING_CORNER_MARK_OK)
     {
-        DLOG_ERROR("track_frame_analog_mode Finding corner marks failed");
+        DLOG_ERROR("(track_frame_analog_mode) Finding corner marks failed");
         return 1;
     }
 
@@ -796,7 +799,7 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
     if( (tracker->content_sampler->location_matrix.width  != SMEMBER(top_reference_bar_sampler)->location_matrix.width) ||
         (tracker->content_sampler->location_matrix.height != SMEMBER(left_reference_bar_sampler)->location_matrix.width) )
     {
-        DLOG_ERROR4("track_frame_analog_mode container size(%u, %u) does not match reference bar size(%u,%u)",
+        DLOG_ERROR4("(track_frame_analog_mode) Container size (%u, %u) does not match reference bar size (%u,%u)",
                     tracker->content_sampler->location_matrix.width,
                     tracker->content_sampler->location_matrix.height,
                     SMEMBER(top_reference_bar_sampler)->location_matrix.width,
@@ -822,7 +825,7 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
                                    SMEMBER(corner_mark_dimension).x,
                                    &corner_marks))
     {
-        DLOG_ERROR("track_frame_analog_mode Recovery reference points is not possible. STOP process");
+        DLOG_ERROR("(track_frame_analog_mode) Calculating initial location matrix failed");
         return 1;
     }
 
@@ -966,8 +969,8 @@ static gvector * sample_reference_bar(boxing_sampler * sampler, const boxing_ima
 {
     boxing_image8 * sampled_image = NULL;
     sampled_image = sampler->sample(sampler, image);
-	int block_width = sampler->location_matrix.width > 32 ? 32 : sampler->location_matrix.width;
-	int block_height = sampler->location_matrix.height > 32 ? 32 : sampler->location_matrix.height;
+    int block_width = sampler->location_matrix.width > 32 ? 32 : sampler->location_matrix.width;
+    int block_height = sampler->location_matrix.height > 32 ? 32 : sampler->location_matrix.height;
 
     gvector * data = boxing_datapoints_quantize(sampled_image, block_width, block_height, 2);
 
@@ -994,21 +997,21 @@ static gvector * track_reference_bar_sync(boxing_sampler * sampler, const boxing
     // track sync
     char * ref_value_ptr = reference_bar->buffer;
     const int search_width = 4;
-	char sync_symbol[] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 }; //NOTE: must have size = 2*search_width + 1;
+    char sync_symbol[] = { 1, 0, 1, 0, 0, 0, 1, 0, 1 }; //NOTE: must have size = 2*search_width + 1;
 
     for (int i = search_width; (i < (int)reference_bar->size - search_width) && (sync_count < (sync_locations->size - 1)); i++)
     {
         int sum = 0;
-		sum += abs(sync_symbol[0] - ref_value_ptr[i - 4]);
-		sum += abs(sync_symbol[1] - ref_value_ptr[i - 3]);
-		sum += abs(sync_symbol[2] - ref_value_ptr[i - 2]);
+        sum += abs(sync_symbol[0] - ref_value_ptr[i - 4]);
+        sum += abs(sync_symbol[1] - ref_value_ptr[i - 3]);
+        sum += abs(sync_symbol[2] - ref_value_ptr[i - 2]);
         sum += abs(sync_symbol[3] - ref_value_ptr[i - 1]);
         sum += abs(sync_symbol[4] - ref_value_ptr[i]);
-		sum += abs(sync_symbol[5] - ref_value_ptr[i + 1]);
-		sum += abs(sync_symbol[6] - ref_value_ptr[i + 2]);
-		sum += abs(sync_symbol[7] - ref_value_ptr[i + 3]);
-		sum += abs(sync_symbol[8] - ref_value_ptr[i + 4]);
-		if (sum == 0)
+        sum += abs(sync_symbol[5] - ref_value_ptr[i + 1]);
+        sum += abs(sync_symbol[6] - ref_value_ptr[i + 2]);
+        sum += abs(sync_symbol[7] - ref_value_ptr[i + 3]);
+        sum += abs(sync_symbol[8] - ref_value_ptr[i + 4]);
+        if (sum == 0)
         {
             sync->actual = i;
             sync->expected = REFBAR_INVALID_SYNC_REF;
@@ -1034,12 +1037,12 @@ static gvector * track_reference_bar_sync(boxing_sampler * sampler, const boxing
 
 static boxing_float getAvgSamplingrate(boxing_sampler * sampler)
 {
-	boxing_int32   w = sampler->location_matrix.width;
-	boxing_int32   h = sampler->location_matrix.height;
-	
-	
-	boxing_pointf delta = boxing_math_pointf_subtract(sampler->location_matrix.data + (w*h - 1), sampler->location_matrix.data);
-	boxing_float  length = boxing_math_pointf_length(&delta);
+    boxing_int32   w = sampler->location_matrix.width;
+    boxing_int32   h = sampler->location_matrix.height;
+
+
+    boxing_pointf delta = boxing_math_pointf_subtract(sampler->location_matrix.data + (w*h - 1), sampler->location_matrix.data);
+    boxing_float  length = boxing_math_pointf_length(&delta);
 
     return  length / sqrtf((boxing_float)(w*w + h*h));
 }
@@ -1050,10 +1053,10 @@ static void validate_reference_bar_sync(
     boxing_pointi location, boxing_pointi direction,
     int sync_distance, int sync_offset)
 {
-	/** 
-	  only allow a deviation between expected and actual sync loaction
-	  of +/- 4 times the sampling rate  */
-	const boxing_float max_sync_deviation = getAvgSamplingrate(sampler)*4;
+    /** 
+      only allow a deviation between expected and actual sync loaction
+      of +/- 4 times the sampling rate  */
+    const boxing_float max_sync_deviation = getAvgSamplingrate(sampler)*4;
 
     /// \todo warning: variable 'j_start' set but not used
     int j_start = 0;
@@ -1066,10 +1069,10 @@ static void validate_reference_bar_sync(
         {
             continue;
         }
-		
-		boxing_pointf * sync_loc = sampler->location_matrix.data + sync->actual;
+
+        boxing_pointf * sync_loc = sampler->location_matrix.data + sync->actual;
         int size = sampler->location_matrix.height * sampler->location_matrix.width;
-		int j = 0;// j_start;
+        int j = 0;// j_start;
         while (1)
         {
             int pos = sync_offset + j*sync_distance;
@@ -1079,12 +1082,12 @@ static void validate_reference_bar_sync(
             boxing_float err = boxing_math_pointf_length( &delta );
             if (err > error)
             {
-				// discard spurious sync points
-				if (error > max_sync_deviation)
-				{
-					sync->actual = REFBAR_INVALID_SYNC_REF;
-					sync->expected = REFBAR_INVALID_SYNC_REF;
-				}
+                // discard spurious sync points
+                if (error > max_sync_deviation)
+                {
+                    sync->actual = REFBAR_INVALID_SYNC_REF;
+                    sync->expected = REFBAR_INVALID_SYNC_REF;
+                }
                 break; 
             }
 
@@ -1171,19 +1174,19 @@ static void reference_bar_sync(boxing_pointi location, boxing_pointi direction, 
         {
             // synth
             int synth_count = sync_next->expected - sync->expected;
-			if (synth_count)
-			{
-				boxing_pointi ai = vec_scale_add(direction, sync->expected, location);
-				boxing_pointi bi = vec_scale_add(direction, sync_next->expected, location);
+            if (synth_count)
+            {
+                boxing_pointi ai = vec_scale_add(direction, sync->expected, location);
+                boxing_pointi bi = vec_scale_add(direction, sync_next->expected, location);
 
-				boxing_pointf a = boxing_coordmapper_map(mapper, ai.x, ai.y);
-				boxing_pointf b = boxing_coordmapper_map(mapper, bi.x, bi.y);
-				boxing_pointf sr = { (b.x - a.x) / synth_count, (b.y - a.y) / synth_count };
+                boxing_pointf a = boxing_coordmapper_map(mapper, ai.x, ai.y);
+                boxing_pointf b = boxing_coordmapper_map(mapper, bi.x, bi.y);
+                boxing_pointf sr = { (b.x - a.x) / synth_count, (b.y - a.y) / synth_count };
 
-				boxing_pointf *dst = dst_locations + sync->expected;
+                boxing_pointf *dst = dst_locations + sync->expected;
 
-				(void)synth(a, sr, synth_count, dst);
-			}
+                (void)synth(a, sr, synth_count, dst);
+            }
         }
         else if (sync->actual == REFBAR_INVALID_SYNC_REF && sync_next->actual != REFBAR_INVALID_SYNC_REF)
         {
@@ -1258,14 +1261,14 @@ static void reference_bar_sync(boxing_pointi location, boxing_pointi direction, 
             else
             {
                 // synth
-				if (location_count)
-				{
-					boxing_pointf *a = org_locations + sync->actual;
-					boxing_pointf *b = org_locations + sync_next->actual;
-					boxing_pointf sr = { (b->x - dst->x) / location_count, (b->y - dst->y) / location_count };
+                if (location_count)
+                {
+                    boxing_pointf *a = org_locations + sync->actual;
+                    boxing_pointf *b = org_locations + sync_next->actual;
+                    boxing_pointf sr = { (b->x - dst->x) / location_count, (b->y - dst->y) / location_count };
 
-					(void)synth(*a, sr, location_count, dst);
-				}
+                    (void)synth(*a, sr, location_count, dst);
+                }
             }
         }
 
@@ -1298,7 +1301,7 @@ static DBOOL calculate_reference_bars(boxing_tracker_gpf_1 * tracker, const boxi
     if (!boxing_frame_tracker_util_track_reference_bar(image, &start_left, &end_right, tracker->top_reference_bar_sampler->location_matrix.data,
         tracker->top_reference_bar_sampler->location_matrix.width, &reference_point, perpendicular_samples))
     {
-        DLOG_ERROR("calculate_reference_bars Failed tracking top reference bar");
+        DLOG_ERROR("(calculate_reference_bars) Failed tracking top reference bar");
         return DFALSE;
     }
     tracker->top_reference_bar_sampler->state = DTRUE;
@@ -1319,7 +1322,7 @@ static DBOOL calculate_reference_bars(boxing_tracker_gpf_1 * tracker, const boxi
 
     if (!boxing_frame_tracker_util_track_reference_bar(image, &start_left, &end_right, tracker->bottom_reference_bar_sampler->location_matrix.data,
             tracker->bottom_reference_bar_sampler->location_matrix.width, &reference_point, perpendicular_samples))    {
-        DLOG_ERROR("calculate_reference_bars Failed tracking bottom reference bar");
+        DLOG_ERROR( "(calculate_reference_bars) Failed tracking bottom reference bar" );
         return DFALSE;
     }    
     tracker->bottom_reference_bar_sampler->state = DTRUE;
@@ -1343,7 +1346,7 @@ static DBOOL calculate_reference_bars(boxing_tracker_gpf_1 * tracker, const boxi
 
     if (!boxing_frame_tracker_util_track_reference_bar(image, &start_top, &end_bottom, tracker->left_reference_bar_sampler->location_matrix.data,
             tracker->left_reference_bar_sampler->location_matrix.width, &reference_point, perpendicular_samples))    {
-        DLOG_ERROR("calculate_reference_bars Failed tracking left reference bar");
+        DLOG_ERROR("(calculate_reference_bars) Failed tracking left reference bar");
         return DFALSE;
     }
     tracker->left_reference_bar_sampler->state = DTRUE;    
@@ -1362,7 +1365,7 @@ static DBOOL calculate_reference_bars(boxing_tracker_gpf_1 * tracker, const boxi
 
     if (!boxing_frame_tracker_util_track_reference_bar(image, &start_top, &end_bottom, tracker->right_reference_bar_sampler->location_matrix.data,
             tracker->right_reference_bar_sampler->location_matrix.width, &reference_point, perpendicular_samples))    {
-        DLOG_ERROR("calculate_reference_bars Failed tracking right reference bar");
+        DLOG_ERROR("(calculate_reference_bars) Failed tracking right reference bar");
         return DFALSE;
     }
     tracker->right_reference_bar_sampler->state = DTRUE;

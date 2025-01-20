@@ -27,6 +27,7 @@
 #include    "boxing/log.h"
 #include    "boxing/platform/memory.h"
 #include    "boxing/bool.h"
+#include    "adaptive_filter.h"
 
 //  PRIVATE INTERFACE
 //
@@ -129,7 +130,7 @@ int boxing_dunboxerv1_setup_config(boxing_dunboxerv1 * unboxer)
 
     if (!unboxer->frame)
     {
-        DLOG_ERROR( "unboxing_set_config:  Failed to inititalize frame");
+        DLOG_ERROR( "(boxing_dunboxerv1_setup_config) Failed to inititalize frame");
         return BOXING_UNBOXER_CONFIG_ERROR;
     }
 
@@ -229,7 +230,7 @@ int boxing_dunboxerv1_extract_container(
 {
     if (!unboxer->frame)
     {
-        DLOG_ERROR( "dunboxer_process:  Failed to inititalize frame");
+        DLOG_ERROR( "(boxing_dunboxerv1_extract_container) Failed to inititalize frame");
         return BOXING_UNBOXER_CONFIG_ERROR;
     }
 
@@ -362,7 +363,7 @@ boxing_codecdispatcher * boxing_dunboxerv1_dispatcher(const boxing_unboxer * unb
 static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, boxing_metadata_list * metadata, boxing_stats_decode * decode_stats, unsigned int step, void * user_data)
 {
 #ifndef BOXINGLIB_CALLBACK
-	BOXING_UNUSED_PARAMETER(user_data);
+    BOXING_UNUSED_PARAMETER(user_data);
 #endif
 
     int retval = BOXING_UNBOXER_OK;
@@ -390,7 +391,7 @@ static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, b
 
                     if (symbols_per_pixel != 2)
                     {
-                        DLOG_ERROR1("dunboxer_process:  Unsupported number of symbols per pixel %i", symbols_per_pixel);
+                        DLOG_ERROR1("(dunboxerv1_decode_step) Unsupported number of symbols per pixel %i", symbols_per_pixel);
                         retval = BOXING_UNBOXER_DATA_DECODE_ERROR;
                         return retval;
                     }
@@ -408,7 +409,7 @@ static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, b
 
     if ( data->size > (4028 * 2092) )
     {
-        DLOG_WARNING2( "Strange data size(%ld) while processing step %d - Suspecting corrupt memory", data->size, step );
+        DLOG_WARNING2( "(dunboxerv1_decode_step) Strange data size(%ld) while processing step %d - Suspecting corrupt memory", data->size, step );
     }
 
     boxing_codecdispatcher * the_dispatcher = unboxer->codec;
@@ -474,8 +475,8 @@ static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, b
             boxing_math_crc64_free(calc_crc);
             if (data_checksum != checksum )
             {
-                DLOG_ERROR2( "dunboxer_process:  Data checksum differs; expected 0x%016.16llX but found 0x%016.16llX", data_checksum,  checksum );
-                DLOG_ERROR2( "dunboxer_process:  Resolved errors: %u unresolved errors: ", decode_stats->resolved_errors, decode_stats->unresolved_errors);
+                DLOG_ERROR2( "(dunboxerv1_decode_step) Data checksum differs (expected='0x%016.16llX' calculated='0x%016.16llX')", data_checksum,  checksum );
+                DLOG_ERROR2( "(dunboxerv1_decode_step) Errors resolved:%u unresolved: %u", decode_stats->resolved_errors, decode_stats->unresolved_errors);
                 retval = BOXING_UNBOXER_CRC_MISMATCH_ERROR;
                 decode_stats->fec_accumulated_amount = decode_stats->fec_accumulated_weight;
             }
@@ -483,7 +484,7 @@ static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, b
     
         if (retval != BOXING_UNBOXER_OK)
         {
-            DLOG_ERROR( "dunboxer_process:  Fatal error restoring data.");
+            DLOG_ERROR( "(dunboxerv1_decode_step) Fatal error restoring data");
         }
 
 
@@ -497,6 +498,8 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
     {
         return BOXING_FILTER_CALLBACK_ERROR;
     }
+
+    mix *= unboxer->parameters.pre_filter.scale;
 
     const int width = image->width;
     const int height = image->height;
@@ -523,7 +526,7 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
         boxing_image8_init_in_place(&destination, width, height);
         if (destination.data == NULL)
         {
-            DLOG_ERROR( "unboxer_sharpness_filter:  Can't allocate temporary image data! Filter is not applied!");
+            DLOG_ERROR( "(dunboxerv1_sharpness_filter) Cannot allocate temporary image data");
             BOXING_STACK_FREE( filter_coeff.coeff );
             return BOXING_FILTER_CALLBACK_ERROR;
         }
@@ -601,7 +604,7 @@ static int dunboxerv1_visual_sharpness_filter(void* user_data, boxing_dunboxerv1
         boxing_image8_init_in_place(&destination, width, height);
         if (destination.data == NULL)
         {
-            DLOG_ERROR( "unboxer_visual_sharpness_filter:  Can't allocate temporary image data! Filter is not applied!");
+            DLOG_ERROR( "(dunboxerv1_visual_sharpness_filter) Cannot allocate temporary image data");
             return BOXING_FILTER_CALLBACK_ERROR;
         }
 
@@ -784,8 +787,7 @@ static DBOOL decode_metadata(
     
     if (!boxing_codecdispatcher_decode(codec, metadata_bytes, &decode_stats, user_data))
     {
-        DLOG_ERROR( "unboxing_decode_metadata:  Unable to decode metadata");
-        DLOG_ERROR2( "Resolved errors: %u unresolved errors: %u", decode_stats.resolved_errors, decode_stats.unresolved_errors);
+        DLOG_ERROR2( "(decode_metadata) Unable to decode metadata. resolved=%u unresolved=%u", decode_stats.resolved_errors, decode_stats.unresolved_errors);
 
         gvector_free(metadata_bytes);
         return DFALSE;
@@ -799,7 +801,7 @@ static DBOOL decode_metadata(
         boxing_math_crc32_free(calc_crc);
         if (checksum != 0)
         {
-            DLOG_ERROR( "unboxing_decode_metadata:  Metadata does not contain a valid checksum");
+            DLOG_ERROR( "(decode_metadata) Metadata does not contain a valid checksum");
             gvector_free( metadata_bytes );
             return DFALSE;
         }
@@ -866,8 +868,8 @@ static int dunboxerv1_calculate_mtf(
     boxing_float *vertical_mtf)
 {
 #ifndef BOXINGLIB_CALLBACK
-	BOXING_UNUSED_PARAMETER(user_data);
-	BOXING_UNUSED_PARAMETER(unboxer);
+    BOXING_UNUSED_PARAMETER(user_data);
+    BOXING_UNUSED_PARAMETER(unboxer);
 #endif
 
     boxing_stats_mtf reference_bar_stats = { -1.0, -1.0, -1.0, -1.0 };
@@ -932,7 +934,7 @@ static int dunboxerv1_calculate_mtf(
     DLOG_INFO1( "dunboxer_calc_mtf:  MTF            : %f", ((*horizontal_mtf) * (*vertical_mtf)));
 
     boxing_image8_free(calibration_bar_image);
-	int retval = BOXING_UNBOXER_OK;
+    int retval = BOXING_UNBOXER_OK;
 #ifdef BOXINGLIB_CALLBACK
     if (unboxer->parameters.on_reference_bar_complete && 
         unboxer->parameters.on_reference_bar_complete(user_data, &retval, &reference_bar_stats) != BOXING_PROCESS_CALLBACK_OK)
@@ -943,22 +945,40 @@ static int dunboxerv1_calculate_mtf(
     return retval;
 }
 
- static int extract_digital_content(void* user, boxing_dunboxerv1 * unboxer, boxing_image8 * sampled_image, int symbols_per_pixel, gvector * the_data_array, DBOOL quantize_data)
+
+static int extract_digital_content(void* user, boxing_dunboxerv1 * unboxer, boxing_image8 * sampled_image, int symbols_per_pixel, gvector * the_data_array, DBOOL quantize_data)
 {
+
+    // adaptive filter
+    boxing_image8 * equalized_image = sampled_image;
+
+#if defined EQUALIZE_FILTER
+    if(!unboxer->parameters.is_raw)
+    {
+        equalized_image = boxing_image8_create(sampled_image->width, sampled_image->height);
+        adaptive_filter(equalized_image, sampled_image, symbols_per_pixel, 32, 32);
+
+        gvector_resize(the_data_array, equalized_image->width * equalized_image->height);
+        memcpy(the_data_array->buffer, equalized_image->data, the_data_array->size);
+        //boxing_image8_free(equalized_image);
+        return  BOXING_UNBOXER_OK;
+    }
+#endif
+
     if (!quantize_data)
     {
-        gvector_resize(the_data_array, sampled_image->width * sampled_image->height);
-        memcpy(the_data_array->buffer, sampled_image->data, the_data_array->size);
+        gvector_resize(the_data_array, equalized_image->width * equalized_image->height);
+        memcpy(the_data_array->buffer, equalized_image->data, the_data_array->size);
         return BOXING_UNBOXER_OK;
     }
 
     if ( unboxer->parameters.quantize_contents )
     {
-        gvector_replace( the_data_array, unboxer->parameters.quantize_contents( user, sampled_image, 32, 32, symbols_per_pixel ) );
+        gvector_replace( the_data_array, unboxer->parameters.quantize_contents( user, equalized_image, 32, 32, symbols_per_pixel ) );
     }
     else
     {
-        gvector_replace(the_data_array, boxing_datapoints_quantize(sampled_image, 32, 32, symbols_per_pixel));
+        gvector_replace(the_data_array, boxing_datapoints_quantize(equalized_image, 32, 32, symbols_per_pixel));
     }
     return  BOXING_UNBOXER_OK;
 }
@@ -980,7 +1000,7 @@ static boxing_float dunboxerv1_calculate_filter_mix(boxing_float sampling_rate, 
 {
     if(mtf <= 0.0f)
     {
-        DLOG_WARNING( "Negative MTF");
+        DLOG_WARNING( "(dunboxerv1_calculate_filter_mix) Negative MTF");
         return 1.0f;
     }
     boxing_float filter_gain = 0.0f;
@@ -997,7 +1017,7 @@ static boxing_float dunboxerv1_calculate_filter_mix(boxing_float sampling_rate, 
 
     if(filter_gain <= 0.0f)
     {
-        DLOG_WARNING( "Negative filter gain");
+        DLOG_WARNING( "(dunboxerv1_calculate_filter_mix) Negative filter gain");
         return 1.0f;
     }
 
@@ -1056,7 +1076,7 @@ static int dunboxerv1_load_data_from_image(
 
     if (tracker->track_frame(tracker, image))
     {
-        DLOG_ERROR( "unboxing_load_data_from_image:  Tracking frame failed");
+        DLOG_ERROR( "(dunboxerv1_load_data_from_image) Tracking frame failed");
         return BOXING_UNBOXER_BORDER_TRACKING_ERROR;
     }
 
@@ -1064,14 +1084,14 @@ static int dunboxerv1_load_data_from_image(
     boxing_sampler * metadata_sampler = boxing_tracker_get_container_sampler(tracker, BOXING_SAMPLE_CONTAINER_METADATA);
     if (!metadata_sampler || !metadata_sampler->state)
     {
-        DLOG_ERROR( "unboxing_load_data_from_image:  Meta data locations not vaild");
+        DLOG_ERROR( "(dunboxerv1_load_data_from_image) Metadata locations not vaild");
         return BOXING_UNBOXER_METADATA_ERROR;
     }
 
     
     if (!decode_metadata(metadata_list, image, metadata_sampler, unboxer->metadata_codec, user_data))
     {
-        DLOG_WARNING( "unboxing_load_data_from_image:  Decoding meta data failed");
+        DLOG_WARNING( "(dunboxerv1_load_data_from_image) Decoding meta data failed");
         retval = BOXING_UNBOXER_METADATA_ERROR;
     }
 
@@ -1106,7 +1126,7 @@ static int dunboxerv1_load_data_from_image(
     }
     else
     {
-        DLOG_WARNING1("unboxing_load_data_from_image:  Meta data doesn't contain \"SymbolsPerPixel\", using default instead: %d", symbols_per_pixel);
+        DLOG_WARNING1("(unboxing_load_data_from_image)  Metadata does not contain \"SymbolsPerPixel\", using default instead: %d", symbols_per_pixel);
     }
     
 
@@ -1126,7 +1146,7 @@ static int dunboxerv1_load_data_from_image(
         boxing_metadata_list_append_item(metadata_list, (boxing_metadata_item *)content_type);
 
         // should this be handled with a switch ??
-        DLOG_WARNING("unboxing_load_data_from_image: metadat does not contain content type, defaulting to 'BOXING_METADATA_CONTENT_TYPES_DATA'");
+        DLOG_WARNING("(dunboxerv1_load_data_from_image) Metadata does not contain content type, defaulting to 'BOXING_METADATA_CONTENT_TYPES_DATA'");
     }
     
     // Analogue data?
@@ -1180,7 +1200,7 @@ static int dunboxerv1_load_data_from_image(
     boxing_sampler * content_sampler = boxing_tracker_get_container_sampler(tracker, BOXING_SAMPLE_CONTAINER_CONTENT);
     if(!content_sampler || !content_sampler->state)
     {
-        DLOG_ERROR( "unboxing_load_data_from_image:  container data locations not vaild");
+        DLOG_ERROR( "(dunboxerv1_load_data_from_image) Invalid container data locations");
         return BOXING_UNBOXER_DATA_DECODE_ERROR;
     }
 
@@ -1258,3 +1278,4 @@ static void pack_data(gvector * data)
     data->buffer = packed_data.buffer;
     data->size = packed_data.size;
 }
+

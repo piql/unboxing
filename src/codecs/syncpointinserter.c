@@ -143,7 +143,7 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
     g_variant * key = (g_variant *)g_hash_table_lookup(properties, property_name_image_size_s);
     if(key == NULL)
     {
-        DLOG_ERROR1( "Requires property '%s' to be set", property_name_image_size_s);
+        DLOG_ERROR1( "(boxing_codec_syncpointinserter_create) Required property '%s' not set", property_name_image_size_s);
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }
@@ -158,7 +158,7 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
         key = (g_variant *)g_hash_table_lookup(properties, property_name_sync_point_distance_s);
         if(key == NULL)
         {
-            DLOG_ERROR1( "Requires property '%s' to be set", property_name_sync_point_distance_s);
+            DLOG_ERROR1( "(boxing_codec_syncpointinserter_create) Required property '%s' not set", property_name_sync_point_distance_s);
             boxing_codec_syncpointinserter_free((boxing_codec *)codec);
             return NULL;
         }
@@ -172,7 +172,7 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
     }
     else
     {
-        DLOG_ERROR2( "Requires properties '%s' and '%s' to be set", property_name_sync_point_h_distance_s, property_name_sync_point_v_distance_s);
+        DLOG_ERROR2( "(boxing_codec_syncpointinserter_create) Required properties '%s' and '%s' not set", property_name_sync_point_h_distance_s, property_name_sync_point_v_distance_s);
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }
@@ -194,7 +194,7 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
     key = (g_variant *)g_hash_table_lookup(properties, property_name_sync_point_radius_s);
     if(key == NULL)
     {
-        DLOG_ERROR1( "Requires property '%s' to be set", property_name_sync_point_radius_s);
+        DLOG_ERROR1( "(boxing_codec_syncpointinserter_create) Required property '%s' not set", property_name_sync_point_radius_s);
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }
@@ -203,7 +203,7 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
     key = (g_variant *)g_hash_table_lookup(properties, property_name_num_bits_per_pixel_s);
     if(key == NULL)
     {
-        DLOG_ERROR1( "Requires property '%s' to be set", property_name_num_bits_per_pixel_s);
+        DLOG_ERROR1( "(boxing_codec_syncpointinserter_create) Required property '%s' not set", property_name_num_bits_per_pixel_s );
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }
@@ -214,14 +214,14 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
     key = (g_variant *)g_hash_table_lookup(properties, property_name_data_orientation_s);
     if(key == NULL)
     {
-        DLOG_ERROR1( "Requires property '%s' to be set", property_name_data_orientation_s);
+        DLOG_ERROR1( "(boxing_codec_syncpointinserter_create) Required property '%s' not set", property_name_data_orientation_s );
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }
     codec->property_data_orientation_m = g_variant_to_int(key);
     if (codec->property_data_orientation_m != Horizontal && codec->property_data_orientation_m != Vertical)
     {
-        DLOG_ERROR1( "property '%s' has invalid value", property_name_data_orientation_s);
+        DLOG_ERROR2( "(boxing_codec_syncpointinserter_create) Property '%s' has invalid value %d", property_name_data_orientation_s, codec->property_data_orientation_m );
         boxing_codec_syncpointinserter_free((boxing_codec *)codec);
         return NULL;
     }

@@ -404,7 +404,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
         }
         else if(sample1 && sample2 && !sample3)
         {
-            DLOG_INFO("Positive shift detected. Compensating... ");
+            DLOG_INFO("(boxing_frame_tracker_util_track_reference_bar) Positive shift detected. Compensating... ");
             if(!track_reference_bar_location(samples, locations, bar_points_size, sample_rate, reference-sample_rate))
             {
                 boxing_memory_free(locations);
@@ -414,7 +414,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
         }
         else
         {
-            DLOG_WARNING("Shift detected but cannot identify direction");
+            DLOG_WARNING("(boxing_frame_tracker_util_track_reference_bar) Shift detected but cannot identify direction");
         }
 
     }
@@ -519,7 +519,7 @@ DBOOL boxing_frame_tracker_util_find_vertical_border(const boxing_image8 * image
         }
     }
 
-    DLOG_ERROR("boxing_frame_tracker_util_find_vertical_border failed");
+    DLOG_ERROR("(boxing_frame_tracker_util_find_vertical_border) No border found");
     return DFALSE;
 }
 
@@ -609,7 +609,7 @@ DBOOL boxing_frame_tracker_util_find_horizontal_border(const boxing_image8 * ima
         }
     }
 
-    DLOG_ERROR("boxing_frame_tracker_util_find_horizontal_border failed");
+    DLOG_ERROR("(boxing_frame_tracker_util_find_horizontal_border) No border found");
     return DFALSE;
 }
 
@@ -617,7 +617,7 @@ DBOOL boxing_frame_tracker_util_find_horizontal_border(const boxing_image8 * ima
 /*! 
  *  \brief Locate frame corner marks in image. 
  * 
- *  Each frame has a checkerboard corner mark in each of it’s four corners. 
+ *  Each frame has a checkerboard corner mark in each of itï¿½s four corners. 
  *  The checkerboard pattern is designed to be easily detected by computer pattern 
  *  recognition algorithms. The four corner marks define the global geometry 
  *  of the frame. 
@@ -662,7 +662,7 @@ boxing_pointi boxing_frame_tracker_util_find_corner_mark(
 
     if(dimension.x == 0 || dimension.y == 0)
     {
-        DLOG_WARNING( "Reference mark out of bounds" );
+        DLOG_WARNING( "(boxing_frame_tracker_util_find_corner_mark) Reference mark out of bounds" );
         return location;
     }
 
@@ -854,28 +854,28 @@ DBOOL boxing_frame_tracker_util_find_frame(const boxing_image8 * image, frame_co
         boxing_pointi point = {i*step_x, 0};
         if (!boxing_frame_tracker_util_find_horizontal_border(image, &point, height / 4, &top_samples[i - 1]))
         {
-            DLOG_ERROR("boxing_frame_tracker_util_find_frame unable to find top horizontal border");
+            DLOG_ERROR("(boxing_frame_tracker_util_find_frame) Unable to find top horizontal border");
             return DFALSE;
         }
         point.x = i*step_x;
         point.y = height-1;
         if (!boxing_frame_tracker_util_find_horizontal_border(image, &point, -height / 4, &bottom_samples[i - 1]))
         {
-            DLOG_ERROR("boxing_frame_tracker_util_find_frame unable to find bottom horizontal border");
+            DLOG_ERROR("(boxing_frame_tracker_util_find_frame) Unable to find bottom horizontal border");
             return DFALSE;
         }
         point.x = 0;
         point.y = i*step_y;
         if (!boxing_frame_tracker_util_find_vertical_border(image, &point, width / 4, &left_samples[i - 1]))
         {
-            DLOG_ERROR("boxing_frame_tracker_util_find_frame unable to find left vertical border");
+            DLOG_ERROR("(boxing_frame_tracker_util_find_frame) Unable to find left vertical border");
             return DFALSE;
         }
         point.x = width-1;
         point.y = i*step_y;
         if (!boxing_frame_tracker_util_find_vertical_border(image, &point, -width / 4, &right_samples[i - 1]))
         {
-            DLOG_ERROR("boxing_frame_tracker_util_find_frame unable to find left vertical border");
+            DLOG_ERROR("(boxing_frame_tracker_util_find_frame) Unable to find left vertical border");
             return DFALSE;
         }
 
@@ -1377,7 +1377,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
     /* filter the reference bar */
     boxing_dsp_filtfilt_int((int*)samples->buffer, (unsigned int)samples->size, sync, (unsigned int)samples->size, filter_coefficients, filter_order);
 
-    /* create a lowpass filter for mearuring the enery in the reference bar signal.	*/
+    /* create a lowpass filter for mearuring the enery in the reference bar signal. */
     boxing_dsp_low_pass_filter(0.41f, sampling_rate, filter_coefficients, filter_order);
 
     boxing_float * energy = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, samples->size);
@@ -1502,7 +1502,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
 
                 if (locations[pos] > (locations_size + 2)*sampling_rate)
                 {
-                    DLOG_WARNING("track_reference_bar_location: ref bar out of range");
+                    DLOG_WARNING("(track_reference_bar_location) reference bar out of range");
                     break;
                 }
             }
@@ -1521,7 +1521,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
     /* generate the remaining locations in case not all are found */
     if (pos + 2 < (int)locations_size)
     {
-        DLOG_WARNING2("track_reference_bar_location: found %d of %d locations", pos / 2, locations_size / 2);
+        DLOG_WARNING2("(track_reference_bar_location) found %d of %d locations", pos / 2, locations_size / 2);
         for (int i = pos; i + 2 < (int)locations_size; i += 2)
         {
             locations[i + 2] = locations[i] + 2 * sampling_rate;

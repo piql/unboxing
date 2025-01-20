@@ -162,7 +162,7 @@ boxing_matrix_float * boxing_matrix_float_multipage_create(unsigned int rows, un
     if (matrix->data == NULL && cols * rows * pages != 0)
     {
         boxing_memory_free(matrix);
-        DLOG_ERROR("failed to allocate image!");
+        DLOG_ERROR("(boxing_matrix_float_multipage_create) Failed to allocate matrix");
         return NULL;
     }
     return matrix;
@@ -220,7 +220,7 @@ boxing_matrixf * boxing_matrixf_create(unsigned int width, unsigned int height)
     if (matrix->data == NULL)
     {
         boxing_memory_free(matrix);
-        DLOG_ERROR("failed to allocate image!");
+        DLOG_ERROR("(boxing_matrixf_create) Failed to allocate matrix");
         return NULL;
     }
     return matrix;
@@ -255,7 +255,7 @@ boxing_matrixi * boxing_matrixi_create(unsigned int width, unsigned int height)
     if (matrix->data == NULL)
     {
         boxing_memory_free(matrix);
-        DLOG_ERROR("failed to allocate image!");
+        DLOG_ERROR("(boxing_matrixi_create) Failed to allocate matrix");
         return NULL;
     }
     return matrix;

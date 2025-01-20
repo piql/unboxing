@@ -12,7 +12,6 @@ typedef int pid_t;
 
 #ifdef UNIT_TESTS_ENABLED
 #include <check.h>
-#error
 #define BOXING_ASSERT(x) ck_assert(x)
 #define BOXING_ASSERT_STR_EQ(a, b) ck_assert_str_eq(a, b)
 #define BOXING_ASSERT_MESSAGE ck_assert_msg
@@ -24,7 +23,8 @@ typedef int pid_t;
 #define END_TEST }
 typedef void TCase;
 #define tcase_create( s ) (void*)(printf("%s\n", s), NULL)
-#define tcase_add_test(a, func) func();
+#define tcase_add_test(a, func) func()
+#define tcase_add_test_l(a, func) func(__LINE__)
 
 typedef void Suite;
 #define suite_create(a) (void*)1
@@ -53,7 +53,5 @@ extern int strcmp(const char *s1, const char *s2);
 
 
 #define BOXING_START_TEST( name ) \
-    START_TEST( name ) \
-    BOXING_UNUSED_PARAMETER(_i); 
-
+    START_TEST( name )
 #endif

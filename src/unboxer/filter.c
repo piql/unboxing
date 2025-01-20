@@ -101,6 +101,7 @@ void boxing_filter_init( boxing_filter * filter )
     filter->coeff = BOXING_MEMORY_ALLOCATE_TYPE( boxing_filter_coeff_2d );
     boxing_filter_coefficients_init( filter->coeff, 5, 5, default_filter_coefficients );
     filter->process = NULL;
+    filter->scale = 1.0;
 }
 
 

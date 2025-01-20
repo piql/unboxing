@@ -86,7 +86,7 @@ boxing_codec * boxing_codec_modulator_create(GHashTable * properties, const boxi
     g_variant * key = g_hash_table_lookup(properties, property_name_num_bits_per_pixel_s);
     if(key == NULL)
     {
-        DLOG_ERROR1( "Requires property '%s' to be set", property_name_num_bits_per_pixel_s);
+        DLOG_ERROR1( "(boxing_codec_modulator_create) Required property '%s' not set", property_name_num_bits_per_pixel_s);
         boxing_codec_modulator_free((boxing_codec *)codec);
         return NULL;
     }
@@ -94,7 +94,7 @@ boxing_codec * boxing_codec_modulator_create(GHashTable * properties, const boxi
     unsigned int uvalue = g_variant_to_uint(key);
     if (uvalue == 0 || uvalue > 8)
     {
-        DLOG_ERROR2( "boxing_codec_modulator_create unsupported value for property %s : %u", property_name_num_bits_per_pixel_s, uvalue);
+        DLOG_ERROR2( "(boxing_codec_modulator_create) Unsupported value for property %s : %u", property_name_num_bits_per_pixel_s, uvalue);
         boxing_codec_modulator_free((boxing_codec *)codec);
         return NULL;
     }

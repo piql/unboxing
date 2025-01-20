@@ -841,7 +841,7 @@ static void calculate_packet_sizes(
         // symbol size matching
         if (((*decoder)->encoded_symbol_size+7)/8 != (unsigned int)(symbol_size+7)/8)
         {
-            DLOG_ERROR("Encoded symbol size mismatch");
+            DLOG_ERROR("(calculate_packet_sizes) Encoded symbol size mismatch");
             boxing_throw("ERROR_UNDEFINED_PROPERTY");
             return;
         }
@@ -885,7 +885,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
         DBOOL ok = get_version(str_version, &dispatcher->version.major, &dispatcher->version.minor);
         if (!ok)
         {
-            DLOG_ERROR2("Property %s has unknown value '%s'", CODEC_DISPATCHER_PARAM_VERSION, str_version);
+            DLOG_ERROR2("(codecdispatcher.c:initialize) Property %s has unknown value '%s'", CODEC_DISPATCHER_PARAM_VERSION, str_version);
             boxing_throw("ERROR_UNDEFINED_PROPERTY"); /// \todo replace with DFATAL()
         }
     }
@@ -907,7 +907,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
         }
         else
         {
-            DLOG_ERROR1("Property order has unknown value '%s'", str_order);
+            DLOG_ERROR1("(codecdispatcher.c:initialize) Property order has unknown value '%s'", str_order);
             boxing_throw("ERROR_UNDEFINED_PROPERTY"); /// \todo replace with DFATAL()
         }
     }
@@ -925,7 +925,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
         }
         else
         {
-            DLOG_ERROR1("Property symbolAlignment has unknown value '%s'", symbol_alignement_str);
+            DLOG_ERROR1("(codecdispatcher.c:initialize) Property symbolAlignment has unknown value '%s'", symbol_alignement_str);
             boxing_throw("ERROR_UNDEFINED_PROPERTY");
         }
     }
@@ -980,7 +980,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
                 gvector_free(codec_names);
                 if (!codec)
                 {
-                    DLOG_ERROR1("Unknown codec ", class_name_str);
+                    DLOG_ERROR1("(codecdispatcher.c:initialize) Unknown codec %s", class_name_str);
                     boxing_throw("ERROR_CORRECTION_MODE_UNKNOW");
                 }
                 if (dispatcher->order == BOXING_CODEC_ORDER_ENCODE)

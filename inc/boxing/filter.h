@@ -44,6 +44,7 @@ typedef struct boxing_filter_s
 {
     boxing_filter_callback    process;
     boxing_filter_coeff_2d *  coeff;
+    boxing_float              scale;
 } boxing_filter;
 
 

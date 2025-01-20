@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wunused-variable"
 /*****************************************************************************
 **
 **  crc32 unittests

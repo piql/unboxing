@@ -377,7 +377,7 @@ static int unbox_file(const char* file_name, command_line_parameters input_param
     if (file == NULL)
     {
         fprintf(stderr, "Failed to read file '%s'.\n", file_name);
-        return -2;
+        return -1;
     }
 
     // Obtain file size

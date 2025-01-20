@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#include "horizontalmeasures.h"
+#include "boxing/unboxer/horizontalmeasures.h"
 #include "boxing/image8.h"
 #include "gvector.h"
 

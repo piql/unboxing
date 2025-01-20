@@ -19,10 +19,6 @@
 #include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
-//  THIRDPARTY INCLUDES
-//
-#include "bch.h"
-
 //  DEFINES
 //
 
@@ -92,14 +88,14 @@ boxing_codec * boxing_codec_bch_create(GHashTable * properties, const boxing_con
     g_variant * message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (message_size == NULL)
     {
-        DLOG_ERROR("Requires property 'messageSize' to be set");
+        DLOG_ERROR1( "(boxing_codec_bch_create) Required property '%s' not set", PARAM_NAME_MESSAGE_SIZE );
         return NULL;
     }
 
     g_variant * parity_size = g_hash_table_lookup(properties, PARAM_NAME_PARITY_SIZE);
     if (parity_size == NULL)
     {
-        DLOG_ERROR("Requires property 'byteParityNumber' to be set");
+        DLOG_ERROR1( "(boxing_codec_bch_create) Required property '%s' not set", PARAM_NAME_PARITY_SIZE );
         return NULL;
     }
 
@@ -127,14 +123,14 @@ boxing_codec * boxing_codec_bch_create(GHashTable * properties, const boxing_con
     codec->bch = init_bch(poly_dgree, 8 * codec->parity_size / poly_dgree, codec->poly);
     if (!codec->bch)
     {
-        DLOG_ERROR("Creating BCH failed");
+        DLOG_ERROR("(boxing_codec_bch_create) Codec creation failed");
         boxing_codec_bch_free((boxing_codec *)codec);
         return NULL;
     }
     
     if (codec->bch->n / 8 - codec->bch->ecc_bytes < codec->message_size)
     {
-        DLOG_ERROR("Creating BCH failed");
+        DLOG_ERROR("(boxing_codec_bch_create) Codec parameter failure");
         boxing_codec_bch_free((boxing_codec *)codec);
         return NULL;
     }    

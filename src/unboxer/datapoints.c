@@ -15,7 +15,6 @@
 //  PROJECT INCLUDES
 //
 #include "datapoints.h"
-#include "horizontalmeasures.h"
 
 //  PRIVATE INTERFACE
 //

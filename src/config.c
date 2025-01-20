@@ -570,7 +570,7 @@ boxing_pointi boxing_config_property_pointi(const boxing_config * config, const 
             gvector * list_coord = boxing_config_parse_list_properties(config, name, key);
             if (list_coord->size != 2)
             {
-                DLOG_ERROR1("PointF unsupported format %s", property_hash);
+                DLOG_ERROR1("(boxing_config_property_pointi) Unsupported boxing_pointi format %s", property_hash);
                 *found = DFALSE;
                 return return_value;
             }
@@ -624,7 +624,7 @@ boxing_pointf boxing_config_property_pointf(const boxing_config * config, const 
             gvector * list_coord = boxing_config_parse_list_properties(config, name, key);
             if (list_coord->size != 2)
             {
-                DLOG_ERROR1("PointF unsupported format %s", property_hash);
+                DLOG_ERROR1("(boxing_config_property_pointf) Unsupported boxing_pointf format %s", property_hash);
                 *was_found = DFALSE;
                 return return_value;
             }

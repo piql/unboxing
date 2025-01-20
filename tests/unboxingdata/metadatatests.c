@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #include "unittests.h"
 #include "boxing/metadata.h"
 #include "boxing/utils.h"

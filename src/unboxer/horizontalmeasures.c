@@ -14,7 +14,7 @@
 
 //  PROJECT INCLUDES
 //
-#include "horizontalmeasures.h"
+#include "boxing/unboxer/horizontalmeasures.h"
 #include "boxing/platform/memory.h"
 #include "boxing/platform/types.h"
 

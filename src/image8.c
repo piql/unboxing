@@ -153,14 +153,14 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
-        DLOG_ERROR("failed to create image with null size!");
+        DLOG_ERROR("(boxing_image8_create) Failed to create image with null size");
         return NULL;
     }
 
     boxing_image8 * image = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
     if (image == NULL)
     {
-        DLOG_ERROR( "failed to allocate image!" );
+        DLOG_ERROR( "(boxing_image8_create) Failed to allocate image" );
         return NULL;
     }
 
@@ -171,7 +171,7 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
     if (image->data == NULL && width * height != 0)
     {
         boxing_memory_free(image);
-        DLOG_ERROR("failed to allocate image buffer!");
+        DLOG_ERROR("(boxing_image8_create) Failed to allocate image buffer");
         return NULL;
     }
     return image;
@@ -197,14 +197,14 @@ boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsign
 {
     if (width == 0 || height == 0)
     {
-        DLOG_ERROR("failed to create image with null size!");
+        DLOG_ERROR("(boxing_image8_create2) Failed to create image with null size");
         return NULL;
     }
 
     boxing_image8 * image = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
     if (image == NULL)
     {
-        DLOG_ERROR( "failed to allocate image!" );
+        DLOG_ERROR( "(boxing_image8_create2) Failed to allocate image" );
         return NULL;
     }
 
@@ -215,7 +215,7 @@ boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsign
     if (image->data == NULL)
     {
         boxing_memory_free(image);
-        DLOG_ERROR("failed to allocate image buffer!");
+        DLOG_ERROR("(boxing_image8_create2) Failed to allocate image buffer");
         return NULL;
     }
     else

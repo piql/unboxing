@@ -392,7 +392,7 @@ static int track_frame_simulated_mode(boxing_tracker_gpf * tracker, const boxing
     boxing_image8 * cropped_frame = crop_image(frame); /// \todo Remove returning the whole image, as only it's width and height are used.
     if (cropped_frame == NULL)
     {
-        DLOG_ERROR2("track_frame_simulated_mode crop error WxH=%dx%d", frame->width, frame->height);
+        DLOG_ERROR2("(track_frame_simulated_mode) Crop error WxH=%dx%d", frame->width, frame->height);
         return 1;
     }
     tracker->base.x_sampling_rate = (boxing_float)cropped_frame->width / (boxing_float)frame_dimension.x;
@@ -446,7 +446,7 @@ static int boxing_tracker_gpf_track_corner_marks(
 
     if (!boxing_frame_tracker_util_find_frame(image, corner_marks, sampling_rate_x, sampling_rate_y))
     {
-        DLOG_ERROR( "boxing_tracker_gpf_track_corner_marks  Finding reference marks failed" );
+        DLOG_ERROR( "(boxing_tracker_gpf_track_corner_marks) Finding reference marks failed" );
         return BOXING_CORNER_MARK_TRACKING_ERROR;
     }
 
@@ -460,7 +460,7 @@ static int boxing_tracker_gpf_track_corner_marks(
         DLOG_INFO3( "boxing_tracker_gpf_track_corner_marks %s reference mark     = (%i, %i)", names[i], corners[i]->x, corners[i]->y );
         if (!boxing_frame_tracker_util_validate_corner_mark(corners[i], &ref_dim, image))
         {
-            DLOG_ERROR1( "boxing_tracker_gpf_track_corner_marks  %s reference mark is not within image dimensions", names[i] );
+            DLOG_ERROR1( "(boxing_tracker_gpf_track_corner_marks) %s reference mark is not within image dimensions", names[i] );
             return BOXING_CORNER_MARK_TRACKING_ERROR;
         }
     }
