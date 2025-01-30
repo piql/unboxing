@@ -78,14 +78,6 @@ static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, cha
     {
         c = check(H, dblk, pchk);
 
-        if (table == 2)
-        {
-            printf("%7d %5d %8.1f %6d %+9.2f %8.1f %+9.2f  %7.1f\n",
-                block_no, n, changed(lratio, dblk, N), c, loglikelihood(lratio, dblk, N),
-                expected_parity_errors(H, bprb), expected_loglikelihood(lratio, bprb, N),
-                entropy(bprb, N));
-        }
-
         if (n == max_iter || n == -max_iter || (max_iter > 0 && c == 0))
         {
             break;
@@ -110,41 +102,46 @@ static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, cha
 
 static void ldpc_encode(generator_matrix *gm, char *sblk, char *cblk)
 {
-    H = gm->H;
-    M = gm->M;
-    N = gm->N;
-    type = gm->type;
-    cols = gm->cols;
-    L = gm->L;
-    U = gm->U;
-    rows = gm->rows;
-    G = gm->G;
-    switch (gm->type)
+    gen_matrix gen_m = {
+        .dim = {
+            .M = gm->M,
+            .N = gm->N,
+        },
+        .type = gm->type,
+        .cols = gm->cols,
+    };
+    if (gen_m.type == 'd') {
+        gen_m.data.G = gm->G;
+    } else {
+        gen_m.data.sparse.L = gm->L;
+        gen_m.data.sparse.U = gm->U;
+        gen_m.data.sparse.rows = gm->rows;
+    }
+    switch (gen_m.type)
     {
     case 's':
-    { sparse_encode(sblk, cblk);
+    { sparse_encode(sblk, cblk, gm->H, &gen_m);
     break;
     }
     case 'd':
     { 
-        mod2dense *u = mod2dense_allocate(N - M, 1);
-        mod2dense *v = mod2dense_allocate(M, 1);
-        dense_encode(sblk, cblk, u, v);
+        mod2dense *u = mod2dense_allocate(gen_m.dim.N - gen_m.dim.M, 1);
+        mod2dense *v = mod2dense_allocate(gen_m.dim.M, 1);
+        dense_encode(sblk, cblk, u, v, &gen_m);
         mod2dense_free(v);
         mod2dense_free(u);
     break;
     }
     case 'm':
     { 
-        mod2dense *u = mod2dense_allocate(M, 1);
-        mod2dense *v = mod2dense_allocate(M, 1);
-        mixed_encode(sblk, cblk, u, v);
+        mod2dense *u = mod2dense_allocate(gen_m.dim.M, 1);
+        mod2dense *v = mod2dense_allocate(gen_m.dim.M, 1);
+        mixed_encode(sblk, cblk, u, v, gm->H, &gen_m);
         mod2dense_free(v);
         mod2dense_free(u);
     break;
     }
     }
-
 }
 
 
