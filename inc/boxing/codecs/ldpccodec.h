@@ -38,25 +38,6 @@ extern "C" {
  */
 static const char codec_ldpc_name[] = "LDPC";
 
-typedef struct ldpc_generator_s
-{
-    mod2sparse *H;	/**< Parity check matrix */
-
-    int M;		    /**< Number of rows in parity check matrix */
-    int N;		    /**< Number of columns in parity check matrix */
-                    
-    char type;	    /**< Type of generator matrix representation */
-    int *cols;	    /**< Ordering of columns in generator matrix */
-    int *rows;	    /**< Ordering of rows in generator matrix (type 's') */
-    mod2sparse *L;  /**< Sparse L decomposition, if type=='s' */
-    mod2sparse *U;  /**< Sparse U decomposition, if type=='s' */
-
-    mod2dense *G;	/**< Dense or mixed representation of generator matrix,
-                    if type=='d' or type=='m' */
-}ldpc_generator;
-
-typedef ldpc_generator generator_matrix;
-
 
 //----------------------------------------------------------------------------
 /*!
@@ -73,7 +54,8 @@ typedef struct boxing_codec_ldpc_s
 {
     boxing_codec       base;
     unsigned int       iterations;
-    generator_matrix * gen_matrix;
+    void * pchk_matrix;
+    void * gen_matrix;
 } boxing_codec_ldpc;
 
 boxing_codec * boxing_codec_ldpc_create(GHashTable * properties, const boxing_config * config);

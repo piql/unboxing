@@ -100,43 +100,28 @@ static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, cha
 * @param cblk
 */
 
-static void ldpc_encode(generator_matrix *gm, char *sblk, char *cblk)
+static void ldpc_encode(mod2sparse *H, gen_matrix *gm, char *sblk, char *cblk)
 {
-    gen_matrix gen_m = {
-        .dim = {
-            .M = gm->M,
-            .N = gm->N,
-        },
-        .type = gm->type,
-        .cols = gm->cols,
-    };
-    if (gen_m.type == 'd') {
-        gen_m.data.G = gm->G;
-    } else {
-        gen_m.data.sparse.L = gm->L;
-        gen_m.data.sparse.U = gm->U;
-        gen_m.data.sparse.rows = gm->rows;
-    }
-    switch (gen_m.type)
+    switch (gm->type)
     {
     case 's':
-    { sparse_encode(sblk, cblk, gm->H, &gen_m);
+    { sparse_encode(sblk, cblk, H, gm);
     break;
     }
     case 'd':
     { 
-        mod2dense *u = mod2dense_allocate(gen_m.dim.N - gen_m.dim.M, 1);
-        mod2dense *v = mod2dense_allocate(gen_m.dim.M, 1);
-        dense_encode(sblk, cblk, u, v, &gen_m);
+        mod2dense *u = mod2dense_allocate(gm->dim.N - gm->dim.M, 1);
+        mod2dense *v = mod2dense_allocate(gm->dim.M, 1);
+        dense_encode(sblk, cblk, u, v, gm);
         mod2dense_free(v);
         mod2dense_free(u);
     break;
     }
     case 'm':
     { 
-        mod2dense *u = mod2dense_allocate(gen_m.dim.M, 1);
-        mod2dense *v = mod2dense_allocate(gen_m.dim.M, 1);
-        mixed_encode(sblk, cblk, u, v, gm->H, &gen_m);
+        mod2dense *u = mod2dense_allocate(gm->dim.M, 1);
+        mod2dense *v = mod2dense_allocate(gm->dim.M, 1);
+        mixed_encode(sblk, cblk, u, v, H, gm);
         mod2dense_free(v);
         mod2dense_free(u);
     break;
@@ -145,11 +130,11 @@ static void ldpc_encode(generator_matrix *gm, char *sblk, char *cblk)
 }
 
 
-static void print_generator_check_info(generator_matrix *gen_matrix)
+static void print_generator_check_info(mod2sparse *H, gen_matrix *gen_matrix)
 {
     int i, j, c, c2;
-    int M = gen_matrix->M;
-    int N = gen_matrix->N;
+    int M = gen_matrix->dim.M;
+    int N = gen_matrix->dim.N;
 
     if (gen_matrix->type == 'd')
     {
@@ -158,7 +143,7 @@ static void print_generator_check_info(generator_matrix *gen_matrix)
         {
             for (j = 0; j < N - M; j++)
             {
-                c += mod2dense_get(gen_matrix->G, i, j);
+                c += mod2dense_get(gen_matrix->data.G, i, j);
             }
         }
         fprintf(stderr,
@@ -172,13 +157,13 @@ static void print_generator_check_info(generator_matrix *gen_matrix)
         {
             for (j = 0; j < M; j++)
             {
-                c += mod2dense_get(gen_matrix->G, i, j);
+                c += mod2dense_get(gen_matrix->data.G, i, j);
             }
         }
         c2 = 0;
         for (i = M; i < N; i++)
         {
-            c2 += mod2sparse_count_col(gen_matrix->H, gen_matrix->cols[i]);
+            c2 += mod2sparse_count_col(H, gen_matrix->cols[i]);
         }
         fprintf(stderr,
             "Number of 1s per check in Inv(A) is %.1f, in B is %.1f, total is %.1f\n",
@@ -220,7 +205,7 @@ typedef enum
 * @brief MAKE DENSE OR MIXED REPRESENTATION OF GENERATOR MATRIX.
 */
 
-static generator_matrix * ldpc_generator_make_dense_mixed(mod2sparse * H, gen_make_method method)
+static gen_matrix *ldpc_generator_make_dense_mixed(mod2sparse *H, gen_make_method method)
 {
     mod2dense *DH, *A, *A2, *AI, *B;
     int i, n;
@@ -244,28 +229,27 @@ static generator_matrix * ldpc_generator_make_dense_mixed(mod2sparse * H, gen_ma
     }
 
     /* Allocate space for row and column permutations. */
-    generator_matrix *gen_matrix = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(generator_matrix, 1);
+    gen_matrix *gm = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(gen_matrix, 1);
 
-    gen_matrix->H = mod2sparse_clone(H);
-    gen_matrix->M = mod2sparse_rows(H);
-    gen_matrix->N = mod2sparse_cols(H);
-    gen_matrix->cols = chk_alloc(N, sizeof *gen_matrix->cols);
-    gen_matrix->rows = chk_alloc(M, sizeof *gen_matrix->rows);
-    gen_matrix->type = type;
+    gm->dim.M = mod2sparse_rows(H);
+    gm->dim.N = mod2sparse_cols(H);
+    gm->cols = chk_alloc(N, sizeof *gm->cols);
+    gm->data.sparse.rows = chk_alloc(M, sizeof *gm->data.sparse.rows);
+    gm->type = type;
 
     DH = mod2dense_allocate(M, N);
     AI = mod2dense_allocate(M, M);
     B = mod2dense_allocate(M, N - M);
-    gen_matrix->G = mod2dense_allocate(M, N - M);
+    gm->data.G = mod2dense_allocate(M, N - M);
 
-    mod2sparse_to_dense(gen_matrix->H, DH);
+    mod2sparse_to_dense(H, DH);
 
 
     A = mod2dense_allocate(M, N);
     A2 = mod2dense_allocate(M, N);
 
-    n = mod2dense_invert_selected(DH, A2, gen_matrix->rows, gen_matrix->cols);
-    mod2sparse_to_dense(gen_matrix->H, DH);  /* DH was destroyed by invert_selected */
+    n = mod2dense_invert_selected(DH, A2, gm->data.sparse.rows, gm->cols);
+    mod2sparse_to_dense(H, DH);  /* DH was destroyed by invert_selected */
 
     if (n > 0)
     {
@@ -276,41 +260,43 @@ static generator_matrix * ldpc_generator_make_dense_mixed(mod2sparse * H, gen_ma
 
     for (i = 0; i < M; i++)
     {
-        rows_inv[gen_matrix->rows[i]] = i;
+        rows_inv[gm->data.sparse.rows[i]] = i;
     }
 
-    mod2dense_copyrows(A2, A, gen_matrix->rows);
-    mod2dense_copycols(A, A2, gen_matrix->cols);
+    mod2dense_copyrows(A2, A, gm->data.sparse.rows);
+    mod2dense_copycols(A, A2, gm->cols);
     mod2dense_copycols(A2, AI, rows_inv);
 
-    mod2dense_copycols(DH, B, gen_matrix->cols + M);
+    mod2dense_copycols(DH, B, gm->cols + M);
 
     /* Form final generator matrix. */
 
     if (method == gen_dense)
     {
-        mod2dense_multiply(AI, B, gen_matrix->G);
+        mod2dense_multiply(AI, B, gm->data.G);
     }
     else if (method == gen_mixed)
     {
-        gen_matrix->G = AI;
+        gm->data.G = AI;
     }
 
     /* Compute and print number of 1s. */
 
-    print_generator_check_info(gen_matrix);
+    print_generator_check_info(H, gm);
 
-    return gen_matrix;
+    return gm;
 }
 
-static void ldpc_generator_free(generator_matrix *gen_matrix)
+static void ldpc_generator_free(gen_matrix *gen_matrix)
 {
     boxing_memory_free(gen_matrix->cols);
-    boxing_memory_free(gen_matrix->rows);
-    boxing_memory_free(gen_matrix->L);
-    boxing_memory_free(gen_matrix->U);
-    mod2sparse_free(gen_matrix->H);
-    mod2dense_free(gen_matrix->G);
+    if (gen_matrix->type == 's') {
+        boxing_memory_free(gen_matrix->data.sparse.rows);
+        boxing_memory_free(gen_matrix->data.sparse.L);
+        boxing_memory_free(gen_matrix->data.sparse.U);
+    } else {
+        mod2dense_free(gen_matrix->data.G);
+    }
     boxing_memory_free(gen_matrix);
 }
 
@@ -691,8 +677,8 @@ boxing_codec * boxing_codec_ldpc_create(GHashTable * properties, const boxing_co
     int no4cycle = 1;
     distrib *d = distrib_create("3");
     mod2sparse * H = ldcp_pchk_make(seed, pchk_evenboth, d, no4cycle, parity_size, parity_size + message_size);
+    codec->pchk_matrix = H;
     codec->gen_matrix = ldpc_generator_make_dense_mixed(H, gen_dense);
-    mod2sparse_free(H);
 
     codec->base.decoded_symbol_size = 8;
     codec->base.decoded_block_size = message_size / 8;
@@ -718,6 +704,7 @@ boxing_codec * boxing_codec_ldpc_create(GHashTable * properties, const boxing_co
 
 void boxing_codec_ldpc_free(boxing_codec * codec)
 {
+    mod2sparse_free(CODEC_MEMBER(pchk_matrix));
     ldpc_generator_free(CODEC_MEMBER(gen_matrix));
     boxing_codec_release_base(codec);
     boxing_memory_free(codec);
@@ -782,7 +769,8 @@ static DBOOL codec_encode(void * codec, gvector * data)
 {
     boxing_codec_ldpc * ldpc_codec = (boxing_codec_ldpc*)codec;
 
-    generator_matrix *gen_matrix = ldpc_codec->gen_matrix;
+    mod2sparse *H = ldpc_codec->pchk_matrix;
+    gen_matrix *gen_matrix = ldpc_codec->gen_matrix;
     gvector  *encoded_data = gvector_create(data->item_size, ldpc_codec->base.encoded_data_size);
 
     char *src = data->buffer;
@@ -795,7 +783,7 @@ static DBOOL codec_encode(void * codec, gvector * data)
         // convert data from byte to bit stream 
         unpack_data(src, unpacked_data_block, ldpc_codec->base.decoded_block_size);
 
-        ldpc_encode(gen_matrix, unpacked_data_block, dst);
+        ldpc_encode(H, gen_matrix, unpacked_data_block, dst);
         src += ldpc_codec->base.decoded_block_size;
         dst += ldpc_codec->base.encoded_block_size;
     }
@@ -815,18 +803,19 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
 
     boxing_codec_ldpc * ldpc_codec = (boxing_codec_ldpc*)codec;
 
-    generator_matrix *gen_matrix = ldpc_codec->gen_matrix;
+    mod2sparse *H = ldpc_codec->pchk_matrix;
+    gen_matrix *gen_matrix = ldpc_codec->gen_matrix;
     gvector * decoded_data = gvector_create(data->item_size, ldpc_codec->base.decoded_data_size);
 
     char *src = data->buffer;
     char *dst = decoded_data->buffer;
     int blocks = (int)decoded_data->size / ldpc_codec->base.decoded_block_size;
-    double *lratio = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->N);
-    char   *pchk   = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char,   gen_matrix->M);
-    double *bitpr  = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->N);
-    char *recoverd_block_sd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->N);
-    char *recoverd_block_hd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->N);
-    char *data_block = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->N - gen_matrix->M);
+    double *lratio = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->dim.N);
+    char   *pchk   = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char,   gen_matrix->dim.M);
+    double *bitpr  = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->dim.N);
+    char *recoverd_block_sd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N);
+    char *recoverd_block_hd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N);
+    char *data_block = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N - gen_matrix->dim.M);
     char *data_block_ptr;
 
     for (int i = 0; i < blocks; i++)
@@ -834,27 +823,27 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
         /* convert from packed log likelyhood ratio (char)
          * to likelyhood ratio (double)
          */
-        for (int bit = 0; bit < gen_matrix->N; bit++)
+        for (int bit = 0; bit < gen_matrix->dim.N; bit++)
         {
             lratio[bit] = exp(src[bit]/10.0f);
             recoverd_block_hd[bit] = (lratio[bit] > 1.0f) ? 1 : 0;
         }
-        (void)ldpc_decode_prprp(gen_matrix->H, lratio, recoverd_block_sd, pchk, bitpr, ldpc_codec->iterations);
+        (void)ldpc_decode_prprp(H, lratio, recoverd_block_sd, pchk, bitpr, ldpc_codec->iterations);
 
         int bit_alterations = 0;
-        for (int bit = 0; bit < gen_matrix->N; bit++)
+        for (int bit = 0; bit < gen_matrix->dim.N; bit++)
         {
             bit_alterations += (recoverd_block_hd[bit] != recoverd_block_sd[bit]) ? 1 : 0;
         }
         //extract data
         data_block_ptr = data_block;
-        for (int i = gen_matrix->M; i < gen_matrix->N; i++)
+        for (int i = gen_matrix->dim.M; i < gen_matrix->dim.N; i++)
         {
             *data_block_ptr++ = recoverd_block_sd[(int)gen_matrix->cols[i]];
         }
 
         int c = 0;
-        for (int i = 0; i < gen_matrix->M; i++)
+        for (int i = 0; i < gen_matrix->dim.M; i++)
         {
             c += pchk[i];
         }
@@ -868,7 +857,7 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
             stats->resolved_errors += bit_alterations;
         }
         // convert data from bit to byte stream 
-        pack_data(data_block, dst, gen_matrix->N - gen_matrix->M);
+        pack_data(data_block, dst, gen_matrix->dim.N - gen_matrix->dim.M);
 
         dst += ldpc_codec->base.decoded_block_size;
         src += ldpc_codec->base.encoded_block_size;
