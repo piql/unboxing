@@ -89,8 +89,12 @@ int decode_bch(struct bch_control *bch, const uint8_t *data, unsigned int len,
 	       const uint8_t *recv_ecc, const uint8_t *calc_ecc,
 	       const unsigned int *syn, unsigned int *errloc);
 
-#define	EINVAL		22	/* Invalid argument */
+#ifndef EINVAL
+#define	EINVAL	22	/* Invalid argument */
+#endif
+#ifndef EBADMSG
 #define	EBADMSG		74	/* Not a data message */
+#endif
 
 int deg(unsigned int poly);
 

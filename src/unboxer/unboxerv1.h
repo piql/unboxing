@@ -51,9 +51,9 @@ void                    boxing_dunboxerv1_destroy(boxing_dunboxerv1 * unboxer);
 int                     boxing_dunboxerv1_setup_config(boxing_dunboxerv1 * unboxer);
 int                     boxing_dunboxerv1_process(boxing_dunboxerv1 * unboxer, gvector * data,
                                                   boxing_metadata_list * metadata_list, boxing_image8 * image,
-												  int * extract_result, void *user_data);
+												  int * extract_result, void *user_data, boxing_metadata_content_types fallback_metadata_content_type);
 int                     boxing_dunboxerv1_extract_container(boxing_dunboxerv1 * unboxer, gvector * data,
-                            boxing_metadata_list * metadata_list, boxing_image8 * image, void *user_data);
+                            boxing_metadata_list * metadata_list, boxing_image8 * image, void *user_data, boxing_metadata_content_types fallback_metadata_content_type);
 int                     boxing_dunboxerv1_decode(boxing_dunboxerv1 * unboxer, gvector * data, 
                             boxing_metadata_list * metadata, boxing_stats_decode * decode_stats, unsigned int step, void *user_data);
 boxing_codecdispatcher *  boxing_dunboxerv1_dispatcher(const boxing_unboxer * unboxer, const char * coding_scheme);

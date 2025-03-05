@@ -19,6 +19,7 @@
 extern "C" {
 #endif
 
+#include <stdlib.h> // We want the stdlib definition of NULL so glib doesn't override it
 #include "ghash.h"
 #include "gvector.h"
 #include "boxing/string.h"

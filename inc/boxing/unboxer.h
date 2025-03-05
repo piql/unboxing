@@ -118,7 +118,8 @@ enum boxing_unboxer_result boxing_unboxer_unbox_extract_container(
                     boxing_metadata_list * metadata,
                     boxing_image8 * image, 
                     boxing_unboxer * unboxer,
-                    void * user_data);
+                    void * user_data,
+                    boxing_metadata_content_types fallback_metadata_content_type);
 int                boxing_unboxer_decode(
                     boxing_unboxer * unboxer, 
                     gvector * data, 
@@ -132,7 +133,8 @@ enum boxing_unboxer_result boxing_unboxer_unbox(
                     boxing_image8 * image, 
                     boxing_unboxer * unboxer,
                     int * extract_result, 
-                    void *user_data);
+                    void *user_data,
+                    boxing_metadata_content_types fallback_metadata_content_type);
 boxing_codecdispatcher *  boxing_unboxer_dispatcher(boxing_unboxer * unboxer, const char * coding_scheme);
 void                boxing_unboxer_parameters_init(boxing_unboxer_parameters * parameters);
 void                boxing_unboxer_parameters_free(boxing_unboxer_parameters * parameters);

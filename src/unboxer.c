@@ -594,6 +594,7 @@ void boxing_unboxer_reset(const boxing_unboxer * unboxer)
  *  \param[in]  image     Image to be decoded.
  *  \param[in]  unboxer   Unboxer structure.
  *  \param[in]  user_data User data.
+ *  \param[in] fallback_metadata_content_type Fallback metadata content type if metadata decoding fails
  *  \return Unboxing status code
  */
 
@@ -602,9 +603,10 @@ enum boxing_unboxer_result boxing_unboxer_unbox_extract_container(
     boxing_metadata_list * metadata,
     boxing_image8 * image, 
     boxing_unboxer * unboxer,
-    void *user_data)
+    void *user_data,
+    boxing_metadata_content_types fallback_metadata_content_type)
 {
-    return (enum boxing_unboxer_result)boxing_dunboxerv1_extract_container((boxing_dunboxerv1 *)unboxer, data, metadata, image, user_data);
+    return (enum boxing_unboxer_result)boxing_dunboxerv1_extract_container((boxing_dunboxerv1 *)unboxer, data, metadata, image, user_data, fallback_metadata_content_type);
 }
 
 
@@ -640,12 +642,13 @@ int boxing_unboxer_decode(boxing_unboxer * unboxer, gvector * data, boxing_metad
  *  \param[in]  unboxer         Unboxer structure.
  *  \param[out] extract_result  Result from data extraction phase of unboxing.
  *  \param[in]  user_data       User data.
+ *  \param[in] fallback_metadata_content_type Fallback metadata content type if metadata decoding fails
  *  \return     Unboxing status code.
  */
 
-enum boxing_unboxer_result boxing_unboxer_unbox(gvector * data, boxing_metadata_list * metadata, boxing_image8 * image, boxing_unboxer * unboxer, int * extract_result, void *user_data)
+enum boxing_unboxer_result boxing_unboxer_unbox(gvector * data, boxing_metadata_list * metadata, boxing_image8 * image, boxing_unboxer * unboxer, int * extract_result, void *user_data, boxing_metadata_content_types fallback_metadata_content_type)
 {
-    return (enum boxing_unboxer_result)boxing_dunboxerv1_process((boxing_dunboxerv1 *)unboxer, data, metadata, image, extract_result, user_data);
+    return (enum boxing_unboxer_result)boxing_dunboxerv1_process((boxing_dunboxerv1 *)unboxer, data, metadata, image, extract_result, user_data, fallback_metadata_content_type);
 }
 
 

@@ -45,7 +45,7 @@ static int      extract_digital_content( void* user, boxing_dunboxerv1 * unboxer
 static int      extract_analog_content(boxing_image8 * sampled_image, gvector *the_data_array, void * user_data);
 static int      dunboxerv1_load_data_from_image(boxing_dunboxerv1 * unboxer, boxing_image8 * image,
                                                        gvector * the_data_array, boxing_metadata_list * metadata_list, int horizontal_border_tracking, 
-                                                       struct boxing_tracker_s * tracker, void * user_data, DBOOL quantize_data);
+                                                       struct boxing_tracker_s * tracker, void * user_data, DBOOL quantize_data, boxing_metadata_content_types fallback_metadata_content_type);
 static void     pack_data( gvector * data );
 static int      dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, boxing_metadata_list * metadata,
                 boxing_stats_decode * decode_stats, unsigned int step, void * user_data);
@@ -165,6 +165,7 @@ int boxing_dunboxerv1_setup_config(boxing_dunboxerv1 * unboxer)
  *  \param[in]      image           Image to be decoded.
  *  \param[out]     extract_result  Result from data extraction phase of unboxing.
  *  \param[in,out]  user_data       User data.
+ *  \param[in] fallback_metadata_content_type Fallback metadata content type if metadata decoding fails
  *  \return Unboxing decoding result status code
  */
 
@@ -174,12 +175,13 @@ int boxing_dunboxerv1_process(
     boxing_metadata_list * metadata_list,
     boxing_image8 * image,
     int * extract_result,
-    void * user_data)
+    void * user_data,
+    boxing_metadata_content_types fallback_metadata_content_type)
 {
     boxing_stats_decode decode_stats = { 0, 0, 0.0f, 0.0f };
     boxing_image8 * frame = image;
 
-    *extract_result = boxing_dunboxerv1_extract_container(unboxer, data, metadata_list, frame, user_data);
+    *extract_result = boxing_dunboxerv1_extract_container(unboxer, data, metadata_list, frame, user_data, fallback_metadata_content_type);
     if (*extract_result != BOXING_UNBOXER_OK)
     {
         boxing_codecdispatcher * dispatcher = boxing_dunboxerv1_dispatcher((boxing_unboxer *)unboxer, CODEC_DISPATCHER_DATA_CODING_SCHEME);
@@ -218,6 +220,7 @@ int boxing_dunboxerv1_process(
  *  \param[out]     metadata_list  Decoded metadata
  *  \param[in]      frame          Image to be decoded.
  *  \param[in,out]  user_data      User data.
+ *  \param[in] fallback_metadata_content_type Fallback metadata content type if metadata decoding fails
  *  \return Unboxing result status code.
  */
 
@@ -226,7 +229,8 @@ int boxing_dunboxerv1_extract_container(
     gvector * data,
     boxing_metadata_list * metadata_list, 
     boxing_image8 * frame,
-    void * user_data)
+    void * user_data,
+    boxing_metadata_content_types fallback_metadata_content_type)
 {
     if (!unboxer->frame)
     {
@@ -250,7 +254,7 @@ int boxing_dunboxerv1_extract_container(
         }
     }
 #endif
-    retval = dunboxerv1_load_data_from_image(unboxer, frame, data, metadata_list, DTRUE, tracker, user_data, unboxer->quantize_data_on_load);
+    retval = dunboxerv1_load_data_from_image(unboxer, frame, data, metadata_list, DTRUE, tracker, user_data, unboxer->quantize_data_on_load, fallback_metadata_content_type);
     boxing_tracker_destroy(tracker);
 
 #ifdef BOXINGLIB_CALLBACK
@@ -1039,7 +1043,8 @@ static int dunboxerv1_load_data_from_image(
     int horizontal_border_tracking,
     struct boxing_tracker_s * tracker,
     void * user_data,
-    DBOOL quantize_data)
+    DBOOL quantize_data,
+    boxing_metadata_content_types fallback_metadata_content_type)
 {
     int retval = BOXING_UNBOXER_OK;
 
@@ -1142,11 +1147,11 @@ static int dunboxerv1_load_data_from_image(
     {
         // append missing metadata
         boxing_metadata_item_content_type * content_type = (boxing_metadata_item_content_type *)boxing_metadata_item_create(BOXING_METADATA_TYPE_CONTENTTYPE);
-        content_type->value = BOXING_METADATA_CONTENT_TYPES_DATA;
+        content_type->value = fallback_metadata_content_type;
         boxing_metadata_list_append_item(metadata_list, (boxing_metadata_item *)content_type);
 
         // should this be handled with a switch ??
-        DLOG_WARNING("(dunboxerv1_load_data_from_image) Metadata does not contain content type, defaulting to 'BOXING_METADATA_CONTENT_TYPES_DATA'");
+        DLOG_WARNING("(dunboxerv1_load_data_from_image) Metadata does not contain content type, defaulting to fallback_metadata_content_type");
     }
     
     // Analogue data?
