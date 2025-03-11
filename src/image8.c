@@ -564,7 +564,7 @@ DBOOL boxing_image8_crop_in_place(
             memmove(dst, src, width);
         }
     } else {
-        for (unsigned int y = 0; y < height; y++) {
+        for (unsigned int y = 0; y < (unsigned)height; y++) {
             const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
             boxing_image8_pixel *dst = image->data + y * width;
             memmove(dst, src, width);
