@@ -10,8 +10,7 @@ name: master
 jobs:
   build:
     name: Build on Linux
-    container:
-      image: ubuntu:bionic
+    container: ubuntu:noble
     runs-on: ubuntu-latest
 
     steps:
