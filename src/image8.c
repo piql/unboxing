@@ -552,12 +552,12 @@ DBOOL boxing_image8_crop_in_place(
     if (x_offset + width > (int)image->width) width = image->width - x_offset;
     if (y_offset + height > (int)image->height) height = image->height - y_offset;
     if (width <= 0 || height <= 0) return DFALSE;
-    if (width * height > image->width * image->height) {
+    if ((unsigned)width * (unsigned)height > image->width * image->height) {
         void *new_data = realloc(image->data, width * height);
         if (new_data == NULL) return DFALSE;
         image->data = new_data;
     }
-    if (width > image->width) {
+    if ((unsigned)width > image->width) {
         for (unsigned int y = height; y-- > 0;) {
             const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
             boxing_image8_pixel *dst = image->data + y * width;
@@ -570,12 +570,12 @@ DBOOL boxing_image8_crop_in_place(
             memmove(dst, src, width);
         }
     }
-    if (width * height < image->width * image->height) {
+    if ((unsigned)width * (unsigned)height < image->width * image->height) {
         void *new_data = realloc(image->data, width * height);
         if (new_data != NULL) image->data = new_data;
     }
-    image->width = width;
-    image->height = height;
+    image->width = (unsigned)width;
+    image->height = (unsigned)height;
     return DTRUE;
 }
 
