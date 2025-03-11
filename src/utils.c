@@ -15,7 +15,6 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/utils.h"
-#include "boxing/platform/memory.h"
 #include "ghash.h"
 #include "g_variant.h"
 
@@ -130,9 +129,9 @@
  *  \param[in] data  String item.
  */
 
-void boxing_utils_g_hash_table_destroy_item_string(void * data)
+void boxing_utils_g_hash_table_destroy_item_string(void *data)
 {
-    boxing_memory_free(data);
+    free(data);
 }
 
 
@@ -145,7 +144,7 @@ void boxing_utils_g_hash_table_destroy_item_string(void * data)
  *  \param[in] data  Ghash item.
  */
 
-void boxing_utils_g_hash_table_destroy_item_ghash(void * data)
+void boxing_utils_g_hash_table_destroy_item_ghash(void *data)
 {
     g_hash_table_destroy(data);
 }
@@ -160,7 +159,7 @@ void boxing_utils_g_hash_table_destroy_item_ghash(void * data)
  *  \param[in] data  Gvariant item.
  */
 
-void boxing_utils_g_hash_table_destroy_item_g_variant(void * data)
+void boxing_utils_g_hash_table_destroy_item_g_variant(void *data)
 {
     g_variant_free(data);
 }

@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/reedsolomon.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -77,7 +76,7 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
 boxing_codec * boxing_codec_reedsolomon_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config );
-    boxing_codec_reedsolomon * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_reedsolomon);
+    boxing_codec_reedsolomon * codec = malloc(sizeof(boxing_codec_reedsolomon));
     codec->rs = NULL;
     g_variant * message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (message_size == NULL)
@@ -128,7 +127,7 @@ void boxing_codec_reedsolomon_free(boxing_codec * codec)
 {
     boxing_codec_release_base(codec);
     rs_free(((boxing_codec_reedsolomon *)codec)->rs);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

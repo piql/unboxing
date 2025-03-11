@@ -58,8 +58,7 @@ unboxercodecsinclude_HEADERS = \
 boxingplatformincludedir = $(includedir)/boxing/platform
 boxingplatforminclude_HEADERS = \
     inc/boxing/platform/platform.h \
-    inc/boxing/platform/types.h \
-    inc/boxing/platform/memory.h
+    inc/boxing/platform/types.h
 
 boxingframeincludedir = $(includedir)/boxing/frame
 boxingframeinclude_HEADERS = \

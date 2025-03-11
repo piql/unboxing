@@ -72,9 +72,9 @@ libunboxing_a_SOURCES = \
     unboxer/frameutil.c \
     unboxer/cornermark.c \
     unboxer/syncpoints.c \
+    unboxer/adaptive_filter.c \
     base/math_crc64.c \
     base/math_crc32.c \
-    platform/memory.c \
     platform/platform.c \
     frame/trackergpf_1.c \
     frame/bilinearsampler.c \
@@ -97,7 +97,8 @@ libunboxing_a_SOURCES = \
     graphics/label.c \
     graphics/genericframegpf_1.c \
     config.c \
-    globals.c
+    globals.c \
+    viewport.c
 
 libunboxing_a_SOURCES += \
 	../thirdparty/bch/bch.h \

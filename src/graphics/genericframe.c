@@ -17,7 +17,7 @@
 #include "boxing/graphics/genericframe.h"
 #include "boxing/utils.h"
 #include "boxing/string.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 //  PRIVATE INTERFACE
 //
@@ -158,10 +158,10 @@ void boxing_generic_frame_init(struct boxing_frame_s * frame)
 
 void boxing_generic_frame_free(struct boxing_frame_s * frame)
 {
-    boxing_memory_free(frame->format);
-    boxing_memory_free(frame->name);
-    boxing_memory_free(frame->short_description);
-    boxing_memory_free(frame->description);
+    free(frame->format);
+    free(frame->name);
+    free(frame->short_description);
+    free(frame->description);
 }
 
 
@@ -241,7 +241,7 @@ const char * boxing_generic_frame_get_description(const struct boxing_frame_s * 
 
 void  boxing_generic_frame_set_format(boxing_frame * frame, const char * format)
 {
-    boxing_memory_free(frame->format);
+    free(frame->format);
     frame->format = boxing_string_clone(format);
 }
 
@@ -258,7 +258,7 @@ void  boxing_generic_frame_set_format(boxing_frame * frame, const char * format)
 
 void boxing_generic_frame_set_name(struct boxing_frame_s * frame, const char * name)
 {
-    boxing_memory_free(frame->name);
+    free(frame->name);
     frame->name = boxing_string_clone(name);
 }
 
@@ -275,7 +275,7 @@ void boxing_generic_frame_set_name(struct boxing_frame_s * frame, const char * n
 
 void boxing_generic_frame_set_short_description(struct boxing_frame_s * frame, const char * name)
 {
-    boxing_memory_free(frame->short_description);
+    free(frame->short_description);
     frame->short_description = boxing_string_clone(name);
 }
 
@@ -292,7 +292,7 @@ void boxing_generic_frame_set_short_description(struct boxing_frame_s * frame, c
 
 void boxing_generic_frame_set_description(struct boxing_frame_s * frame, const char * name)
 {
-    boxing_memory_free(frame->description);
+    free(frame->description);
     frame->description = boxing_string_clone(name);
 }
 

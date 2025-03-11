@@ -29,7 +29,6 @@
 //  BASE INCLUDES
 //
 #include    "boxing/log.h"
-#include    "boxing/platform/memory.h"
 
 //  SYSTEM INCLUDES
 //
@@ -242,7 +241,7 @@ static boxing_linef * calculate_lines(
 
 boxing_tracker_gpf_1 * boxing_tracker_gpf_1_create(boxing_frame_gpf_1 * generic_frame)
 {
-    boxing_tracker_gpf_1 * tracker = (boxing_tracker_gpf_1 *)BOXING_MEMORY_ALLOCATE_TYPE(boxing_frame_gpf_1);
+    boxing_tracker_gpf_1 * tracker = malloc(sizeof(boxing_frame_gpf_1));
     boxing_tracker_gpf_init(&tracker->base, (boxing_frame*)generic_frame);
     tracker->base.base.mode = BOXING_TRACK_HORIZONTAL_SHIFT|
                               BOXING_TRACK_CONTENT_CONTAINER|
@@ -320,7 +319,7 @@ boxing_tracker_gpf_1 * boxing_tracker_gpf_1_create(boxing_frame_gpf_1 * generic_
     memcpy(strbuf + strlen_marks, ".bottom.right", boxing_string_length(".bottom.right") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->bottom_right_corner_mark_sampler);
 
-    boxing_memory_free(strbuf);
+    free(strbuf);
     strbuf = NULL;
 
     tracker->tile_size = generic_frame->base.metadata_container(&generic_frame->base)->get_tile_size(generic_frame->base.metadata_container(&generic_frame->base)).y;
@@ -444,8 +443,8 @@ DBOOL boxing_calculate_sampling_location(
     }
 
     // Group data for better cache performance
-    boxing_float* offsets = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, offsets_size * 2);
-    boxing_float* p = offsets;
+    boxing_float *offsets = calloc(offsets_size * 2, sizeof(boxing_float));
+    boxing_float *p = offsets;
 
     for (int i = 0; i < offsets_size; i++)
     {
@@ -457,12 +456,12 @@ DBOOL boxing_calculate_sampling_location(
 
     // Calculate horizontal lines
     int line_count_h = left_bar_points_size > right_bar_points_size ? right_bar_points_size : left_bar_points_size;
-    boxing_linef * horizontal_lines = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_linef, line_count_h);
+    boxing_linef *horizontal_lines = calloc(line_count_h, sizeof(boxing_linef));
     calculate_lines(left_bar_points, left_bar_points_size, right_bar_points, right_bar_points_size, horizontal_lines);
 
     // Calculate vertical lines
     int line_count_v = top_bar_points_size > bottom_bar_points_size ? bottom_bar_points_size : top_bar_points_size;
-    boxing_linef * vertical_lines = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_linef, line_count_v);
+    boxing_linef *vertical_lines = calloc(line_count_v, sizeof(boxing_linef));
     calculate_lines(top_bar_points, top_bar_points_size, bottom_bar_points, bottom_bar_points_size, vertical_lines);
 
     DBOOL retval = DTRUE;
@@ -475,7 +474,7 @@ DBOOL boxing_calculate_sampling_location(
         (boxing_float)width,
         &tracker->base.content_sampler->location_matrix);
 
-    boxing_memory_free(horizontal_lines);
+    free(horizontal_lines);
     horizontal_lines = NULL;
 
     if (retval)
@@ -483,14 +482,14 @@ DBOOL boxing_calculate_sampling_location(
         tracker->base.content_sampler->state = DTRUE;
     }
 
-    boxing_generic_container * container = SMEMBER(frame)->base.metadata_container(&SMEMBER(frame)->base);
+    boxing_generic_container *container = SMEMBER(frame)->base.metadata_container(&SMEMBER(frame)->base);
     boxing_pointi tile_size = container->get_tile_size(container);
     boxing_pointi metadata_container_size = container->dimension(container);
     int horizontal_tile_count = metadata_container_size.x / tile_size.x;
     int vertical_tile_count = metadata_container_size.y / tile_size.y;
 
     // Calculate metadata_vertical_lines lines
-    boxing_linef * metadata_vertical_lines = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_linef, horizontal_tile_count);
+    boxing_linef *metadata_vertical_lines = calloc(horizontal_tile_count, sizeof(boxing_linef));
 
     int inc = tile_size.x / SMEMBER(frame)->reference_bar_freq_divider;
     if ((inc - 1) % 2)
@@ -516,12 +515,12 @@ DBOOL boxing_calculate_sampling_location(
         }
     }
 
-    boxing_memory_free(vertical_lines);
+    free(vertical_lines);
     vertical_lines = NULL;
 
     // Calculate metadata_horizontal_lines lines
-    boxing_pointf * metadata_right_bar_points = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_pointf, vertical_tile_count);
-    boxing_pointf * metadata_left_bar_points = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_pointf, vertical_tile_count);
+    boxing_pointf *metadata_right_bar_points = calloc(vertical_tile_count, sizeof(boxing_pointf));
+    boxing_pointf *metadata_left_bar_points = calloc(vertical_tile_count, sizeof(boxing_pointf));
     for (int i = 0; i < vertical_tile_count; i++)
     {
         metadata_left_bar_points[i].x = (boxing_float)corner_marks->bottom_left.x;
@@ -530,7 +529,7 @@ DBOOL boxing_calculate_sampling_location(
         metadata_right_bar_points[i].y = corner_marks->bottom_right.y + BASEMEMBER(base.y_sampling_rate) * ((boxing_float)tile_size.y / (boxing_float)2 + tile_size.y * i);
     }
 
-    boxing_linef * metadata_horizontal_lines = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_linef, vertical_tile_count);
+    boxing_linef *metadata_horizontal_lines = calloc(vertical_tile_count, sizeof(boxing_linef));
 
     calculate_lines(metadata_left_bar_points, vertical_tile_count, metadata_right_bar_points, vertical_tile_count, metadata_horizontal_lines);
 
@@ -546,11 +545,11 @@ DBOOL boxing_calculate_sampling_location(
     {
         tracker->base.metadata_sampler->state = DTRUE;
     }
-    boxing_memory_free(metadata_horizontal_lines);
-    boxing_memory_free(metadata_left_bar_points);
-    boxing_memory_free(metadata_right_bar_points);
-    boxing_memory_free(metadata_vertical_lines);
-    boxing_memory_free(offsets);
+    free(metadata_horizontal_lines);
+    free(metadata_left_bar_points);
+    free(metadata_right_bar_points);
+    free(metadata_vertical_lines);
+    free(offsets);
 
     return retval;
 }
@@ -636,7 +635,7 @@ static boxing_pointf boxing_coordmapper_map(const boxing_coordmapper * mapper, i
 
 static void tracker_gpf_1_free(boxing_tracker * tracker)
 {
-    boxing_memory_free(SMEMBER(syncpoint_index).data);
+    free(SMEMBER(syncpoint_index).data);
     boxing_sampler_destroy(SMEMBER(left_reference_bar_sampler));
     boxing_sampler_destroy(SMEMBER(right_reference_bar_sampler)); 
     boxing_sampler_destroy(SMEMBER(top_reference_bar_sampler));
@@ -770,8 +769,8 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
         return 1;
     }
 
-    boxing_float * horizontal_left_shift  = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(boxing_float, input_image->height);
-    boxing_float * horizontal_right_shift = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(boxing_float, input_image->height);
+    boxing_float *horizontal_left_shift  = calloc(input_image->height, sizeof(boxing_float));
+    boxing_float *horizontal_right_shift = calloc(input_image->height, sizeof(boxing_float));
 
     if(tracker->base.mode & BOXING_TRACK_HORIZONTAL_SHIFT)
     {
@@ -829,9 +828,9 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
         return 1;
     }
 
-    boxing_memory_free(horizontal_right_shift);
+    free(horizontal_right_shift);
     horizontal_right_shift = NULL;
-    boxing_memory_free(horizontal_left_shift);
+    free(horizontal_left_shift);
     horizontal_left_shift = NULL;
 
     if(tracker->base.mode & BOXING_TRACK_VERTICAL_SHIFT)
@@ -936,7 +935,7 @@ static void get_displacement_matrix(boxing_tracker_gpf_1 *tracker, const boxing_
 
 static DBOOL calc_horizontal_offset(boxing_tracker_gpf_1 * tracker, const boxing_image8 * image, const boxing_pointi from, const boxing_pointi to, float * offsets, int scan_direction)
 {
-    boxing_float * border_location = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, image->height);
+    boxing_float *border_location = calloc(image->height, sizeof(boxing_float));
     boxing_frame_tracker_util_track_vertical_border(image, &from, &to, border_location, scan_direction, BASEMEMBER(base.x_sampling_rate));
 
     boxing_pointf * top    = tracker->top_reference_bar_sampler->location_matrix.data;
@@ -960,7 +959,7 @@ static DBOOL calc_horizontal_offset(boxing_tracker_gpf_1 * tracker, const boxing
         assert( isfinite( offsets[y] ) );
     }
 
-    boxing_memory_free(border_location);
+    free(border_location);
     return DTRUE;
 }
 

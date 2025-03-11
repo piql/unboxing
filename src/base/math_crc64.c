@@ -17,7 +17,6 @@
 //
 #include "boxing/math/crc64.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 
 //  PRIVATE INTERFACE
 //
@@ -94,7 +93,7 @@ dcrc64 * boxing_math_crc64_create_def()
 dcrc64 * boxing_math_crc64_create(boxing_uint64 seed, boxing_uint64 polynom)
 {
 
-    dcrc64 * dcrc = BOXING_MEMORY_ALLOCATE_TYPE(dcrc64);
+    dcrc64 * dcrc = malloc(sizeof(dcrc64));
     DFATAL(dcrc, "Out of memory");
 
     dcrc->crc = seed;
@@ -141,7 +140,7 @@ dcrc64 * boxing_math_crc64_create(boxing_uint64 seed, boxing_uint64 polynom)
 
 void boxing_math_crc64_free(dcrc64 * dcrc64)
 {
-    boxing_memory_free(dcrc64);
+    free(dcrc64);
 }
 
 

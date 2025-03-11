@@ -16,7 +16,7 @@
 //
 
 #include "boxing/unboxer_utility.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 #include "boxing/string.h"
 #include "boxing/config.h"
 
@@ -49,8 +49,8 @@
  *  \return instance of boxing_unboxer_utility or NULL.
  */
 
-boxing_unboxer_utility* boxing_unboxer_utility_create(
-    boxing_config * format,
+boxing_unboxer_utility *boxing_unboxer_utility_create(
+    boxing_config *format,
     DBOOL is_raw
 #ifdef BOXINGLIB_CALLBACK
     ,boxing_all_complete_cb on_all_complete, boxing_metadata_complete_cb  on_metadata_complete
@@ -64,14 +64,14 @@ boxing_unboxer_utility* boxing_unboxer_utility_create(
     }
 
     // Create an instance of the object
-    boxing_unboxer_utility* utility = BOXING_MEMORY_ALLOCATE_TYPE(boxing_unboxer_utility);
+    boxing_unboxer_utility *utility = malloc(sizeof(boxing_unboxer_utility));
     utility->unboxer = NULL;
     utility->parameters = NULL;
 
     // Create structure of boxing configuration parameters
-    utility->parameters = BOXING_MEMORY_ALLOCATE_TYPE(boxing_unboxer_parameters);
+    utility->parameters = malloc(sizeof(boxing_unboxer_parameters));
     boxing_unboxer_parameters_init(utility->parameters);
-    boxing_memory_clear(utility->parameters, sizeof(utility->parameters));
+    memset(utility->parameters, 0, sizeof utility->parameters);
 
     // Set the format
     utility->parameters->format = format;
@@ -103,7 +103,7 @@ boxing_unboxer_utility* boxing_unboxer_utility_create(
  *  \return process result.
  */
 
-int boxing_unboxer_utility_unbox(boxing_unboxer_utility* unboxer_utility, boxing_image8* input_image, gvector* output_data)
+int boxing_unboxer_utility_unbox(boxing_unboxer_utility *unboxer_utility, boxing_image8 *input_image, gvector *output_data)
 {
     if (unboxer_utility == NULL || input_image == NULL)
     {
@@ -129,14 +129,14 @@ int boxing_unboxer_utility_unbox(boxing_unboxer_utility* unboxer_utility, boxing
  *  \param[in]   unboxer_utility  Unboxing utility instance.
  */
 
-void boxing_unboxer_utility_free(boxing_unboxer_utility* unboxer_utility)
+void boxing_unboxer_utility_free(boxing_unboxer_utility *unboxer_utility)
 {
     if (unboxer_utility != NULL)
     {
         boxing_unboxer_free(unboxer_utility->unboxer);
         boxing_unboxer_parameters_free(unboxer_utility->parameters);
-        boxing_memory_free(unboxer_utility->parameters);
+        free(unboxer_utility->parameters);
     }
 
-    boxing_memory_free(unboxer_utility);
+    free(unboxer_utility);
 }

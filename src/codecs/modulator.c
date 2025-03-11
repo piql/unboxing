@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/modulator.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -75,7 +74,7 @@ static DBOOL codec_encode(void * codec, gvector * data);
 boxing_codec * boxing_codec_modulator_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config );
-    boxing_codec_modulator * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_modulator);
+    boxing_codec_modulator * codec = malloc(sizeof(boxing_codec_modulator));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_codec_modulator_free;
     codec->base.is_error_correcting = DFALSE;
@@ -120,7 +119,7 @@ boxing_codec * boxing_codec_modulator_create(GHashTable * properties, const boxi
 void boxing_codec_modulator_free(boxing_codec * codec)
 {
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

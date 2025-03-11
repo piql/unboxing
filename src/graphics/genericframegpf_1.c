@@ -26,7 +26,6 @@
 //  BASE INCLUDES
 //
 #include    "boxing/log.h"
-#include    "boxing/platform/memory.h"
 
 //  DEFINES
 //
@@ -528,67 +527,67 @@ static void add(boxing_frame_gpf_1 * frame, boxing_component * child)
 static void add_components(boxing_frame_gpf_1 * frame)
 {
     // top left corner mark;
-    frame->top_left_reference_point = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_point);
+    frame->top_left_reference_point = malloc(sizeof(boxing_reference_point));
     boxing_reference_point_init(frame->top_left_reference_point, frame->corner_mark_gap);
     add(frame, (boxing_component *)frame->top_left_reference_point);
 
     // top right corner mark;
-    frame->top_right_reference_point = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_point);
+    frame->top_right_reference_point = malloc(sizeof(boxing_reference_point));
     boxing_reference_point_init(frame->top_right_reference_point, frame->corner_mark_gap);
     add(frame, (boxing_component *)frame->top_right_reference_point);
 
     // bottom left corner mark;
-    frame->bottom_left_reference_point = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_point);
+    frame->bottom_left_reference_point = malloc(sizeof(boxing_reference_point));
     boxing_reference_point_init(frame->bottom_left_reference_point, frame->corner_mark_gap);
     add(frame, (boxing_component *)frame->bottom_left_reference_point);
 
     // bottom right corner mark;
-    frame->bottom_right_reference_point = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_point);
+    frame->bottom_right_reference_point = malloc(sizeof(boxing_reference_point));
     boxing_reference_point_init(frame->bottom_right_reference_point, frame->corner_mark_gap);
     add(frame, (boxing_component *)frame->bottom_right_reference_point);
 
     // top reference bar
-    frame->top_reference_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_bar);
+    frame->top_reference_bar = malloc(sizeof(boxing_reference_bar));
     boxing_reference_bar_init(frame->top_reference_bar, BOXING_ALIGN_HORIZONTAL, frame->reference_bar_freq_divider, frame->reference_bar_sync_distance, frame->reference_bar_sync_offset);
     add(frame, (boxing_component *)frame->top_reference_bar);
 
     // bottom reference bar
-    frame->bottom_reference_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_bar);
+    frame->bottom_reference_bar = malloc(sizeof(boxing_reference_bar));
     boxing_reference_bar_init(frame->bottom_reference_bar, BOXING_ALIGN_HORIZONTAL, frame->reference_bar_freq_divider, frame->reference_bar_sync_distance, frame->reference_bar_sync_offset);
     add(frame, (boxing_component *)frame->bottom_reference_bar);
 
     // left reference bar
-    frame->left_reference_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_bar);
+    frame->left_reference_bar = malloc(sizeof(boxing_reference_bar));
     boxing_reference_bar_init(frame->left_reference_bar, BOXING_ALIGN_VERTICAL, frame->reference_bar_freq_divider, frame->reference_bar_sync_distance, frame->reference_bar_sync_offset);
     add(frame, (boxing_component *)frame->left_reference_bar);
 
     // right reference bar
-    frame->right_reference_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_reference_bar);
+    frame->right_reference_bar = malloc(sizeof(boxing_reference_bar));
     boxing_reference_bar_init(frame->right_reference_bar, BOXING_ALIGN_VERTICAL, frame->reference_bar_freq_divider, frame->reference_bar_sync_distance, frame->reference_bar_sync_offset);
     add(frame, (boxing_component *)frame->right_reference_bar);
 
     // calabration bar
-    frame->calibration_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_calibration_bar);
+    frame->calibration_bar = malloc(sizeof(boxing_calibration_bar));
     boxing_calibration_bar_init(frame->calibration_bar, frame->levels_per_symbol);
     add(frame, (boxing_component *)frame->calibration_bar);
 
     // content container
-    frame->content_container = BOXING_MEMORY_ALLOCATE_TYPE(boxing_content_container);
+    frame->content_container = malloc(sizeof(boxing_content_container));
     boxing_content_container_init(frame->content_container);
     add(frame, (boxing_component *)frame->content_container);
 
     // metadata bar
-    frame->metadata_bar = BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_bar);
+    frame->metadata_bar = malloc(sizeof(boxing_metadata_bar));
     boxing_metadata_bar_init(frame->metadata_bar, frame->tiles_per_column);
     add(frame, (boxing_component *)frame->metadata_bar);
 
     // system define human readable
-    frame->label_system_define = BOXING_MEMORY_ALLOCATE_TYPE(boxing_label);
+    frame->label_system_define = malloc(sizeof(boxing_label));
     boxing_label_init(frame->label_system_define, "", BOXING_ALIGN_VERTICAL);
     add(frame, (boxing_component *)frame->label_system_define);
 
     // user define human readable
-    frame->label_user_define = BOXING_MEMORY_ALLOCATE_TYPE(boxing_label);
+    frame->label_user_define = malloc(sizeof(boxing_label));
     boxing_label_init(frame->label_user_define, "", BOXING_ALIGN_VERTICAL);
     add(frame, (boxing_component *)frame->label_user_define);
 
@@ -612,19 +611,19 @@ static void frame_gpf_1_free(boxing_frame * frame)
     SMEMBER(label_system_define)->base.free((boxing_component*)SMEMBER(label_system_define));
     SMEMBER(label_user_define)->base.free((boxing_component*)SMEMBER(label_user_define));
 
-    boxing_memory_free(SMEMBER(top_left_reference_point));
-    boxing_memory_free(SMEMBER(top_right_reference_point));
-    boxing_memory_free(SMEMBER(bottom_left_reference_point));
-    boxing_memory_free(SMEMBER(bottom_right_reference_point));
-    boxing_memory_free(SMEMBER(top_reference_bar));
-    boxing_memory_free(SMEMBER(bottom_reference_bar));
-    boxing_memory_free(SMEMBER(left_reference_bar));
-    boxing_memory_free(SMEMBER(right_reference_bar));
-    boxing_memory_free(SMEMBER(calibration_bar));
-    boxing_memory_free(SMEMBER(content_container));
-    boxing_memory_free(SMEMBER(metadata_bar));
-    boxing_memory_free(SMEMBER(label_system_define));
-    boxing_memory_free(SMEMBER(label_user_define));
+    free(SMEMBER(top_left_reference_point));
+    free(SMEMBER(top_right_reference_point));
+    free(SMEMBER(bottom_left_reference_point));
+    free(SMEMBER(bottom_right_reference_point));
+    free(SMEMBER(top_reference_bar));
+    free(SMEMBER(bottom_reference_bar));
+    free(SMEMBER(left_reference_bar));
+    free(SMEMBER(right_reference_bar));
+    free(SMEMBER(calibration_bar));
+    free(SMEMBER(content_container));
+    free(SMEMBER(metadata_bar));
+    free(SMEMBER(label_system_define));
+    free(SMEMBER(label_user_define));
     boxing_border_free((boxing_component*)&SMEMBER(base_border));
 
     boxing_generic_frame_free(frame);

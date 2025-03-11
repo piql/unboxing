@@ -19,7 +19,6 @@
 #include    "boxing/graphics/genericframe.h"
 #include    "boxing/unboxer/abstractframeutil.h"
 #include    "unboxerv1.h"
-#include    "boxing/platform/memory.h"
 #include    "boxing/bool.h"
 #include    "boxing/utils.h"
 
@@ -691,14 +690,15 @@ void boxing_unboxer_parameters_init(boxing_unboxer_parameters * parameters)
     parameters->on_all_complete = NULL;
     parameters->orig_image = NULL;
 #endif
-    parameters->format = NULL;
-    parameters->codec_cb = NULL;
     parameters->is_raw = DFALSE;
+    parameters->codec_cb = NULL;
+    parameters->format = NULL;
     parameters->training_mode = DFALSE;
+    parameters->training_mode_reference = NULL;
     parameters->training_result = NULL;
+    boxing_filter_init( &parameters->pre_filter );
     parameters->sample_contents = NULL;
     parameters->quantize_contents = NULL;
-    boxing_filter_init( &parameters->pre_filter );
 }
 
 

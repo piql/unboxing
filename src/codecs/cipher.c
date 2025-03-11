@@ -17,7 +17,6 @@
 #include "boxing/utils.h"
 #include "boxing/codecs/cipher.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 
 //  DEFINES
 //
@@ -77,7 +76,7 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
 boxing_codec * boxing_codec_cipher_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER(config);
-    boxing_codec_cipher * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_cipher);
+    boxing_codec_cipher * codec = malloc(sizeof(boxing_codec_cipher));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_codec_cipher_free;
     codec->base.is_error_correcting = DFALSE;
@@ -152,7 +151,7 @@ boxing_codec * boxing_codec_cipher_create(GHashTable * properties, const boxing_
 void boxing_codec_cipher_free(boxing_codec *codec)
 {
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

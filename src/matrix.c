@@ -16,7 +16,6 @@
 //
 #include "boxing/matrix.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 
 
 /*! 
@@ -146,22 +145,22 @@
  *  \return instance of allocated multipage matrix with float elements.
  */
 
-boxing_matrix_float * boxing_matrix_float_multipage_create(unsigned int rows, unsigned int cols, unsigned int pages)
+boxing_matrix_float *boxing_matrix_float_multipage_create(unsigned int rows, unsigned int cols, unsigned int pages)
 {
     if (cols == 0 || rows == 0)
     {
         return NULL;
     }
 
-    boxing_matrix_float * matrix = BOXING_MEMORY_ALLOCATE_TYPE(boxing_matrix_float);
+    boxing_matrix_float *matrix = malloc(sizeof(boxing_matrix_float));
     matrix->cols = cols;
     matrix->rows = rows;
     matrix->pages = pages;
-    matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, cols * rows * pages);
+    matrix->data = calloc(cols * rows * pages, sizeof(boxing_float));
     matrix->is_owning_data = DTRUE;
     if (matrix->data == NULL && cols * rows * pages != 0)
     {
-        boxing_memory_free(matrix);
+        free(matrix);
         DLOG_ERROR("(boxing_matrix_float_multipage_create) Failed to allocate matrix");
         return NULL;
     }
@@ -179,15 +178,15 @@ boxing_matrix_float * boxing_matrix_float_multipage_create(unsigned int rows, un
  *  \param[in]  matrix  Pointer to the multipage matrix structure.
  */
 
-void boxing_matrix_float_free(boxing_matrix_float * matrix)
+void boxing_matrix_float_free(boxing_matrix_float *matrix)
 {
     if (matrix != NULL)
     {
         if (matrix->is_owning_data)
         {
-            boxing_memory_free(matrix->data);
+            free(matrix->data);
         }
-        boxing_memory_free(matrix);
+        free(matrix);
     }
 }
 
@@ -205,21 +204,21 @@ void boxing_matrix_float_free(boxing_matrix_float * matrix)
  *  \return instance of allocated matrix with float elements.
  */
 
-boxing_matrixf * boxing_matrixf_create(unsigned int width, unsigned int height)
+boxing_matrixf *boxing_matrixf_create(unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
         return NULL;
     }
 
-    boxing_matrixf * matrix = BOXING_MEMORY_ALLOCATE_TYPE(boxing_matrixf);
+    boxing_matrixf *matrix = malloc(sizeof(boxing_matrixf));
     matrix->width = width;
     matrix->height = height;
-    matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_pointf, width * height);
+    matrix->data = calloc(width * height, sizeof(boxing_pointf));
     matrix->is_owning_data = DTRUE;
     if (matrix->data == NULL)
     {
-        boxing_memory_free(matrix);
+        free(matrix);
         DLOG_ERROR("(boxing_matrixf_create) Failed to allocate matrix");
         return NULL;
     }
@@ -240,21 +239,21 @@ boxing_matrixf * boxing_matrixf_create(unsigned int width, unsigned int height)
  *  \return instance of allocated matrix with integer elements.
  */
 
-boxing_matrixi * boxing_matrixi_create(unsigned int width, unsigned int height)
+boxing_matrixi *boxing_matrixi_create(unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
         return NULL;
     }
 
-    boxing_matrixi * matrix = BOXING_MEMORY_ALLOCATE_TYPE(boxing_matrixi);
+    boxing_matrixi *matrix = malloc(sizeof(boxing_matrixi));
     matrix->width = width;
     matrix->height = height;
-    matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_pointi, width * height);
+    matrix->data = calloc(width * height, sizeof(boxing_pointi));
     matrix->is_owning_data = DTRUE;
     if (matrix->data == NULL)
     {
-        boxing_memory_free(matrix);
+        free(matrix);
         DLOG_ERROR("(boxing_matrixi_create) Failed to allocate matrix");
         return NULL;
     }
@@ -277,7 +276,7 @@ boxing_matrixi * boxing_matrixi_create(unsigned int width, unsigned int height)
  *  \return instance of reallocated matrix with float elements.
  */
 
-boxing_matrixf * boxing_matrixf_recreate(boxing_matrixf * matrix, unsigned int width, unsigned int height)
+boxing_matrixf *boxing_matrixf_recreate(boxing_matrixf *matrix, unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
@@ -298,7 +297,7 @@ boxing_matrixf * boxing_matrixf_recreate(boxing_matrixf * matrix, unsigned int w
         {
             if (matrix->is_owning_data && matrix->data != NULL)
             {
-                boxing_memory_free(matrix->data);
+                free(matrix->data);
                 matrix->data = NULL;
             }
             boxing_matrixf_init_in_place(matrix, width, height);
@@ -323,7 +322,7 @@ boxing_matrixf * boxing_matrixf_recreate(boxing_matrixf * matrix, unsigned int w
  *  \return instance of reallocated matrix with integer elements.
  */
 
-boxing_matrixi * boxing_matrixi_recreate(boxing_matrixi * matrix, unsigned int width, unsigned int height)
+boxing_matrixi *boxing_matrixi_recreate(boxing_matrixi *matrix, unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
@@ -344,7 +343,7 @@ boxing_matrixi * boxing_matrixi_recreate(boxing_matrixi * matrix, unsigned int w
         {
             if (matrix->is_owning_data && matrix->data != NULL)
             {
-                boxing_memory_free(matrix->data);
+                free(matrix->data);
                 matrix->data = NULL;
             }
             boxing_matrixi_init_in_place(matrix, width, height);
@@ -368,7 +367,7 @@ boxing_matrixi * boxing_matrixi_recreate(boxing_matrixi * matrix, unsigned int w
  *  \return instance of matrix with reallocated data array.
  */
 
-void boxing_matrixf_init_in_place(boxing_matrixf * matrix, unsigned int width, unsigned int height)
+void boxing_matrixf_init_in_place(boxing_matrixf *matrix, unsigned int width, unsigned int height)
 {
     if (matrix == NULL || width == 0 || height == 0)
     {
@@ -378,7 +377,7 @@ void boxing_matrixf_init_in_place(boxing_matrixf * matrix, unsigned int width, u
     matrix->is_owning_data = DTRUE;
     matrix->width = width;
     matrix->height = height;
-    matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( boxing_pointf, width * height);
+    matrix->data = calloc(width * height, sizeof(boxing_pointf));
     if (matrix->data == NULL)
     {
         boxing_throw("out of memory");
@@ -400,7 +399,7 @@ void boxing_matrixf_init_in_place(boxing_matrixf * matrix, unsigned int width, u
  *  \return instance of matrix with reallocated data array.
  */
 
-void boxing_matrixi_init_in_place(boxing_matrixi * matrix, unsigned int width, unsigned int height)
+void boxing_matrixi_init_in_place(boxing_matrixi *matrix, unsigned int width, unsigned int height)
 {
     if (matrix == NULL || width == 0 || height == 0)
     {
@@ -410,7 +409,7 @@ void boxing_matrixi_init_in_place(boxing_matrixi * matrix, unsigned int width, u
     matrix->is_owning_data = DTRUE;
     matrix->width = width;
     matrix->height = height;
-    matrix->data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( boxing_pointi, width * height );
+    matrix->data = calloc(width * height, sizeof(boxing_pointi));
     if (matrix->data == NULL)
     {
         boxing_throw("out of memory");
@@ -429,23 +428,23 @@ void boxing_matrixi_init_in_place(boxing_matrixi * matrix, unsigned int width, u
  *  \return new copy of matrix with float elements or NULL.
  */
 
-boxing_matrixf * boxing_matrixf_copy(const boxing_matrixf * matrix)
+boxing_matrixf *boxing_matrixf_copy(const boxing_matrixf *matrix)
 {
     if (matrix == NULL)
     {
         return NULL;
     }
 
-    boxing_matrixf * copy = boxing_matrixf_create(matrix->width, matrix->height);
+    boxing_matrixf *copy = boxing_matrixf_create(matrix->width, matrix->height);
 
     if (matrix->data == NULL)
     {
-        boxing_memory_free(copy->data);
+        free(copy->data);
         copy->data = NULL;
     }
     else
     {
-        boxing_memory_copy(copy->data, matrix->data, matrix->width * matrix->height * sizeof(boxing_pointf));
+        memcpy(copy->data, matrix->data, matrix->width * matrix->height * sizeof(boxing_pointf));
     }
     
     return copy;
@@ -463,23 +462,23 @@ boxing_matrixf * boxing_matrixf_copy(const boxing_matrixf * matrix)
  *  \return new copy of matrix with integer elements or NULL.
  */
 
-boxing_matrixi * boxing_matrixi_copy(const boxing_matrixi * matrix)
+boxing_matrixi *boxing_matrixi_copy(const boxing_matrixi *matrix)
 {
     if (matrix == NULL)
     {
         return NULL;
     }
 
-    boxing_matrixi * copy = boxing_matrixi_create(matrix->width, matrix->height);
+    boxing_matrixi *copy = boxing_matrixi_create(matrix->width, matrix->height);
 
     if (matrix->data == NULL)
     {
-        boxing_memory_free(copy->data);
+        free(copy->data);
         copy->data = NULL;
     }
     else
     {
-        boxing_memory_copy(copy->data, matrix->data, matrix->width * matrix->height * sizeof(boxing_pointi));
+        memcpy(copy->data, matrix->data, matrix->width * matrix->height * sizeof(boxing_pointi));
     }
 
     return copy;
@@ -496,15 +495,15 @@ boxing_matrixi * boxing_matrixi_copy(const boxing_matrixi * matrix)
  *  \param[in]  matrix  Pointer to the matrix structure.
  */
 
-void boxing_matrixf_free(boxing_matrixf * matrix)
+void boxing_matrixf_free(boxing_matrixf *matrix)
 {
     if (matrix != NULL)
     {
         if (matrix->is_owning_data)
         {
-            boxing_memory_free(matrix->data);
+            free(matrix->data);
         }
-        boxing_memory_free(matrix);
+        free(matrix);
     }
 }
 
@@ -519,15 +518,15 @@ void boxing_matrixf_free(boxing_matrixf * matrix)
  *  \param[in]  matrix  Pointer to the matrix structure.
  */
 
-void boxing_matrixi_free(boxing_matrixi * matrix)
+void boxing_matrixi_free(boxing_matrixi *matrix)
 {
     if (matrix != NULL)
     {
         if (matrix->is_owning_data)
         {
-            boxing_memory_free(matrix->data);
+            free(matrix->data);
         }
-        boxing_memory_free(matrix);
+        free(matrix);
     }
 }
 

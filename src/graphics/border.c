@@ -16,7 +16,6 @@
 //
 #include    "boxing/graphics/border.h"
 #include    "boxing/utils.h"
-#include    "boxing/platform/memory.h"
 
 //  DEFINES
 //
@@ -71,7 +70,7 @@ void boxing_border_init(boxing_border * border, int border_size, int gap_size)
     boxing_component_init((boxing_component*)border, NULL);
     border->border_size = border_size;
     border->gap_size = gap_size;
-    border->container = BOXING_MEMORY_ALLOCATE_TYPE(boxing_component);
+    border->container = malloc(sizeof(boxing_component));
     boxing_component_init((boxing_component*)border->container, NULL);
 
     border->container->pos.x = border->border_size+border->gap_size;
@@ -99,7 +98,7 @@ void boxing_border_free(boxing_component * border)
 {
     boxing_component_free(SMEMBER(container));
     boxing_component_free(border);
-    boxing_memory_free(SMEMBER(container));
+    free(SMEMBER(container));
 }
 
 

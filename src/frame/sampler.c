@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include    "boxing/unboxer/sampler.h"
-#include    "boxing/platform/memory.h"
+#include    "boxing/platform/platform.h"
 
 //  CONSTANTS
 //
@@ -109,7 +109,7 @@ void boxing_sampler_init(boxing_sampler * sampler, int width, int height)
     sampler->state = DFALSE;
     boxing_matrixf_init_in_place(&sampler->location_matrix, width, height);
     sampler->free = boxing_sampler_free;
-    sampler->sample = BOXING_NULL_POINTER;
+    sampler->sample = NULL;
 }
 
 
@@ -126,7 +126,7 @@ void boxing_sampler_free(boxing_sampler * sampler)
 {
     if (sampler->location_matrix.is_owning_data)
     {
-        boxing_memory_free(sampler->location_matrix.data);
+        free(sampler->location_matrix.data);
         sampler->location_matrix.data = NULL;
     }
 }
@@ -147,7 +147,7 @@ void boxing_sampler_destroy(boxing_sampler * sampler)
     if (sampler)
     {
         sampler->free(sampler);
-        boxing_memory_free(sampler);
+        free(sampler);
     }
 }
 

@@ -1,5 +1,4 @@
 #include "bch.h"
-#include "boxing/platform/memory.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -21,10 +20,10 @@ int main(int args, char *argv[])
     const unsigned int ecc_size = bc->ecc_bytes;
     const unsigned int data_size = block_size - ecc_size;
 
-    unsigned char *data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(unsigned char, block_size);
+    unsigned char *data = calloc(block_size, sizeof(unsigned char));
     unsigned char *data_ecc = data + data_size;
     memset(data_ecc, 0, ecc_size);
-    unsigned int  *errloc = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(unsigned int, block_size);
+    unsigned int  *errloc = calloc(block_size, sizeof(unsigned int));
 
 
     for (unsigned int i = 0; i < data_size; i++)
@@ -73,7 +72,7 @@ int main(int args, char *argv[])
             }
         }
     }
-    boxing_memory_free(data);
-    boxing_memory_free(errloc);
+    free(data);
+    free(errloc);
     return 0;
 }

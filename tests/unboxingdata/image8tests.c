@@ -1,7 +1,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
 #include "unittests.h"
-#include "boxing/platform/memory.h"
 #include "boxing/image8.h"
 #include "boxing/utils.h"
 
@@ -237,7 +236,7 @@ BOXING_START_TEST(BOXING_image8_recreate_test8)
     BOXING_ASSERT(temp_image1 == temp_image2);
 
     boxing_image8_free(temp_image2);
-    boxing_memory_free(temp_data);
+    free(temp_data);
 }
 END_TEST
 
@@ -330,7 +329,7 @@ BOXING_START_TEST(BOXING_image8_init_in_place_test6)
     check_image(temp_image, 111, 110, DTRUE);
 
     boxing_image8_free(temp_image);
-    boxing_memory_free(image_data);
+    free(image_data);
 }
 END_TEST
 
@@ -369,7 +368,7 @@ BOXING_START_TEST(BOXING_image8_init_in_place_test8)
     check_image(temp_image, 111, 110, DTRUE);
 
     boxing_image8_free(temp_image);
-    boxing_memory_free(image_data);
+    free(image_data);
 }
 END_TEST
 
@@ -430,7 +429,7 @@ BOXING_START_TEST(BOXING_image8_free_test4)
 
     //BOXING_ASSERT(temp_image == NULL); How to test freeing memory?
     BOXING_ASSERT(datapointer != NULL);
-    boxing_memory_free(datapointer);
+    free(datapointer);
 }
 END_TEST
 

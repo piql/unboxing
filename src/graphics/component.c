@@ -15,7 +15,6 @@
 //  PROJECT INCLUDES
 //
 #include    "boxing/graphics/component.h"
-#include    "boxing/platform/memory.h"
 
 
 /*! 
@@ -128,7 +127,7 @@ boxing_pointi boxing_component_absolute_location(const boxing_component * compon
 
 void boxing_component_free(boxing_component * component)
 {
-    boxing_memory_free(component->children.buffer);
+    free(component->children.buffer);
 }
 
 

@@ -16,7 +16,6 @@
 //
 #include "boxing/math/crc32.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 
 struct dcrc32_s
 {
@@ -113,9 +112,9 @@ dcrc32 * boxing_math_crc32_create_def()
  *  \return instance of allocated dcrc32 structure.
  */
 
-dcrc32 * boxing_math_crc32_create(boxing_uint32 seed, boxing_uint32 polynom)
+dcrc32 *boxing_math_crc32_create(boxing_uint32 seed, boxing_uint32 polynom)
 {
-    dcrc32 * dcrc = BOXING_MEMORY_ALLOCATE_TYPE(dcrc32);
+    dcrc32 *dcrc = malloc(sizeof(dcrc32));
     DFATAL(dcrc, "Out of memory");
 
     dcrc->crc = seed;
@@ -150,7 +149,7 @@ dcrc32 * boxing_math_crc32_create(boxing_uint32 seed, boxing_uint32 polynom)
 
 void boxing_math_crc32_free(dcrc32 * dcrc32)
 {
-    boxing_memory_free(dcrc32);
+    free(dcrc32);
 }
 
 

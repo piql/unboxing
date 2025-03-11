@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include    "boxing/filter.h"
-#include    "boxing/platform/memory.h"
+#include    "boxing/platform/platform.h"
 
 //  PRIVATE INTERFACE
 //
@@ -87,7 +87,7 @@ static void boxing_filter_coefficients_init( boxing_filter_coeff_2d * filter_coe
  *  \param[in]  filter      Filter instance.
  */
 
-void boxing_filter_init( boxing_filter * filter )
+void boxing_filter_init( boxing_filter *filter )
 {
     static boxing_float default_filter_coefficients[] =
     {
@@ -98,7 +98,7 @@ void boxing_filter_init( boxing_filter * filter )
         -0.085390f,  0.188372f, -0.363868f,  0.188372f, -0.085390f 
     };
 
-    filter->coeff = BOXING_MEMORY_ALLOCATE_TYPE( boxing_filter_coeff_2d );
+    filter->coeff = malloc(sizeof(boxing_filter_coeff_2d));
     boxing_filter_coefficients_init( filter->coeff, 5, 5, default_filter_coefficients );
     filter->process = NULL;
     filter->scale = 1.0;
@@ -113,9 +113,9 @@ void boxing_filter_init( boxing_filter * filter )
  *  \param[in]  filter  Filter instance.
  */
 
-void boxing_filter_free( boxing_filter * filter )
+void boxing_filter_free( boxing_filter *filter )
 {
-    boxing_memory_free(filter->coeff);
+    free(filter->coeff);
 }
 
 

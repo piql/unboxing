@@ -18,7 +18,6 @@
 #include "boxing/log.h"
 #include "boxing/graphics/genericframefactory.h"
 #include "boxing/graphics/genericframe.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  CONSTANTS
@@ -107,7 +106,7 @@ static DBOOL init_capacity(struct boxing_codec_s *codec, int size);
 
 boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, const boxing_config * config)
 {
-    boxing_codec_syncpointinserter * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_syncpointinserter);
+    boxing_codec_syncpointinserter * codec = malloc(sizeof(boxing_codec_syncpointinserter));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_codec_syncpointinserter_free;
     codec->base.is_error_correcting = DFALSE;
@@ -262,11 +261,11 @@ boxing_codec * boxing_codec_syncpointinserter_create(GHashTable * properties, co
 void boxing_codec_syncpointinserter_free(boxing_codec * codec)
 {
     boxing_codec_release_base((boxing_codec *)codec);
-    boxing_memory_free(CODEC_MEMBER(bitarray_sync_point_background));
-    boxing_memory_free(CODEC_MEMBER(bitarray_sync_point_foreground));
-    boxing_memory_free(CODEC_MEMBER(property_sync_point_areas_m).buffer);
-    boxing_memory_free(CODEC_MEMBER(property_sync_point_centers_m).buffer);
-    boxing_memory_free(codec);
+    free(CODEC_MEMBER(bitarray_sync_point_background));
+    free(CODEC_MEMBER(bitarray_sync_point_foreground));
+    free(CODEC_MEMBER(property_sync_point_areas_m).buffer);
+    free(CODEC_MEMBER(property_sync_point_centers_m).buffer);
+    free(codec);
 }
 
 
@@ -487,8 +486,8 @@ static void update_syncpointmasks(boxing_codec_syncpointinserter* codec)
         codec->sync_point_pixel_count_m = (codec->property_sync_point_radius_m*2+1)*(codec->property_sync_point_radius_m*2+1)*
                 num_sync_points_h*num_sync_points_v;
 
-        boxing_memory_free(codec->property_sync_point_centers_m.buffer);
-        boxing_memory_free(codec->property_sync_point_areas_m.buffer);
+        free(codec->property_sync_point_centers_m.buffer);
+        free(codec->property_sync_point_areas_m.buffer);
         gvector_create_inplace(&codec->property_sync_point_centers_m, sizeof(boxing_pointi), num_sync_points_v * num_sync_points_h);
         gvector_create_inplace(&codec->property_sync_point_areas_m, sizeof(boxing_recti), num_sync_points_v * num_sync_points_h);
         int counter = 0;
@@ -517,13 +516,17 @@ static void update_syncpointmasks(boxing_codec_syncpointinserter* codec)
     char * mask_foreground;
 
     // Delete old buffers
-    boxing_memory_free(codec->bitarray_sync_point_background);
+    free(codec->bitarray_sync_point_background);
     codec->bitarray_sync_point_background = NULL;
-    boxing_memory_free(codec->bitarray_sync_point_foreground);
+    free(codec->bitarray_sync_point_foreground);
     codec->bitarray_sync_point_foreground = NULL;
 
-    mask_background = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(char, codec->property_image_size_m.x * codec->property_image_size_m.y);
-    mask_foreground = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(char, codec->property_image_size_m.x * codec->property_image_size_m.y);
+    size_t mask_size = codec->property_image_size_m.x * codec->property_image_size_m.y;
+    mask_background = calloc(mask_size, sizeof(char));
+    mask_foreground = calloc(mask_size, sizeof(char));
+    // Unsure if every value is set in the below loops, clear everything to be safe
+    memset(mask_background, 0, sizeof(char) * mask_size);
+    memset(mask_foreground, 0, sizeof(char) * mask_size);
     int image_width = codec->property_image_size_m.x;
     {
         for (unsigned int i=0; i<codec->property_sync_point_areas_m.size; i++)

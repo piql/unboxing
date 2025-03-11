@@ -16,7 +16,6 @@
 //
 #include    "boxing/frame/trackergpf.h"
 #include    "boxing/unboxer/frametrackerutil.h"
-#include    "boxing/platform/memory.h"
 #include    "boxing/string.h"
 
 //  BASE INCLUDES
@@ -259,7 +258,7 @@ void boxing_tracker_destroy(boxing_tracker * tracker)
     if (tracker)
     {
         tracker->free(tracker);
-        boxing_memory_free(tracker);
+        free(tracker);
     }
 }
 
@@ -359,7 +358,7 @@ static boxing_image8 * crop_image(const boxing_image8 * image)
 static void generate_locations(boxing_matrixf * locations, const boxing_pointi start, const boxing_pointi inc)
 {
     boxing_pointf * pos = locations->data;
-    boxing_pointf* line = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_pointf, locations->width);
+    boxing_pointf* line = calloc(locations->width, sizeof(boxing_pointf));
     boxing_pointf* line_pos;
     boxing_pointf* line_end = line+locations->width;
 
@@ -382,7 +381,7 @@ static void generate_locations(boxing_matrixf * locations, const boxing_pointi s
         pos += locations->width;
     }
 
-    boxing_memory_free(line);
+    free(line);
 }
 
 static int track_frame_simulated_mode(boxing_tracker_gpf * tracker, const boxing_image8 * frame)

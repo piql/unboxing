@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "bicubicsampler.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 //  PRIVATE INTERFACE
 //
@@ -48,7 +48,7 @@ static boxing_image8 * sample(boxing_sampler * sampler, const boxing_image8 * im
 
 boxing_sampler * boxing_bicubicsampler_create(int width, int height)
 {
-    boxing_sampler * sampler = BOXING_MEMORY_ALLOCATE_TYPE(boxing_sampler);
+    boxing_sampler * sampler = malloc(sizeof(boxing_sampler));
     boxing_sampler_init(sampler, width, height);
     sampler->sample = sample;
     return sampler;

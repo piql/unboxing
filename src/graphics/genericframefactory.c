@@ -16,7 +16,6 @@
 //
 #include    "boxing/graphics/genericframefactory.h"
 #include    "boxing/graphics/genericframegpf_1.h"
-#include    "boxing/platform/memory.h"
 #include    "boxing/log.h"
 
 //  PRIVATE INTERFACE
@@ -97,7 +96,7 @@ void boxing_generic_frame_factory_free(struct boxing_frame_s * frame)
         {
             frame->free(frame);
         }
-        boxing_memory_free(frame);
+        free(frame);
     }
 }
 
@@ -167,7 +166,7 @@ static boxing_frame * generic_frame_gpf_1(const boxing_config * config)
     }
     const int max_levels_per_symbol = boxing_config_property_int(config, "FrameFormat", "maxLevelsPerSymbol");
 
-    boxing_frame * frame = (boxing_frame*)BOXING_MEMORY_ALLOCATE_TYPE(boxing_frame_gpf_1);
+    boxing_frame * frame = malloc(sizeof(boxing_frame_gpf_1));
     boxing_generic_frame_gpf_1_init((boxing_frame_gpf_1*)frame, width, height, border, border_gap, corner_mark_size,
                                                              corner_mark_gap, tiles_per_column, max_levels_per_symbol, reference_bar_freq_divider,
                                                              analog_content_symbol_size, digital_content_symbol_size,

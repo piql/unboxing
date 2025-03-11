@@ -25,7 +25,6 @@
 #include    "boxing/frame/tracker.h"
 #include    "frameutil.h"
 #include    "boxing/log.h"
-#include    "boxing/platform/memory.h"
 #include    "boxing/bool.h"
 #include    "adaptive_filter.h"
 
@@ -87,9 +86,9 @@ static int      dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * da
  *  \return instance of allocated boxing_dunboxerv1 structure.
  */
 
-boxing_dunboxerv1 * boxing_dunboxerv1_create()
+boxing_dunboxerv1 *boxing_dunboxerv1_create()
 {
-    boxing_dunboxerv1 * unboxer = BOXING_MEMORY_ALLOCATE_TYPE(boxing_dunboxerv1);
+    boxing_dunboxerv1 *unboxer = malloc(sizeof(boxing_dunboxerv1));
     unboxer->frame = NULL;
     boxing_unboxer_parameters_init( &unboxer->parameters );
     unboxer->frame_util = (boxing_abstract_frame_util*)boxing_frame_util_create();
@@ -105,11 +104,11 @@ boxing_dunboxerv1 * boxing_dunboxerv1_create()
  *  \param unboxer Pointer to the boxing_dunboxerv1 instance.
  */
 
-void boxing_dunboxerv1_destroy(boxing_dunboxerv1 * unboxer)
+void boxing_dunboxerv1_destroy(boxing_dunboxerv1 *unboxer)
 {
     boxing_generic_frame_factory_free(unboxer->frame);
     boxing_frame_util_destroy(unboxer->frame_util);
-    boxing_memory_free(unboxer);
+    free(unboxer);
 }
 
 
@@ -193,7 +192,7 @@ int boxing_dunboxerv1_process(
 
         int encoded_size = (int)boxing_codecdispatcher_get_encoded_packet_size(dispatcher);
         gvector_resize(data, encoded_size);
-        boxing_memory_clear(data->buffer, encoded_size);
+        memset(data->buffer, 0, encoded_size);
     }
 
     int decode_result = *extract_result;
@@ -511,7 +510,7 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
     filter_coeff.rows = unboxer->parameters.pre_filter.coeff->rows;
     filter_coeff.cols = unboxer->parameters.pre_filter.coeff->cols;
     int coeff_count = filter_coeff.rows*filter_coeff.cols;
-    filter_coeff.coeff = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_float, coeff_count);
+    filter_coeff.coeff = alloca(sizeof(boxing_float) * coeff_count);
     for(int i = 0; i < coeff_count; i++)
     {
         filter_coeff.coeff[i] = unboxer->parameters.pre_filter.coeff->coeff[i] * mix;
@@ -521,7 +520,6 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
     if (unboxer->parameters.pre_filter.process)
     {
         int pre_res = unboxer->parameters.pre_filter.process(user_data, image, filter_coeff.coeff, coeff_count);
-        BOXING_STACK_FREE( filter_coeff.coeff );
         return pre_res;
     }
     else
@@ -531,7 +529,6 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
         if (destination.data == NULL)
         {
             DLOG_ERROR( "(dunboxerv1_sharpness_filter) Cannot allocate temporary image data");
-            BOXING_STACK_FREE( filter_coeff.coeff );
             return BOXING_FILTER_CALLBACK_ERROR;
         }
         boxing_image8_pixel * destination_pixel = destination.data;
@@ -566,10 +563,9 @@ static int dunboxerv1_sharpness_filter(void* user_data, boxing_dunboxerv1 * unbo
             }
         }
         memcpy(image->data, destination.data, width * height);
-        boxing_memory_free(destination.data);
+        free(destination.data);
     }
 
-    BOXING_STACK_FREE( filter_coeff.coeff );
     return BOXING_FILTER_CALLBACK_OK;
 }
 
@@ -644,7 +640,7 @@ static int dunboxerv1_visual_sharpness_filter(void* user_data, boxing_dunboxerv1
             }
         }
         memcpy(image->data, destination.data, width * height);
-        boxing_memory_free(destination.data);
+        free(destination.data);
     }
 
     return BOXING_FILTER_CALLBACK_OK;
@@ -1279,7 +1275,7 @@ static void pack_data(gvector * data)
         }
         GVECTORN8(&packed_data, packed_data_counter++) = ch;
     }
-    boxing_memory_free(data->buffer);
+    free(data->buffer);
     data->buffer = packed_data.buffer;
     data->size = packed_data.size;
 }

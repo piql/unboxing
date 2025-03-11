@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "areasampler.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 // PRIVATE INTERFACE
 //
@@ -58,7 +58,7 @@ static boxing_image8 * sample(boxing_sampler * sampler, const boxing_image8 * im
 
 boxing_sampler * boxing_areasampler_create(int width, int height)
 {
-    boxing_sampler * sampler = (boxing_sampler *)BOXING_MEMORY_ALLOCATE_TYPE(boxing_areasampler);
+    boxing_sampler * sampler = malloc(sizeof(boxing_areasampler));
     boxing_sampler_init(sampler, width, height);
     sampler->sample = sample;
     return sampler;

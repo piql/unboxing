@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/viewport.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 #include "boxing/math/math.h"
 
 
@@ -84,14 +84,14 @@ struct boxing_viewport_s
  *  \return created image with specified sizes.
  */
 
-boxing_viewport * boxing_viewport_create(void *buffer, int width, int height, int scanline_size, int element_size)
+boxing_viewport *boxing_viewport_create(void *buffer, int width, int height, int scanline_size, int element_size)
 {
     if(!buffer || (width < 1) || (height < 1) || (scanline_size < 1) || (element_size < 1))
     {
         return NULL;
     }
 
-    boxing_viewport * vp = boxing_memory_allocate( sizeof(boxing_viewport) );
+    boxing_viewport *vp = malloc(sizeof(boxing_viewport));
     if(vp)
     {
         vp->x_offset = 0;
@@ -116,12 +116,12 @@ boxing_viewport * boxing_viewport_create(void *buffer, int width, int height, in
  *  \return a view port copy or NULL in case of errors.
  */
 
-boxing_viewport * boxing_viewport_clone(const boxing_viewport *vp)
+boxing_viewport *boxing_viewport_clone(const boxing_viewport *vp)
 {
-    boxing_viewport * new_vp = boxing_memory_allocate( sizeof(boxing_viewport) );
+    boxing_viewport *new_vp = malloc(sizeof(boxing_viewport));
     if(new_vp)
     {
-        boxing_memory_copy(new_vp, vp, sizeof(boxing_viewport));
+        memcpy(new_vp, vp, sizeof(boxing_viewport));
     }
 
     return new_vp;
@@ -232,7 +232,7 @@ int boxing_viewport_element_size(const boxing_viewport *vp)
 
 void boxing_viewport_free(boxing_viewport *vp)
 {
-    boxing_memory_free(vp);
+    free(vp);
 }
 
 

@@ -18,7 +18,6 @@
 #include "boxing/codecs/crc32.h"
 #include "boxing/log.h"
 #include "boxing/math/bitutils.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -78,7 +77,7 @@ boxing_codec * boxing_crc32_create(GHashTable * properties, const boxing_config 
 {
     BOXING_UNUSED_PARAMETER( config );
     g_variant * parameter;
-    boxing_codec_crc32 * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_crc32);
+    boxing_codec_crc32 * codec = malloc(sizeof(boxing_codec_crc32));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_crc32_free;
     codec->base.is_error_correcting = DFALSE;
@@ -130,7 +129,7 @@ void boxing_crc32_free(boxing_codec * codec)
 {
     boxing_math_crc32_free(CODEC_MEMBER(crc_calculator));
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

@@ -16,7 +16,6 @@
 //
 #include "boxing/unboxer/syncpoints.h"
 #include "boxing/utils.h"
-#include "boxing/platform/memory.h"
 #include "boxing/log.h"
 
 //  DEFINES
@@ -121,7 +120,7 @@ boxing_matrixf * boxing_syncpoints_correct_frame_geometry(void * user, const box
     // Correct location matrix
     correct_symbol_location_matrix_with_sync_points(symbol_location_matrix, sync_point_location_index, &sync_point_locations_from_raster_locations);
 
-    boxing_memory_free(sync_point_locations_from_raster_locations.data);
+    free(sync_point_locations_from_raster_locations.data);
 
     return symbol_location_matrix;
 }
@@ -406,7 +405,7 @@ static void correct_symbol_location_matrix_with_sync_points(boxing_matrixf *init
         correct_symbol_location_matrix_area(initial_symbol_location_matrix, &ref_area_src, &offset, DTRUE, DTRUE);
     }
 
-    boxing_memory_free(sync_point_locations_scan_initial.data);
+    free(sync_point_locations_scan_initial.data);
 }
 
 

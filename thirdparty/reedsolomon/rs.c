@@ -39,8 +39,7 @@
 //
 #include "rs.h"
 #include "galois_field.h"
-#include "boxing/platform/types.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 //  DEFINES
 //
@@ -78,9 +77,9 @@ static uint32_t correct_errors_erasures(rs_codec *rs, uint32_t *codeword, uint32
 // PUBLIC RS FUNCTIONS
 //
 
-rs_codec* rs_create(int message_size, int parity_size, uint32_t prime_plonomial)
+rs_codec *rs_create(int message_size, int parity_size, uint32_t prime_plonomial)
 {
-    rs_codec* rs = BOXING_MEMORY_ALLOCATE_TYPE(rs_codec);
+    rs_codec *rs = malloc(sizeof(rs_codec));
     
     rs->galois_field = gf_create(prime_plonomial);
     if (rs->galois_field->alphabet_size < (1 << 9))
@@ -108,8 +107,8 @@ rs_codec* rs_create(int message_size, int parity_size, uint32_t prime_plonomial)
 void rs_free(rs_codec *rs)
 {
     gf_free(rs->galois_field);
-    boxing_memory_free(rs->generator_polynomial);
-    boxing_memory_free(rs);
+    free(rs->generator_polynomial);
+    free(rs);
 }
 
 void rs_encode(rs_codec *rs, gvector * data, gvector * data_encode)
@@ -123,7 +122,7 @@ static void encode_8(rs_codec *rs, gvector * data, gvector * data_encode)
 	uint8_t * data_encode_pointer = (uint8_t *)data_encode->buffer;
     int parity_size = rs->parity_size;
     int message_size = rs->message_size;
-    uint32_t *LFSR = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, (parity_size + 1));
+    uint32_t *LFSR = alloca(sizeof(uint32_t) * (parity_size + 1));
 	uint32_t dbyte;
     galois_field *gf = rs->galois_field;
 
@@ -148,7 +147,6 @@ static void encode_8(rs_codec *rs, gvector * data, gvector * data_encode)
 			data_encode_pointer[position_next + message_size + i] = (uint8_t)LFSR[parity_size - 1 - i];
 		}
 	}
-    BOXING_STACK_FREE( LFSR );    
 }
 
 static void encode_16(rs_codec *rs, gvector * data, gvector * data_encode)
@@ -157,7 +155,7 @@ static void encode_16(rs_codec *rs, gvector * data, gvector * data_encode)
     uint16_t * data_encode_pointer = (uint16_t *)data_encode->buffer;
     int parity_size = rs->parity_size;
     int message_size = rs->message_size;
-    uint32_t *LFSR = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, (parity_size + 1));
+    uint32_t *LFSR = alloca(sizeof(uint32_t) * (parity_size + 1));
     uint32_t dbyte;
     galois_field *gf = rs->galois_field;
 
@@ -182,7 +180,6 @@ static void encode_16(rs_codec *rs, gvector * data, gvector * data_encode)
             data_encode_pointer[position_next + message_size + i] = (uint16_t)LFSR[parity_size - 1 - i];
         }
     }
-    BOXING_STACK_FREE( LFSR );    
 }
 
 void rs_decode(rs_codec *rs, gvector * data, gvector * data_decode, unsigned int *resolved_errors, unsigned int *fatal_errors, int *max_errors_per_block)
@@ -190,19 +187,19 @@ void rs_decode(rs_codec *rs, gvector * data, gvector * data_decode, unsigned int
     rs->decode(rs, data, data_decode, resolved_errors, fatal_errors, max_errors_per_block);
 }
 
-static void decode_8(rs_codec *rs, gvector * data, gvector * data_decode, unsigned int *resolved_errors, unsigned int *fatal_errors, int *max_errors_per_block)
+static void decode_8(rs_codec *rs, gvector *data, gvector *data_decode, unsigned int *resolved_errors, unsigned int *fatal_errors, int *max_errors_per_block)
 {
     int parity_size = rs->parity_size;
     int message_size = rs->message_size;
     uint32_t block_size = message_size + parity_size;
-    uint8_t * data_pointer = (uint8_t *)data->buffer;
-    uint8_t * data_decode_pointer = (uint8_t *)data_decode->buffer;
+    uint8_t *data_pointer = (uint8_t *)data->buffer;
+    uint8_t *data_decode_pointer = (uint8_t *)data_decode->buffer;
     galois_field *gf = rs->galois_field;
 
     for (int position = 0, position_next = 0; position < (int)data->size; position += (block_size), position_next += message_size)
     {
-        uint32_t * codeword = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, block_size);
-        uint32_t * syndrome_bytes = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size);
+        uint32_t *codeword = calloc(block_size, sizeof(uint32_t));
+        uint32_t *syndrome_bytes = calloc(parity_size, sizeof(uint32_t));
         for (uint32_t i = 0; i < (block_size); i++)
         {
             codeword[i] = (uint32_t)data_pointer[i + position];
@@ -234,8 +231,8 @@ static void decode_8(rs_codec *rs, gvector * data, gvector * data_decode, unsign
             data_decode_pointer[i + position_next] = (uint8_t)codeword[i];
         }
 
-        boxing_memory_free(codeword);
-        boxing_memory_free(syndrome_bytes);
+        free(codeword);
+        free(syndrome_bytes);
     }
 }
 
@@ -250,8 +247,8 @@ static void decode_16(rs_codec *rs, gvector * data, gvector * data_decode, unsig
 
     for (int position = 0, position_next = 0; position < (int)data->size; position += (block_size), position_next += message_size)
     {
-        uint32_t * codeword = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, block_size);
-        uint32_t * syndrome_bytes = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size);
+        uint32_t * codeword = malloc(sizeof(uint32_t) * block_size);
+        uint32_t * syndrome_bytes = malloc(sizeof(uint32_t) * parity_size);
         for (uint32_t i = 0; i < (block_size); i++)
         {
             codeword[i] = (uint32_t)data_pointer[i + position];
@@ -283,27 +280,27 @@ static void decode_16(rs_codec *rs, gvector * data, gvector * data_decode, unsig
             data_decode_pointer[i + position_next] = (uint16_t)codeword[i];
         }
 
-        boxing_memory_free(codeword);
-        boxing_memory_free(syndrome_bytes);
+        free(codeword);
+        free(syndrome_bytes);
     }
 }
 
 // PRIVATE RS FUNCTIONS
 //
 
-static void rs_generate_polynomial(rs_codec * rs)
+static void rs_generate_polynomial(rs_codec *rs)
 {
     uint32_t parity_size = rs->parity_size;
     uint32_t polynomial_size = parity_size * 2;
     galois_field *gf = rs->galois_field;
 
 
-    uint32_t *tp = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, 2);
-    uint32_t *tp1 = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, polynomial_size);
-    uint32_t * polynomial = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, polynomial_size + 2 - 1);
+    uint32_t *tp = alloca(sizeof(uint32_t) * 2);
+    uint32_t *tp1 = alloca(sizeof(uint32_t) * polynomial_size);
+    uint32_t *polynomial = calloc(polynomial_size + 2 - 1, sizeof(uint32_t));
 
     /* multiply (x + a^n) for n = 1 to nbytes */
-    memset(tp1, 0, polynomial_size * sizeof(uint32_t));
+    memset(tp1, 0, sizeof(uint32_t) * polynomial_size);
     tp1[0] = 1;
 
     for (uint32_t i = 1; i <= parity_size; i++) {
@@ -311,12 +308,10 @@ static void rs_generate_polynomial(rs_codec * rs)
         tp[1] = 1;
 
         gf_multiply_polynomial(gf, polynomial, tp, 2, tp1, i);
-        memcpy(tp1, polynomial, (2 + i - 1) * sizeof(uint32_t));
+        memcpy(tp1, polynomial, sizeof(uint32_t) * (2 + i - 1));
     }
 
     rs->generator_polynomial = polynomial;
-    BOXING_STACK_FREE( tp1 );    
-    BOXING_STACK_FREE( tp );    
 }
 
 static void compute_modified_omega(
@@ -354,9 +349,9 @@ static void modified_berlekamp_massey(
     uint32_t parity_size = rs->parity_size;
     galois_field *gf = rs->galois_field;
 
-    uint32_t *psi = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size * 2);
-    uint32_t *psi2 = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size * 2);
-    uint32_t *D = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size * 2);
+    uint32_t *psi = alloca(sizeof(uint32_t) * parity_size * 2);
+    uint32_t *psi2 = alloca(sizeof(uint32_t) * parity_size * 2);
+    uint32_t *D = alloca(sizeof(uint32_t) * parity_size * 2);
 
     memset(D, 0, sizeof(uint32_t) * parity_size * 2);
     memset(psi, 0, sizeof(uint32_t) * parity_size * 2);
@@ -405,10 +400,6 @@ static void modified_berlekamp_massey(
     memcpy(error_locator_polynomial, psi, sizeof(uint32_t) * parity_size * 2); // parity_size
 
     compute_modified_omega(rs, error_locator_polynomial, error_evaluator_polynomial, syndrome_bytes); // parity size
-
-    BOXING_STACK_FREE( psi );    
-    BOXING_STACK_FREE( psi2 );    
-    BOXING_STACK_FREE( D );    
 }
 
 static uint32_t find_roots(rs_codec *rs, uint32_t *error_locator_polynomial, uint32_t *error_locations)
@@ -461,9 +452,9 @@ static uint32_t correct_errors_erasures(
     uint32_t parity_size = rs->parity_size;
     galois_field *gf = rs->galois_field;
 
-    uint32_t *error_locator_polynomial = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size * 2); // may be optimized to parity_size
-    uint32_t *error_evaluator_polynomial = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size * 2); // may be optimized to parity_size
-    uint32_t *error_locations = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, parity_size);
+    uint32_t *error_locator_polynomial = alloca(sizeof(uint32_t) * (parity_size * 2)); // may be optimized to parity_size
+    uint32_t *error_evaluator_polynomial = alloca(sizeof(uint32_t) * (parity_size * 2)); // may be optimized to parity_size
+    uint32_t *error_locations = alloca(sizeof(uint32_t) * (parity_size));
 
     modified_berlekamp_massey(rs, error_locator_polynomial, error_evaluator_polynomial, syndrome_bytes);
     uint32_t errors_number = find_roots(rs, error_locator_polynomial, error_locations);
@@ -473,9 +464,6 @@ static uint32_t correct_errors_erasures(
         for (r = 0; r < errors_number; r++) {
             if (error_locations[r] >= codeword_size) {
                 *fatal_errors += errors_number;
-                BOXING_STACK_FREE( error_locator_polynomial );
-                BOXING_STACK_FREE( error_evaluator_polynomial );
-                BOXING_STACK_FREE( error_locations );
                 return errors_number;
             }
         }
@@ -496,19 +484,8 @@ static uint32_t correct_errors_erasures(
             codeword[codeword_size - i - 1] ^= err;
         }
         *resolved_errors += errors_number;
-        BOXING_STACK_FREE( error_locator_polynomial );
-        BOXING_STACK_FREE( error_evaluator_polynomial );
-        BOXING_STACK_FREE( error_locations );
         return errors_number;
     }
-    else {
-        if (errors_number)
-        {
-            *fatal_errors += errors_number;
-        }
-        BOXING_STACK_FREE( error_locator_polynomial );
-        BOXING_STACK_FREE( error_evaluator_polynomial );
-        BOXING_STACK_FREE( error_locations );
-        return errors_number;
-    }
+    if (errors_number) *fatal_errors += errors_number;
+    return errors_number;
 }

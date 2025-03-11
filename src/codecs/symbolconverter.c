@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/symbolconverter.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -72,7 +71,7 @@ boxing_codec * boxing_codec_symbol_converter_create(GHashTable * properties, con
 {
     BOXING_UNUSED_PARAMETER( config );
     BOXING_UNUSED_PARAMETER(properties);
-    boxing_codec_symbol_converter * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_symbol_converter);
+    boxing_codec_symbol_converter * codec = malloc(sizeof(boxing_codec_symbol_converter));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_codec_symbol_converter_free;
     codec->base.is_error_correcting = DFALSE;
@@ -101,7 +100,7 @@ boxing_codec * boxing_codec_symbol_converter_create(GHashTable * properties, con
 void boxing_codec_symbol_converter_free(boxing_codec * codec)
 {
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

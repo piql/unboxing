@@ -16,7 +16,6 @@
 //
 #include "frameutil.h"
 #include "boxing/utils.h"
-#include "boxing/platform/memory.h"
 
 //  PRIVATE INTERFACE
 //
@@ -56,9 +55,9 @@ static DBOOL abstract_frame_util_initialize(struct boxing_abstract_frame_util_s 
  *  \return instance of allocated boxing_frame_util structure.
  */
 
-boxing_frame_util * boxing_frame_util_create()
+boxing_frame_util *boxing_frame_util_create()
 {
-    boxing_frame_util * util = BOXING_MEMORY_ALLOCATE_TYPE(boxing_frame_util);
+    boxing_frame_util *util = malloc(sizeof(boxing_frame_util));
     util->base.correct_frame_geometry = NULL;
     util->base.initialize = abstract_frame_util_initialize;
     util->base.learn_from_source_data = learn_from_source_data;
@@ -77,7 +76,7 @@ boxing_frame_util * boxing_frame_util_create()
 
 void boxing_frame_util_destroy(boxing_abstract_frame_util * util)
 {
-    boxing_memory_free(util);
+    free(util);
 }
 
 

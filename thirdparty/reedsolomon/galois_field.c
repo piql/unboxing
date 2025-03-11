@@ -38,8 +38,7 @@
 //  PROJECT INCLUDES
 //
 #include "galois_field.h"
-#include "boxing/platform/types.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 
 //  DEFINES
@@ -98,7 +97,7 @@ galois_field * gf_create(uint32_t prime_plonomial)
         polynomial >>= 1;
     }
     
-    galois_field* gf = BOXING_MEMORY_ALLOCATE_TYPE(galois_field);
+    galois_field *gf = malloc(sizeof(galois_field));
     gf->prim_polynom = prime_plonomial;
     gf->alphabet_size = 1 << polynomial_degree;
     gf->mask = gf->alphabet_size - 1;
@@ -113,9 +112,9 @@ void gf_free(galois_field *gf)
     if (!gf)
         return;
 
-    boxing_memory_free(gf->exp);
-    boxing_memory_free(gf->log);
-    boxing_memory_free(gf);
+    free(gf->exp);
+    free(gf->log);
+    free(gf);
 }
 
 uint32_t gf_multiply(galois_field * gf, uint32_t a, uint32_t b)
@@ -147,7 +146,7 @@ uint32_t gf_inverse(galois_field * gf, uint32_t a)
 void gf_multiply_polynomial(galois_field *gf, uint32_t *dst, uint32_t *p1, uint32_t p1_size, uint32_t *p2, uint32_t p2_size)
 {
     uint32_t i, j;
-    uint32_t *tmp1 = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, p1_size + p2_size - 1);
+    uint32_t *tmp1 = alloca(sizeof(uint32_t) * (p1_size + p2_size - 1));
     memset(dst, 0, (p1_size + p2_size - 1) * sizeof(uint32_t));
 
     for (i = 0; i < p1_size; i++)
@@ -164,8 +163,6 @@ void gf_multiply_polynomial(galois_field *gf, uint32_t *dst, uint32_t *p1, uint3
             dst[j] ^= tmp1[j];
         }
     }
-
-    BOXING_STACK_FREE( tmp1 );
 }
 
 // PRIVATE RS FUNCTIONS
@@ -173,8 +170,8 @@ void gf_multiply_polynomial(galois_field *gf, uint32_t *dst, uint32_t *p1, uint3
 
 static void gf_init_tables(galois_field * gf)
 {
-    gf->exp = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, gf->alphabet_size * 2);
-    gf->log = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(uint32_t, gf->alphabet_size);
+    gf->exp = calloc(gf->alphabet_size * 2, sizeof(uint32_t));
+    gf->log = calloc(gf->alphabet_size, sizeof(uint32_t));
 
     memset(gf->exp, 0, gf->alphabet_size * 2);
     memset(gf->log, 0, gf->alphabet_size);

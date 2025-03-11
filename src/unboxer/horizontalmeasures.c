@@ -15,8 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/unboxer/horizontalmeasures.h"
-#include "boxing/platform/memory.h"
-#include "boxing/platform/types.h"
+#include "boxing/platform/platform.h"
 
 //  DEFINES
 //
@@ -231,11 +230,11 @@ static int update_min_distance(boxing_float* min_distance, boxing_float* distanc
     return pos;
 }
 
-static void calculate_inital_means(boxing_float* means, int means_size, int * histogram, int histogram_size, int histogram_samples)
+static void calculate_inital_means(boxing_float* means, int means_size, int *histogram, int histogram_size, int histogram_samples)
 {
-    int * histogram_copy = BOXING_STACK_ALLOCATE_TYPE_ARRAY(int, histogram_size);
+    int *histogram_copy = alloca(sizeof(int) * histogram_size);
 
-    memcpy(histogram_copy, histogram, histogram_size*sizeof(int));
+    memcpy(histogram_copy, histogram, sizeof(int) * histogram_size);
 
     int i = 0;
     int h = 0;
@@ -259,9 +258,8 @@ static void calculate_inital_means(boxing_float* means, int means_size, int * hi
         }
     }
     means[i] /= histogram_samples / means_size;
-    BOXING_STACK_FREE( histogram_copy );    
     
-    boxing_float * min_distance = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_float, histogram_size);
+    boxing_float *min_distance = alloca(sizeof(boxing_float) * histogram_size);
     for (int i = 0; i < histogram_size; i++)
     {
         if (histogram[i])
@@ -270,23 +268,21 @@ static void calculate_inital_means(boxing_float* means, int means_size, int * hi
             min_distance[i] = 0;
     }
 
-    boxing_float * distance = BOXING_STACK_ALLOCATE_TYPE_ARRAY (boxing_float, histogram_size);
+    boxing_float *distance = alloca(sizeof(boxing_float) * histogram_size);
 
     for (int k = 1; k < means_size; k++)
     {
         calulate_min_distance(means[k-1], distance, histogram, histogram_size, histogram_samples);
         means[k] = (boxing_float)update_min_distance(min_distance, distance, histogram_size);
     }
-    BOXING_STACK_FREE( distance );    
-    BOXING_STACK_FREE( min_distance );    
 }
 
 
 static void calc_variances(int * sampels, int sampels_size, float *means, int means_size, float *variances)
 {
-    boxing_cluster * var = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_cluster, means_size);
+    boxing_cluster *var = alloca(sizeof(boxing_cluster) * means_size);
 
-    boxing_memory_clear(var, sizeof(boxing_cluster) * means_size);
+    memset(var, 0, sizeof(boxing_cluster) * means_size);
     --means_size;
 
     for (int sample_index = 0; sample_index < sampels_size; sample_index++)
@@ -316,17 +312,15 @@ static void calc_variances(int * sampels, int sampels_size, float *means, int me
             variances[i] = 0.1e-10f;
         }
     }
-    
-    BOXING_STACK_FREE( var );
 }
 
 static void kmeans(int * sampels, int sampels_size, float *means, int means_size, int iterations)
 {
-    boxing_cluster * clusters = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_cluster, means_size);
+    boxing_cluster * clusters = alloca(sizeof(boxing_cluster) * means_size);
 
     while (iterations--)
     {
-        boxing_memory_clear(clusters, sizeof(boxing_cluster) * means_size);
+        memset(clusters, 0, sizeof(boxing_cluster) * means_size);
 
         for (int sample_index = 0; sample_index < sampels_size; sample_index++)
         {
@@ -352,8 +346,6 @@ static void kmeans(int * sampels, int sampels_size, float *means, int means_size
             means[i] = (boxing_float)clusters[i].sum / clusters[i].count;
         }
     }
-
-    BOXING_STACK_FREE( clusters );
 }
 
 int qsort_compare(const void *a, const void *b) 
@@ -366,13 +358,13 @@ int qsort_compare(const void *a, const void *b)
         return 0;
 }
 
-static void calculate_means(const boxing_image8 *image, int x, int y, int width, int height, boxing_float* means, boxing_float* variances, unsigned int means_size)
+static void calculate_means(const boxing_image8 *image, int x, int y, int width, int height, boxing_float *means, boxing_float *variances, unsigned int means_size)
 {
     const int  iterations = 6;
     const int histogram_size = 256;
-    int * histogram  = BOXING_STACK_ALLOCATE_TYPE_ARRAY(int, histogram_size);
+    int *histogram  = alloca(sizeof(int) * histogram_size);
 
-    boxing_memory_clear(histogram, histogram_size * sizeof(int));
+    memset(histogram, 0, histogram_size * sizeof(int));
 
     int samples = sample_histogram(image, x, y, width, height, histogram);
 
@@ -385,7 +377,5 @@ static void calculate_means(const boxing_image8 *image, int x, int y, int width,
 
     if (variances)
         calc_variances(histogram, 256, means, means_size, variances);
-
-    BOXING_STACK_FREE( histogram );    
 }
 

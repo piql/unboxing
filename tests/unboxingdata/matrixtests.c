@@ -1,7 +1,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
 #include "unittests.h"
-#include "boxing/platform/memory.h"
 #include "boxing/matrix.h"
 #include "boxing/utils.h"
 
@@ -308,7 +307,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixf_recreate_test7)
 {
     boxing_matrixf *temp_matrix1 = boxing_matrixf_create(20, 10);
-    boxing_memory_free(temp_matrix1->data);
+    free(temp_matrix1->data);
     temp_matrix1->data = NULL;
 
     check_matrixf_width_height(temp_matrix1, 20, 10);
@@ -343,7 +342,7 @@ BOXING_START_TEST(BOXING_matrixf_recreate_test8)
     BOXING_ASSERT(temp_matrix1 == temp_matrix2);
 
     boxing_matrixf_free(temp_matrix2);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -448,7 +447,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixi_recreate_test7)
 {
     boxing_matrixi *temp_matrix1 = boxing_matrixi_create(20, 10);
-    boxing_memory_free(temp_matrix1->data);
+    free(temp_matrix1->data);
     temp_matrix1->data = NULL;
 
     check_matrixi_width_height(temp_matrix1, 20, 10);
@@ -483,7 +482,7 @@ BOXING_START_TEST(BOXING_matrixi_recreate_test8)
     BOXING_ASSERT(temp_matrix1 == temp_matrix2);
 
     boxing_matrixi_free(temp_matrix2);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -573,7 +572,7 @@ BOXING_START_TEST(BOXING_matrixf_init_in_place_test6)
     check_matrixf(temp_matrix, 111, 110, DTRUE);
 
     boxing_matrixf_free(temp_matrix);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -582,7 +581,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixf_init_in_place_test7)
 {
     boxing_matrixf *temp_matrix = boxing_matrixf_create(11, 10);
-    boxing_memory_free(temp_matrix->data);
+    free(temp_matrix->data);
     temp_matrix->data = NULL;
 
     check_matrixf_width_height(temp_matrix, 11, 10);
@@ -613,7 +612,7 @@ BOXING_START_TEST(BOXING_matrixf_init_in_place_test8)
     check_matrixf(temp_matrix, 111, 110, DTRUE);
 
     boxing_matrixf_free(temp_matrix);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -703,7 +702,7 @@ BOXING_START_TEST(BOXING_matrixi_init_in_place_test6)
     check_matrixi(temp_matrix, 111, 110, DTRUE);
 
     boxing_matrixi_free(temp_matrix);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -712,7 +711,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixi_init_in_place_test7)
 {
     boxing_matrixi *temp_matrix = boxing_matrixi_create(11, 10);
-    boxing_memory_free(temp_matrix->data);
+    free(temp_matrix->data);
     temp_matrix->data = NULL;
 
     check_matrixi_width_height(temp_matrix, 11, 10);
@@ -743,7 +742,7 @@ BOXING_START_TEST(BOXING_matrixi_init_in_place_test8)
     check_matrixi(temp_matrix, 111, 110, DTRUE);
 
     boxing_matrixi_free(temp_matrix);
-    boxing_memory_free(data);
+    free(data);
 }
 END_TEST
 
@@ -764,7 +763,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixf_copy_test2)
 {
     boxing_matrixf *temp_matrix1 = boxing_matrixf_create(11, 10);
-    boxing_memory_free(temp_matrix1->data);
+    free(temp_matrix1->data);
     temp_matrix1->data = NULL;
 
     BOXING_ASSERT(temp_matrix1 != NULL);
@@ -850,7 +849,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixi_copy_test2)
 {
     boxing_matrixi *temp_matrix1 = boxing_matrixi_create(11, 10);
-    boxing_memory_free(temp_matrix1->data);
+    free(temp_matrix1->data);
     temp_matrix1->data = NULL;
 
     BOXING_ASSERT(temp_matrix1 != NULL);
@@ -951,7 +950,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixf_free_test3)
 {
     boxing_matrixf *temp_matrix = boxing_matrixf_create(11, 10);
-    boxing_memory_free(temp_matrix->data);
+    free(temp_matrix->data);
     temp_matrix->data = NULL;
 
     BOXING_ASSERT(temp_matrix != NULL);
@@ -978,7 +977,7 @@ BOXING_START_TEST(BOXING_matrixf_free_test4)
     //BOXING_ASSERT(temp_matrix == NULL); How to test freeing memory?
     BOXING_ASSERT(datapointer != NULL);
 
-    boxing_memory_free(datapointer);
+    free(datapointer);
 }
 END_TEST
 
@@ -1014,7 +1013,7 @@ END_TEST
 BOXING_START_TEST(BOXING_matrixi_free_test3)
 {
     boxing_matrixi *temp_matrix = boxing_matrixi_create(11, 10);
-    boxing_memory_free(temp_matrix->data);
+    free(temp_matrix->data);
     temp_matrix->data = NULL;
 
     BOXING_ASSERT(temp_matrix != NULL);
@@ -1041,7 +1040,7 @@ BOXING_START_TEST(BOXING_matrixi_free_test4)
     //BOXING_ASSERT(temp_matrix == NULL); How to test freeing memory?
     BOXING_ASSERT(datapointer != NULL);
 
-    boxing_memory_free(datapointer);
+    free(datapointer);
 }
 END_TEST
 

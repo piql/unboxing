@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/bchcodec.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -83,7 +82,7 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
 boxing_codec * boxing_codec_bch_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config );
-    boxing_codec_bch * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_bch);
+    boxing_codec_bch * codec = malloc(sizeof(boxing_codec_bch));
     codec->bch = NULL;
     g_variant * message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (message_size == NULL)
@@ -152,7 +151,7 @@ void boxing_codec_bch_free(boxing_codec *codec)
 {
     boxing_codec_release_base(codec);
     free_bch(((boxing_codec_bch *)codec)->bch);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 
@@ -203,7 +202,7 @@ static DBOOL codec_decode_blocks(struct bch_control * bch, const uint8_t * src, 
     *resolved_errors = 0;
     *max_errors_per_block = 0;
 
-    unsigned int * errloc = BOXING_STACK_ALLOCATE_TYPE_ARRAY(unsigned int, block_size);
+    unsigned int *errloc = alloca(sizeof(unsigned int) * block_size);
     const uint8_t * src_end = src + blocks * block_size;
     for (; src < src_end; src += block_size, dst += message_size)
     {
@@ -238,7 +237,6 @@ static DBOOL codec_decode_blocks(struct bch_control * bch, const uint8_t * src, 
 
     }
 
-    BOXING_STACK_FREE( errloc );
     return success;
 }
 

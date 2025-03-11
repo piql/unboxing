@@ -16,7 +16,6 @@
 //
 #include "boxing/image8.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 
 
 //----------------------------------------------------------------------------
@@ -149,7 +148,7 @@
  *  \return created image with specified sizes.
  */
 
-boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
+boxing_image8 *boxing_image8_create(unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
@@ -157,7 +156,7 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
         return NULL;
     }
 
-    boxing_image8 * image = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
+    boxing_image8 *image = malloc(sizeof(boxing_image8));
     if (image == NULL)
     {
         DLOG_ERROR( "(boxing_image8_create) Failed to allocate image" );
@@ -166,11 +165,11 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
 
     image->width = width;
     image->height = height;
-    image->data = boxing_memory_allocate(width * height);
+    image->data = malloc(width * height);
     image->is_owning_data = DTRUE;
     if (image->data == NULL && width * height != 0)
     {
-        boxing_memory_free(image);
+        free(image);
         DLOG_ERROR("(boxing_image8_create) Failed to allocate image buffer");
         return NULL;
     }
@@ -193,7 +192,7 @@ boxing_image8 * boxing_image8_create(unsigned int width, unsigned int height)
  *  \return created image with specified sizes.
  */
 
-boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsigned int width, unsigned int height)
+boxing_image8 *boxing_image8_create2(const boxing_image8_pixel * buffer, unsigned int width, unsigned int height)
 {
     if (width == 0 || height == 0)
     {
@@ -201,7 +200,7 @@ boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsign
         return NULL;
     }
 
-    boxing_image8 * image = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
+    boxing_image8 *image = malloc(sizeof(boxing_image8));
     if (image == NULL)
     {
         DLOG_ERROR( "(boxing_image8_create2) Failed to allocate image" );
@@ -210,17 +209,17 @@ boxing_image8 * boxing_image8_create2(const boxing_image8_pixel * buffer, unsign
 
     image->width = width;
     image->height = height;
-    image->data = boxing_memory_allocate(width * height);
+    image->data = malloc(width * height);
     image->is_owning_data = DTRUE;
     if (image->data == NULL)
     {
-        boxing_memory_free(image);
+        free(image);
         DLOG_ERROR("(boxing_image8_create2) Failed to allocate image buffer");
         return NULL;
     }
     else
     {
-	boxing_memory_copy(image->data, buffer, width * height);
+	memcpy(image->data, buffer, width * height);
     }
     return image;
 }
@@ -269,7 +268,7 @@ boxing_image8 * boxing_image8_recreate(boxing_image8 * image, unsigned int width
         {
             if (image->is_owning_data && image->data != NULL)
             {
-                boxing_memory_free(image->data);
+                free(image->data);
                 image->data = NULL;
             }
 
@@ -309,12 +308,12 @@ void boxing_image8_reinit_in_place(boxing_image8 * image, unsigned int width, un
     image->height = height;
     if (width == 0 || height == 0)
     {
-        boxing_memory_free(image->data);
+        free(image->data);
         image->data = NULL;
     }
     else
     {
-        image->data = boxing_memory_allocate(width * height);
+        image->data = malloc(width * height);
     }
     
     if (image->data == NULL && width * height != 0)
@@ -364,7 +363,7 @@ void boxing_image8_init_in_place(boxing_image8 * image, unsigned int width, unsi
 void boxing_image8_free(boxing_image8 * image)
 {
     boxing_image8_free_in_place(image);
-    boxing_memory_free(image);
+    free(image);
 }
 
 
@@ -383,7 +382,7 @@ void boxing_image8_free_in_place( boxing_image8 * image )
     {
         if (image->is_owning_data)
         {
-            boxing_memory_free(image->data);
+            free(image->data);
             image->data = NULL;
         }
     }
@@ -404,7 +403,7 @@ void boxing_image8_free_in_place( boxing_image8 * image )
  *  \return copy of input image.
  */
 
-boxing_image8 * boxing_image8_copy(const boxing_image8 * image)
+boxing_image8 *boxing_image8_copy(const boxing_image8 *image)
 {
     if (image == NULL)
     {
@@ -413,13 +412,13 @@ boxing_image8 * boxing_image8_copy(const boxing_image8 * image)
 
     if (image != NULL && image->data == NULL)
     {
-        boxing_image8 * emptycopy = boxing_image8_create(1, 1);
+        boxing_image8 *emptycopy = boxing_image8_create(1, 1);
         boxing_image8_free_in_place(emptycopy);
         return emptycopy;
     }
 
-    boxing_image8 * copy = boxing_image8_create(image->width, image->height);
-    boxing_memory_copy(copy->data, image->data, image->width * image->height);
+    boxing_image8 *copy = boxing_image8_create(image->width, image->height);
+    memcpy(copy->data, image->data, image->width * image->height);
     return copy;
 }
 
@@ -443,8 +442,8 @@ boxing_image8 * boxing_image8_copy_use_buffer(const boxing_image8 * image)
         return NULL;
     }
 
-    boxing_image8 * copy = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8);
-    boxing_memory_copy(copy, image, sizeof(boxing_image8));
+    boxing_image8 * copy = malloc(sizeof(boxing_image8));
+    memcpy(copy, image, sizeof(boxing_image8));
     copy->is_owning_data = DFALSE;
     return copy;
 }
@@ -474,13 +473,13 @@ DBOOL boxing_image8_is_null(const boxing_image8 * image)
  *  \brief Copy the data from the specified area of the input image.
  *
  *  Copy the data from the specified area of the input image. 
- *  Area specified by using coordinates of the lower left corner and the width and height
+ *  Area specified by using coordinates of the upper left corner and the width and height
  *  of the rectangular area.
  *  Else we return false.
  *
  *  \param[in]  image     The pointer to image instance.
- *  \param[in]  x_offset  The X coordinate of the lower left corner of the copied area.
- *  \param[in]  y_offset  The Y coordinate of the lower left corner of the copied area.
+ *  \param[in]  x_offset  The X coordinate of the upper left corner of the copied area.
+ *  \param[in]  y_offset  The Y coordinate of the upper left corner of the copied area.
  *  \param[in]  width     The width of the copied area.
  *  \param[in]  height    The height of the copied area.
  *  \return image instance with copied data.
@@ -521,10 +520,63 @@ boxing_image8 * boxing_image8_crop(const boxing_image8 * image, int x_offset, in
     {
         const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
         boxing_image8_pixel *dst = crop->data + y * width;
-        boxing_memory_copy(dst, src, width);
+        memcpy(dst, src, width);
     }
 
     return crop;
+}
+
+/** Crop image data in place. Returns true if a crop was performed. */
+DBOOL boxing_image8_crop_in_place(
+    /** Image instance to operate on */
+    boxing_image8 *image,
+    /** X coordinate of the top left corner to start cropping from */
+    int x_offset,
+    /** Y coordinate of the top left corner to start cropping from */
+    int y_offset,
+    /** Width of the cropped (kept) area */
+    int width,
+    /** Height of the cropped (kept) area */
+    int height
+) {
+    if (image == NULL) return DFALSE;
+    if (x_offset < 0) {
+        width += x_offset;
+        x_offset = 0;
+    }
+    if (y_offset < 0) {
+        height += y_offset;
+        y_offset = 0;
+    }
+
+    if (x_offset + width > (int)image->width) width = image->width - x_offset;
+    if (y_offset + height > (int)image->height) height = image->height - y_offset;
+    if (width <= 0 || height <= 0) return DFALSE;
+    if (width * height > image->width * image->height) {
+        void *new_data = realloc(image->data, width * height);
+        if (new_data == NULL) return DFALSE;
+        image->data = new_data;
+    }
+    if (width > image->width) {
+        for (unsigned int y = height; y-- > 0;) {
+            const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
+            boxing_image8_pixel *dst = image->data + y * width;
+            memmove(dst, src, width);
+        }
+    } else {
+        for (unsigned int y = 0; y < height; y++) {
+            const boxing_image8_pixel *src = image->data + (y + y_offset) * image->width + x_offset;
+            boxing_image8_pixel *dst = image->data + y * width;
+            memmove(dst, src, width);
+        }
+    }
+    if (width * height < image->width * image->height) {
+        void *new_data = realloc(image->data, width * height);
+        if (new_data != NULL) image->data = new_data;
+    }
+    image->width = width;
+    image->height = height;
+    return DTRUE;
 }
 
 

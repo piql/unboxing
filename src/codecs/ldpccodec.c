@@ -15,7 +15,6 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include <stdio.h>
 #include "mod2sparse.h"
 #include "mod2dense.h"
@@ -229,13 +228,17 @@ static gen_matrix *ldpc_generator_make_dense_mixed(mod2sparse *H, gen_make_metho
     }
 
     /* Allocate space for row and column permutations. */
-    gen_matrix *gm = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(gen_matrix, 1);
+    gen_matrix *gm = malloc(sizeof(gen_matrix));
 
     gm->dim.M = mod2sparse_rows(H);
     gm->dim.N = mod2sparse_cols(H);
-    gm->cols = chk_alloc(N, sizeof *gm->cols);
-    gm->data.sparse.rows = chk_alloc(M, sizeof *gm->data.sparse.rows);
     gm->type = type;
+    gm->cols = chk_alloc(N, sizeof *gm->cols);
+    { // TODO: check this more closely, this is iffy; initializing both sides of a union?
+        gm->data.sparse.L = NULL;
+        gm->data.sparse.U = NULL;
+        gm->data.sparse.rows = chk_alloc(M, sizeof *gm->data.sparse.rows);
+    }
 
     DH = mod2dense_allocate(M, N);
     AI = mod2dense_allocate(M, M);
@@ -289,15 +292,15 @@ static gen_matrix *ldpc_generator_make_dense_mixed(mod2sparse *H, gen_make_metho
 
 static void ldpc_generator_free(gen_matrix *gen_matrix)
 {
-    boxing_memory_free(gen_matrix->cols);
+    free(gen_matrix->cols);
     if (gen_matrix->type == 's') {
-        boxing_memory_free(gen_matrix->data.sparse.rows);
-        boxing_memory_free(gen_matrix->data.sparse.L);
-        boxing_memory_free(gen_matrix->data.sparse.U);
+        free(gen_matrix->data.sparse.rows);
+        free(gen_matrix->data.sparse.L);
+        free(gen_matrix->data.sparse.U);
     } else {
         mod2dense_free(gen_matrix->data.G);
     }
-    boxing_memory_free(gen_matrix);
+    free(gen_matrix);
 }
 
 
@@ -351,7 +354,7 @@ static int *column_partition(distrib *d, int n)
         trunc[cur] = -1;
     }
 
-    boxing_memory_free(trunc);
+    free(trunc);
     return part;
 }
 
@@ -644,7 +647,7 @@ static mod2sparse * ldcp_pchk_make(int seed, pchk_make_method method, distrib *d
 boxing_codec * boxing_codec_ldpc_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config );
-    boxing_codec_ldpc * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_ldpc);
+    boxing_codec_ldpc * codec = malloc(sizeof(boxing_codec_ldpc));
 
     g_variant * var_message_size = g_hash_table_lookup(properties, PARAM_NAME_MESSAGE_SIZE);
     if (var_message_size == NULL)
@@ -707,7 +710,7 @@ void boxing_codec_ldpc_free(boxing_codec * codec)
     mod2sparse_free(CODEC_MEMBER(pchk_matrix));
     ldpc_generator_free(CODEC_MEMBER(gen_matrix));
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 
@@ -776,7 +779,7 @@ static DBOOL codec_encode(void * codec, gvector * data)
     char *src = data->buffer;
     char *dst = encoded_data->buffer;
     int   blocks = (int)encoded_data->size / ldpc_codec->base.encoded_block_size;
-    char *unpacked_data_block = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, ldpc_codec->base.decoded_block_size*ldpc_codec->base.decoded_symbol_size);
+    char *unpacked_data_block = calloc(ldpc_codec->base.decoded_block_size*ldpc_codec->base.decoded_symbol_size, sizeof(char));
 
     for (int i = 0; i < blocks; i++)
     {
@@ -787,7 +790,7 @@ static DBOOL codec_encode(void * codec, gvector * data)
         src += ldpc_codec->base.decoded_block_size;
         dst += ldpc_codec->base.encoded_block_size;
     }
-    boxing_memory_free(unpacked_data_block);
+    free(unpacked_data_block);
     gvector_swap(data, encoded_data);
     gvector_free(encoded_data);
     return DTRUE;
@@ -810,12 +813,12 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
     char *src = data->buffer;
     char *dst = decoded_data->buffer;
     int blocks = (int)decoded_data->size / ldpc_codec->base.decoded_block_size;
-    double *lratio = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->dim.N);
-    char   *pchk   = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char,   gen_matrix->dim.M);
-    double *bitpr  = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(double, gen_matrix->dim.N);
-    char *recoverd_block_sd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N);
-    char *recoverd_block_hd = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N);
-    char *data_block = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, gen_matrix->dim.N - gen_matrix->dim.M);
+    double *lratio = calloc(gen_matrix->dim.N, sizeof(double));
+    char   *pchk   = calloc(gen_matrix->dim.M, sizeof(char));
+    double *bitpr  = calloc(gen_matrix->dim.N, sizeof(double));
+    char *recoverd_block_sd = calloc(gen_matrix->dim.N, sizeof(char));
+    char *recoverd_block_hd = calloc(gen_matrix->dim.N, sizeof(char));
+    char *data_block = calloc(gen_matrix->dim.N - gen_matrix->dim.M, sizeof(char));
     char *data_block_ptr;
 
     for (int i = 0; i < blocks; i++)
@@ -864,12 +867,12 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
         //dst += ldpc_codec->base.decoded_block_size; 
     }
 
-    boxing_memory_free(lratio);
-    boxing_memory_free(pchk);
-    boxing_memory_free(bitpr);
-    boxing_memory_free(recoverd_block_sd);
-    boxing_memory_free(recoverd_block_hd);
-    boxing_memory_free(data_block);
+    free(lratio);
+    free(pchk);
+    free(bitpr);
+    free(recoverd_block_sd);
+    free(recoverd_block_hd);
+    free(data_block);
 
     gvector_swap(data, decoded_data);
     gvector_free(decoded_data);

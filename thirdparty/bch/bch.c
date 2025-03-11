@@ -66,7 +66,7 @@
  */
 
 #include "bch.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 #include <string.h>
 
@@ -241,7 +241,7 @@ void encode_bch(struct bch_control *bch, const uint8_t *data,
 	unsigned int i, mlen;
 	unsigned long m;
     uint32_t w;
-    uint32_t *r = BOXING_STACK_ALLOCATE_TYPE_ARRAY(uint32_t, (l + 1));
+    uint32_t *r = alloca(sizeof(uint32_t) * (l + 1));
 	const uint32_t * const tab0 = bch->mod8_tab;
 	const uint32_t * const tab1 = tab0 + 256*(l+1);
 	const uint32_t * const tab2 = tab1 + 256*(l+1);
@@ -304,8 +304,6 @@ void encode_bch(struct bch_control *bch, const uint8_t *data,
 	/* store ecc parity bytes into original parity buffer */
 	if (ecc)
 		store_ecc8(bch, ecc, bch->ecc_buf);
-
-    BOXING_STACK_FREE( r );
 }
 
 static int modulo(struct bch_control *bch, unsigned int v)
@@ -490,7 +488,7 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 	const int m = GF_M(bch);
 	unsigned int tmp, mask;
     int rem, c, r, p, k;
-    int *param = BOXING_STACK_ALLOCATE_TYPE_ARRAY(int, m);
+    int *param = alloca(sizeof(int) * m);
 
 	k = 0;
 	mask = 1 << m;
@@ -530,7 +528,6 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 		for (r = m-1; r >= 0; r--) {
 			if ((r > m-1-k) && rows[r]) {
 				/* system has no solution */
-                BOXING_STACK_FREE(param);
 				return 0;
             }
 
@@ -541,7 +538,6 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 
 	if (nsol != (1 << k)) {
 		/* unexpected number of solutions */
-        BOXING_STACK_FREE(param);
 		return 0;
     }
 
@@ -558,8 +554,6 @@ static int solve_linear_system(struct bch_control *bch, unsigned int *rows,
 		}
 		sol[p] = tmp >> 1;
 	}
-    
-    BOXING_STACK_FREE(param);
 	return nsol;
 }
 
@@ -1176,7 +1170,7 @@ static int build_deg2_base(struct bch_control *bch)
 	const int m = GF_M(bch);
 	int i, j, r;
     unsigned int sum, x, y, remaining, ak = 0;
-    unsigned int *xi = BOXING_STACK_ALLOCATE_TYPE_ARRAY(unsigned int, m);
+    unsigned int *xi = alloca(sizeof(unsigned int) * m);
 
 	/* find k s.t. Tr(a^k) = 1 and 0 <= k < m */
 	for (i = 0; i < m; i++) {
@@ -1214,7 +1208,7 @@ static void *bch_alloc(size_t size, int *err)
 {
 	void *ptr;
 
-    ptr = (void*)BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(char, size);
+    ptr = calloc(size, sizeof(char));
 	if (ptr == NULL)
 		*err = 1;
 	return ptr;
@@ -1237,7 +1231,7 @@ static uint32_t *compute_generator_polynomial(struct bch_control *bch)
 	genpoly = bch_alloc(DIV_ROUND_UP(m*t+1, 32)*sizeof(*genpoly), &err);
 
 	if (err) {
-        boxing_memory_free(genpoly);
+        free(genpoly);
 		genpoly = NULL;
 		goto finish;
 	}
@@ -1281,8 +1275,8 @@ static uint32_t *compute_generator_polynomial(struct bch_control *bch)
 	bch->ecc_bits = g->deg;
 
 finish:
-	boxing_memory_free(g);
-	boxing_memory_free(roots);
+	free(g);
+	free(roots);
 
 	return genpoly;
 }
@@ -1343,9 +1337,11 @@ struct bch_control *init_bch(int m, int t, unsigned int prim_poly)
 	if (prim_poly == 0)
 		prim_poly = prim_poly_tab[m-min_m];
 
-    bch = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(struct bch_control, 1);
+    bch = malloc(sizeof(struct bch_control));
 	if (bch == NULL)
 		goto fail;
+
+	memset(bch, 0, sizeof(struct bch_control));
 
 	bch->m = m;
 	bch->t = t;
@@ -1378,7 +1374,7 @@ struct bch_control *init_bch(int m, int t, unsigned int prim_poly)
 		goto fail;
 
 	build_mod8_tables(bch, genpoly);
-    boxing_memory_free(genpoly);
+    free(genpoly);
 
 	err = build_deg2_base(bch);
 	if (err)
@@ -1400,19 +1396,19 @@ void free_bch(struct bch_control *bch)
 	unsigned int i;
 
 	if (bch) {
-		boxing_memory_free(bch->a_pow_tab);
-		boxing_memory_free(bch->a_log_tab);
-		boxing_memory_free(bch->mod8_tab);
-		boxing_memory_free(bch->ecc_buf);
-		boxing_memory_free(bch->ecc_buf2);
-		boxing_memory_free(bch->xi_tab);
-		boxing_memory_free(bch->syn);
-		boxing_memory_free(bch->cache);
-		boxing_memory_free(bch->elp);
+		free(bch->a_pow_tab);
+		free(bch->a_log_tab);
+		free(bch->mod8_tab);
+		free(bch->ecc_buf);
+		free(bch->ecc_buf2);
+		free(bch->xi_tab);
+		free(bch->syn);
+		free(bch->cache);
+		free(bch->elp);
 
 		for (i = 0; i < ARRAY_SIZE(bch->poly_2t); i++)
-            boxing_memory_free(bch->poly_2t[i]);
+            free(bch->poly_2t[i]);
 
-        boxing_memory_free(bch);
+        free(bch);
 	}
 }

@@ -16,7 +16,6 @@
 //
 #include "boxing/math/math.h"
 #include "boxing/math/dsp.h"
-#include "boxing/platform/memory.h"
 #include "boxing/platform/platform.h"
 
 //  PRIVATE INTERFACE
@@ -50,7 +49,7 @@ void boxing_dsp_low_pass_filter(const boxing_float cut_off_frequency, const boxi
     assert(length % 2 != 0);
 
     boxing_float low_cut_off_frequency = 2.0f*(cut_off_frequency);
-    boxing_float * window_coefficients = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, length);
+    boxing_float * window_coefficients = calloc(length, sizeof(boxing_float));
     boxing_dsp_blackman_window(window_coefficients, length);
 
     boxing_float * coeff = coeffs;
@@ -66,7 +65,7 @@ void boxing_dsp_low_pass_filter(const boxing_float cut_off_frequency, const boxi
         coeff++;
         window_coefficient++;
     }
-    boxing_memory_free(window_coefficients);
+    free(window_coefficients);
 }
 
 
@@ -87,7 +86,7 @@ void boxing_dsp_high_pass_filter(const boxing_float cut_off_frequency, const box
     assert(length % 2 != 0);
 
     boxing_float high_cut_off_frequency = 2.0f*(cut_off_frequency);
-    boxing_float * window_coefficients = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, length);
+    boxing_float * window_coefficients = calloc(length, sizeof(boxing_float));
     boxing_dsp_blackman_window(window_coefficients, length);
 
     boxing_float * coeff = coeffs;
@@ -108,7 +107,7 @@ void boxing_dsp_high_pass_filter(const boxing_float cut_off_frequency, const box
         coeff++;
         window_coefficient++;
     }
-    boxing_memory_free(window_coefficients);
+    free(window_coefficients);
 }
 
 
@@ -131,7 +130,7 @@ void boxing_dsp_band_pass_filter(const boxing_float center_frequency, const boxi
 
     boxing_float low_cut_off_frequency = 2.0f*(center_frequency - bandwidth / 2.0f);
     boxing_float high_cut_off_frequency = 2.0f*(center_frequency + bandwidth / 2.0f);
-    boxing_float * window_coefficients = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, length);
+    boxing_float * window_coefficients = calloc(length, sizeof(boxing_float));
     boxing_dsp_blackman_window(window_coefficients, length);
 
     boxing_float * coeff = coeffs;
@@ -152,7 +151,7 @@ void boxing_dsp_band_pass_filter(const boxing_float center_frequency, const boxi
         coeff++;
         window_coefficient++;
     }
-    boxing_memory_free(window_coefficients);
+    free(window_coefficients);
 }
 
 
@@ -170,9 +169,10 @@ void boxing_dsp_band_pass_filter(const boxing_float center_frequency, const boxi
  *  \param[in]  preload              Preload sign.
  */
 
-void boxing_dsp_filter(const boxing_float * in, unsigned int in_size, boxing_float * out, const boxing_float * filter_coefficients, int size, DBOOL preload /*  = DFALSE */)
+void boxing_dsp_filter(const boxing_float *in, unsigned int in_size, boxing_float *out, const boxing_float *filter_coefficients, int size, DBOOL preload /*  = DFALSE */)
 {
-    boxing_float * m = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(boxing_float, size);
+    boxing_float *m = calloc(size, sizeof(boxing_float));
+    memset(m, 0, sizeof(boxing_float) * size);
     
     int index = size-1;
 
@@ -205,7 +205,7 @@ void boxing_dsp_filter(const boxing_float * in, unsigned int in_size, boxing_flo
         index = (index + size -1 ) % size;
         out[n] = y;
     }
-    boxing_memory_free(m);
+    free(m);
 }
 
 
@@ -223,9 +223,10 @@ void boxing_dsp_filter(const boxing_float * in, unsigned int in_size, boxing_flo
  *  \param[in]  preload              Preload sign.
  */
 
-void boxing_dsp_filter_int(const int * in, unsigned int in_size, int * out, const boxing_float * filter_coefficients, int size, DBOOL preload /*  = DFALSE */)
+void boxing_dsp_filter_int(const int *in, unsigned int in_size, int *out, const boxing_float *filter_coefficients, int size, DBOOL preload /*  = DFALSE */)
 {
-    boxing_float * m = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(boxing_float, size);
+    boxing_float *m = calloc(size, sizeof(boxing_float));
+    memset(m, 0, sizeof(boxing_float) * size);
 
     int index = size - 1;
 
@@ -258,7 +259,7 @@ void boxing_dsp_filter_int(const int * in, unsigned int in_size, int * out, cons
         index = (index + size - 1) % size;
         out[n] = (int)y;
     }
-    boxing_memory_free(m);
+    free(m);
 }
 
 
@@ -276,10 +277,10 @@ void boxing_dsp_filter_int(const int * in, unsigned int in_size, int * out, cons
  *  \param[in]  size                 Size
  */
 
-void boxing_dsp_filtfilt(const boxing_float * in, unsigned int in_size, boxing_float * out, unsigned int out_size, const boxing_float * filter_coefficients, unsigned int size)
+void boxing_dsp_filtfilt(const boxing_float *in, unsigned int in_size, boxing_float *out, unsigned int out_size, const boxing_float *filter_coefficients, unsigned int size)
 {
     unsigned int buffer_size = (unsigned int)(in_size + size*1.5f + 1);
-    boxing_float * buffer = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, buffer_size);
+    boxing_float *buffer = calloc(buffer_size, sizeof(boxing_float));
     unsigned int i = 0;
     for (; i < size; i++)
     {
@@ -302,7 +303,7 @@ void boxing_dsp_filtfilt(const boxing_float * in, unsigned int in_size, boxing_f
     {
         out[i] = buffer[i + (int)(size*1.5f)];
     }
-    boxing_memory_free(buffer);
+    free(buffer);
 }
 
 
@@ -323,7 +324,7 @@ void boxing_dsp_filtfilt(const boxing_float * in, unsigned int in_size, boxing_f
 void boxing_dsp_filtfilt_int(const int * in, unsigned int in_size, boxing_float * out, unsigned int out_size, const boxing_float * filter_coefficients, unsigned int size)
 {
     unsigned int buffer_size = (unsigned int)(in_size + size*1.5f + 1);
-    int * buffer = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(int, buffer_size);
+    int *buffer = calloc(buffer_size, sizeof(int));
     unsigned int i = 0;
     for(; i < size; i++)
     {
@@ -346,7 +347,7 @@ void boxing_dsp_filtfilt_int(const int * in, unsigned int in_size, boxing_float 
     {
         out[i] = (boxing_float)buffer[i + (int)(size*1.5f)];
     }
-    boxing_memory_free(buffer);
+    free(buffer);
 }
 
 

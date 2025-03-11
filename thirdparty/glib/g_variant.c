@@ -32,13 +32,13 @@
 #include "g_variant.h"
 #include "boxing/string.h"
 #include "boxing/math/math.h"
-#include "boxing/platform/memory.h"
 
 //  SYSTEM INCLUDES
 //
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(_MSC_VER)
 #define strcasecmp _stricmp
@@ -52,10 +52,10 @@ static boxing_pointi string_to_pointi(const char * str, DBOOL * success);
 // PUBLIC G_VARIANT FUNCTIONS
 //
 
-g_variant * g_variant_create_pointer(void * value)
+g_variant *g_variant_create_pointer(void *value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = boxing_memory_allocate(sizeof(void*));
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(void *));
 
     newVariant->type = G_VARIANT_POINTER;
     *(void **)newVariant->data = value;
@@ -64,10 +64,10 @@ g_variant * g_variant_create_pointer(void * value)
 }
 
 
-g_variant * g_variant_create_int(int value)
+g_variant *g_variant_create_int(int value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = BOXING_MEMORY_ALLOCATE_TYPE(int);
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(int));
 
     newVariant->type = G_VARIANT_INT;
     *((int *)newVariant->data) = value;
@@ -76,10 +76,10 @@ g_variant * g_variant_create_int(int value)
 }
 
 
-g_variant * g_variant_create_uint(unsigned int value)
+g_variant *g_variant_create_uint(unsigned int value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = BOXING_MEMORY_ALLOCATE_TYPE(unsigned int);
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(unsigned int));
 
     newVariant->type = G_VARIANT_UINT;
     *((unsigned int *)newVariant->data) = value;
@@ -87,10 +87,10 @@ g_variant * g_variant_create_uint(unsigned int value)
     return newVariant;
 }
 
-g_variant * g_variant_create_longlong(long long value)
+g_variant *g_variant_create_longlong(long long value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = boxing_memory_allocate(sizeof(long long));
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(long long));
 
     newVariant->type = G_VARIANT_LONGLONG;
     *((long long *)newVariant->data) = value;
@@ -99,10 +99,10 @@ g_variant * g_variant_create_longlong(long long value)
 }
 
 
-g_variant * g_variant_create_ulonglong(unsigned long long value)
+g_variant *g_variant_create_ulonglong(unsigned long long value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = boxing_memory_allocate(sizeof(unsigned long long));
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(unsigned long long));
 
     newVariant->type = G_VARIANT_ULONGLONG;
     *((unsigned long long *)newVariant->data) = value;
@@ -111,10 +111,10 @@ g_variant * g_variant_create_ulonglong(unsigned long long value)
 }
 
 
-g_variant * g_variant_create_float(float value)
+g_variant *g_variant_create_float(float value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = BOXING_MEMORY_ALLOCATE_TYPE(float);
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(float));
 
     newVariant->type = G_VARIANT_FLOAT;
     *((float *)newVariant->data) = value;
@@ -123,10 +123,10 @@ g_variant * g_variant_create_float(float value)
 }
 
 
-g_variant * g_variant_create_double(double value)
+g_variant *g_variant_create_double(double value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = BOXING_MEMORY_ALLOCATE_TYPE(double);
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(double));
 
     newVariant->type = G_VARIANT_DOUBLE;
     *((double *)newVariant->data) = value;
@@ -135,19 +135,19 @@ g_variant * g_variant_create_double(double value)
 }
 
 
-g_variant * g_variant_create_string(const char * value)
+g_variant *g_variant_create_string(const char * value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
+    g_variant *newVariant = malloc(sizeof(g_variant));
     newVariant->data = boxing_string_clone(value);
     newVariant->type = G_VARIANT_STRING;
 
     return newVariant;
 }
 
-g_variant * g_variant_create_pointi(boxing_pointi value)
+g_variant *g_variant_create_pointi(boxing_pointi value)
 {
-    g_variant * newVariant = BOXING_MEMORY_ALLOCATE_TYPE(g_variant);
-    newVariant->data = BOXING_MEMORY_ALLOCATE_TYPE(boxing_pointi);
+    g_variant *newVariant = malloc(sizeof(g_variant));
+    newVariant->data = malloc(sizeof(boxing_pointi));
 
     newVariant->type = G_VARIANT_POINTI;
     *((boxing_pointi *)newVariant->data) = value;
@@ -155,14 +155,14 @@ g_variant * g_variant_create_pointi(boxing_pointi value)
     return newVariant;
 }
 
-g_variant * g_variant_create(const char * value)
+g_variant *g_variant_create(const char *value)
 {
     return g_variant_create_string(value);
 }
 
 
 
-void g_variant_free(g_variant * variant)
+void g_variant_free(g_variant *variant)
 {
     if (variant)
     {
@@ -172,7 +172,7 @@ void g_variant_free(g_variant * variant)
 }
 
 
-int g_variant_to_int(const g_variant * variant)
+int g_variant_to_int(const g_variant *variant)
 {
     if (variant == NULL)
     {
@@ -203,7 +203,7 @@ int g_variant_to_int(const g_variant * variant)
     return -1;
 }
 
-unsigned int g_variant_to_uint(const g_variant * variant)
+unsigned int g_variant_to_uint(const g_variant *variant)
 {
     if (variant == NULL)
     {
@@ -235,7 +235,7 @@ unsigned int g_variant_to_uint(const g_variant * variant)
     return (unsigned int)-1;
 }
 
-long long g_variant_to_longlong(const g_variant * variant)
+long long g_variant_to_longlong(const g_variant *variant)
 {
     switch (variant->type)
     {
@@ -289,10 +289,10 @@ unsigned long long g_variant_to_ulonglong(const g_variant * variant)
     return (unsigned int)-1;
 }
 
-char * g_variant_to_string(const g_variant * variant)
+char *g_variant_to_string(const g_variant *variant)
 {
     char numberBuffer[100];
-    char * return_value = NULL;
+    char *return_value = NULL;
     switch (variant->type)
     {
         case G_VARIANT_POINTER:
@@ -388,14 +388,14 @@ void g_variant_set_uint(g_variant * variant, unsigned int value)
 {
     if (variant->data == NULL)
     {
-        variant->data = boxing_memory_allocate(sizeof(unsigned int));
+        variant->data = malloc(sizeof(unsigned int));
     }
     else
     {
         if (variant->type != G_VARIANT_UINT)
         {
             free(variant->data);
-            variant->data = boxing_memory_allocate(sizeof(unsigned int));
+            variant->data = malloc(sizeof(unsigned int));
         }
     }
     variant->type = G_VARIANT_UINT;

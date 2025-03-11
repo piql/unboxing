@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/string.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 #include "g_variant.h"
 
 
@@ -95,7 +95,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
         {
             new_string_size = current - start - separator_size;
             new_string = boxing_string_allocate(new_string_size);
-            boxing_memory_copy(new_string, start, new_string_size);
+            memcpy(new_string, start, new_string_size);
             new_string[new_string_size] = '\0';
             GVECTORN(return_value, char*, number_items) = new_string;
             ++number_items;
@@ -122,7 +122,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
     }
     
     new_string = boxing_string_allocate( new_string_size );
-    boxing_memory_copy(new_string, start, new_string_size);
+    memcpy(new_string, start, new_string_size);
     new_string[new_string_size] = '\0';
     GVECTORN(return_value, char*, number_items) = new_string;
     ++number_items;
@@ -145,7 +145,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
  *  \return Copy of input string or NULL on error.
  */
 
-char * boxing_string_clone(const char * string)
+char *boxing_string_clone(const char *string)
 {
     if (string == NULL)
     {
@@ -155,8 +155,8 @@ char * boxing_string_clone(const char * string)
     size_t string_size;
     char * return_value;
     string_size = boxing_string_length(string) + 1;
-    return_value = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( char, string_size );
-    boxing_memory_copy(return_value, string, string_size);
+    return_value = calloc(string_size, sizeof(char));
+    memcpy(return_value, string, string_size);
     return return_value;
 }
 
@@ -172,9 +172,9 @@ char * boxing_string_clone(const char * string)
  *  \return instance of allocated string.
  */
 
-char * boxing_string_allocate( size_t length )
+char *boxing_string_allocate( size_t length )
 {
-    char* string = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY( char, (length + 1) );
+    char *string = calloc(length + 1, sizeof(char));
     string[0] = '\0';
     return string;
 }
@@ -189,9 +189,9 @@ char * boxing_string_allocate( size_t length )
  *  \param[in]  string  String.
  */
 
-void boxing_string_free( char * string )
+void boxing_string_free( char *string )
 {
-    boxing_memory_free(string);
+    free(string);
 }
 
 

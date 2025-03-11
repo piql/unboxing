@@ -16,7 +16,7 @@
 //
 #include "boxing/metadata.h"
 #include "boxing/math/bitutils.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 
 //----------------------------------------------------------------------------
 /*!
@@ -640,12 +640,12 @@ static int boxing_metadata_item_base_deserialize(boxing_metadata_item * item, co
 
 static boxing_metadata_item * boxing_metadata_item_base_create()
 {
-    return BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_item);
+    return malloc(sizeof(boxing_metadata_item));
 }
 
 static void boxing_metadata_item_base_free(boxing_metadata_item * item)
 {
-    boxing_memory_free(item);
+    free(item);
 }
 
 static int boxing_metadata_item_uint16_serialize(char *data, int size, boxing_metadata_item * item)
@@ -663,7 +663,7 @@ static int boxing_metadata_item_uint16_serialize(char *data, int size, boxing_me
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static int boxing_metadata_item_uint16_deserialize(boxing_metadata_item * item, const char *data, int size)
+static int boxing_metadata_item_uint16_deserialize(boxing_metadata_item *item, const char *data, int size)
 {
     if (size < (METADATA_BASE_SIZE + 2))
         return 0;
@@ -678,12 +678,12 @@ static int boxing_metadata_item_uint16_deserialize(boxing_metadata_item * item, 
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static boxing_metadata_item * boxing_metadata_item_uint16_create()
+static boxing_metadata_item *boxing_metadata_item_uint16_create()
 {
-    return (boxing_metadata_item *)BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_item_u16);
+    return malloc(sizeof(boxing_metadata_item_u16));
 }
 
-static int boxing_metadata_item_uint32_serialize(char *data, int size, boxing_metadata_item * item)
+static int boxing_metadata_item_uint32_serialize(char *data, int size, boxing_metadata_item *item)
 {
     if (size < (METADATA_BASE_SIZE + 4))
         return 0;
@@ -713,12 +713,12 @@ static int boxing_metadata_item_uint32_deserialize(boxing_metadata_item * item, 
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static boxing_metadata_item * boxing_metadata_item_uint32_create()
+static boxing_metadata_item *boxing_metadata_item_uint32_create()
 {
-    return (boxing_metadata_item *)BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_item_u32);
+    return malloc(sizeof(boxing_metadata_item_u32));
 }
 
-static int boxing_metadata_item_uint64_serialize(char *data, int size, boxing_metadata_item * item)
+static int boxing_metadata_item_uint64_serialize(char *data, int size, boxing_metadata_item *item)
 {
     if (size < (METADATA_BASE_SIZE + 8))
         return 0;
@@ -733,7 +733,7 @@ static int boxing_metadata_item_uint64_serialize(char *data, int size, boxing_me
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static int boxing_metadata_item_uint64_deserialize(boxing_metadata_item * item, const char *data, int size)
+static int boxing_metadata_item_uint64_deserialize(boxing_metadata_item *item, const char *data, int size)
 {
     if (size < (METADATA_BASE_SIZE + 8))
         return 0;
@@ -748,12 +748,12 @@ static int boxing_metadata_item_uint64_deserialize(boxing_metadata_item * item, 
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static boxing_metadata_item * boxing_metadata_item_uint64_create()
+static boxing_metadata_item *boxing_metadata_item_uint64_create()
 {
-    return (boxing_metadata_item *)BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_item_u64);
+    return malloc(sizeof(boxing_metadata_item_u64));
 }
 
-static int boxing_metadata_item_unknown_serialize(char *data, int size, boxing_metadata_item * item)
+static int boxing_metadata_item_unknown_serialize(char *data, int size, boxing_metadata_item *item)
 {
     if (size < (METADATA_BASE_SIZE + item->base.size))
         return 0;
@@ -768,7 +768,7 @@ static int boxing_metadata_item_unknown_serialize(char *data, int size, boxing_m
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static int boxing_metadata_item_unknown_deserialize(boxing_metadata_item * item, const char *data, int size)
+static int boxing_metadata_item_unknown_deserialize(boxing_metadata_item *item, const char *data, int size)
 {
     if (size < (METADATA_BASE_SIZE))
         return 0;
@@ -783,7 +783,7 @@ static int boxing_metadata_item_unknown_deserialize(boxing_metadata_item * item,
     if (item->base.size != 0)
     {
         boxing_metadata_item_unknown *item_unknown = (boxing_metadata_item_unknown *)item;
-        item_unknown->value = boxing_memory_allocate(item->base.size);
+        item_unknown->value = malloc(item->base.size);
         if (!item_unknown->value)
         {
             return 0;
@@ -793,24 +793,24 @@ static int boxing_metadata_item_unknown_deserialize(boxing_metadata_item * item,
     return METADATA_BASE_SIZE + item->base.size;
 }
 
-static boxing_metadata_item * boxing_metadata_item_unknown_create()
+static boxing_metadata_item *boxing_metadata_item_unknown_create()
 {
-    boxing_metadata_item_unknown * temp_item = BOXING_MEMORY_ALLOCATE_TYPE(boxing_metadata_item_unknown);
+    boxing_metadata_item_unknown *temp_item = malloc(sizeof(boxing_metadata_item_unknown));
     temp_item->value = NULL;
     return (boxing_metadata_item *)temp_item;
 }
 
-static void boxing_metadata_item_unknown_free(boxing_metadata_item * item)
+static void boxing_metadata_item_unknown_free(boxing_metadata_item *item)
 {
     if (item)
     {
-        boxing_metadata_item_unknown * item_unknown = (boxing_metadata_item_unknown *)item;
+        boxing_metadata_item_unknown *item_unknown = (boxing_metadata_item_unknown *)item;
         if (item_unknown != NULL)
         {
-            boxing_memory_free(item_unknown->value);
+            free(item_unknown->value);
         }
     }
-    boxing_memory_free(item);
+    free(item);
 }
 
 static void boxing_metadata_ghash_value_free(gpointer data)

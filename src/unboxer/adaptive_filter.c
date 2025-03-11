@@ -18,7 +18,6 @@
 #include "boxing/filter.h"
 #include "boxing/viewport.h"
 #include "boxing/unboxer/horizontalmeasures.h"
-#include "boxing/platform/memory.h"
 
 
 static void calc_signal_enegy(boxing_viewport * vp_energy, const boxing_viewport * vp, boxing_filter_coeff_2d * filter);
@@ -70,10 +69,10 @@ void adaptive_filter(boxing_image8 * out, const boxing_image8 * in, int symbols_
 {
     boxing_matrix_float * means = boxing_calculate_means(in, block_width, block_height, symbols_per_pixel);
     
-    boxing_float * fimage = boxing_memory_allocate(in->width * in->height * sizeof(boxing_float));
+    boxing_float * fimage = calloc(in->width * in->height, sizeof(boxing_float));
     boxing_viewport * tmp_vp = boxing_viewport_create(fimage, in->width, in->height, in->width, sizeof(boxing_float));
 
-    boxing_float * eimage = boxing_memory_allocate(in->width * in->height * sizeof(boxing_float));
+    boxing_float * eimage = calloc(in->width * in->height, sizeof(boxing_float));
     boxing_viewport * enegy_vp = boxing_viewport_create(eimage, in->width, in->height, in->width, sizeof(boxing_float));
 
     boxing_viewport * in_vp = boxing_viewport_create(in->data, in->width, in->height, in->width, 1);
@@ -143,8 +142,8 @@ void adaptive_filter(boxing_image8 * out, const boxing_image8 * in, int symbols_
     boxing_viewport_free(in_vp);
     boxing_viewport_free(out_vp);
 
-    boxing_memory_free(fimage);
-    boxing_memory_free(eimage);
+    free(fimage);
+    free(eimage);
 }
 
 //----------------------------------------------------------------------------
@@ -204,7 +203,7 @@ static void calc_filter_coeffs(boxing_viewport * vp, const boxing_viewport * vp_
     int height = boxing_viewport_height(vp) - 2*d;
 
     int thresholds = symbols -1;
-    boxing_float *threshold = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_float, thresholds);
+    boxing_float *threshold = alloca(sizeof(boxing_float) * thresholds);
     for(int i = 0; i < thresholds; i++ )
     {
         threshold[i] = (symbol_mean[i+1] + symbol_mean[i])/2;
@@ -255,7 +254,7 @@ static void quantisize(boxing_viewport * out, const boxing_viewport * in, const 
 {
 
     int thresholds = mean_size -1;
-    boxing_float *threshold = BOXING_STACK_ALLOCATE_TYPE_ARRAY(boxing_float, thresholds);
+    boxing_float *threshold = alloca(sizeof(boxing_float) * thresholds);
     for(int i = 0; i < thresholds; i++ )
     {
         threshold[i] = (mean[i+1] + mean[i])/2;

@@ -56,6 +56,19 @@ boxing_image8 * boxing_image8_copy(const boxing_image8 * image);
 boxing_image8 * boxing_image8_copy_use_buffer(const boxing_image8 * image);
 DBOOL           boxing_image8_is_null(const boxing_image8 * image);
 boxing_image8 * boxing_image8_crop(const boxing_image8 * image, int x_offset, int y_offset, int width, int height);
+/** Crop image data in place. Returns true if a crop was performed. */
+DBOOL boxing_image8_crop_in_place(
+    /** Image instance to operate on */
+    boxing_image8 *image,
+    /** X coordinate of the top left corner to start cropping from */
+    int x_offset,
+    /** Y coordinate of the top left corner to start cropping from */
+    int y_offset,
+    /** Width of the cropped (kept) area */
+    int width,
+    /** Height of the cropped (kept) area */
+    int height
+);
 boxing_image8 * boxing_image8_rotate(const boxing_image8 * image, int rotation);
 
 #define IMAGE8_PIXEL(image, x, y) ((image)->data[(x) + (y) * (image)->width])

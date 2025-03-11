@@ -15,7 +15,6 @@
 //  PROJECT INCLUDES
 //
 #include    "boxing/graphics/painter.h"
-#include    "boxing/platform/memory.h"
 
 //  BASE INCLUDES
 //
@@ -66,7 +65,7 @@ static void set_callbacks(boxing_painter *painter);
 
 boxing_painter * boxing_painter_create()
 {
-    boxing_painter *painter = BOXING_MEMORY_ALLOCATE_TYPE(boxing_painter);
+    boxing_painter *painter = malloc(sizeof(boxing_painter));
     return painter;
 }
 
@@ -82,7 +81,7 @@ boxing_painter * boxing_painter_create()
 
 void boxing_painter_free(boxing_painter * painter)
 {
-    boxing_memory_free(painter);
+    free(painter);
 }
 
 

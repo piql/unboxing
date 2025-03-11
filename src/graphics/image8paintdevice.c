@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include    "boxing/graphics/image8paintdevice.h"
-#include    "boxing/platform/memory.h"
+#include    "boxing/platform/platform.h"
 #include    "boxing/utils.h"
 
 //  DEFINES
@@ -70,7 +70,7 @@ static void image8paintdevice_free(boxing_paintdevice *device);
 
 boxing_paintdevice * boxing_image8paintdevice_create(boxing_image8 * image)
 {
-    boxing_image8paintdevice * device = BOXING_MEMORY_ALLOCATE_TYPE(boxing_image8paintdevice);
+    boxing_image8paintdevice * device = malloc(sizeof(boxing_image8paintdevice));
     device->image = *image;
     device->image.is_owning_data = DFALSE;
 
@@ -97,7 +97,7 @@ boxing_paintdevice * boxing_image8paintdevice_create(boxing_image8 * image)
 
 static void image8paintdevice_free(boxing_paintdevice *device)
 {
-    boxing_memory_free(device);
+    free(device);
 }
 
 

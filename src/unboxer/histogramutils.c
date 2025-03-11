@@ -15,7 +15,7 @@
 //  PROJECT INCLUDES
 //
 #include "boxing/unboxer/histogramutils.h"
-#include "boxing/platform/memory.h"
+#include "boxing/platform/platform.h"
 #include "boxing/math/math.h"
 
 
@@ -58,7 +58,8 @@
 
 boxing_histogram boxing_histogram_create()
 {
-    boxing_histogram utils = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY_CLEAR(int, BOXING_HISTOGRAM_SIZE);
+    boxing_histogram utils = calloc(BOXING_HISTOGRAM_SIZE, sizeof(int));
+    memset(utils, 0, sizeof(int) * BOXING_HISTOGRAM_SIZE);
     return utils;
 }
 
@@ -74,7 +75,7 @@ boxing_histogram boxing_histogram_create()
 
 void boxing_histogram_free(boxing_histogram histoutils)
 {
-    boxing_memory_free(histoutils);
+    free(histoutils);
 }
 
 

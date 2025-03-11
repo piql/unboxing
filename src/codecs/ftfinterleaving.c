@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/ftfinterleaving.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 
 //  DEFINES
@@ -80,7 +79,7 @@ static DBOOL   init_capacity(struct boxing_codec_s *codec, int size);
 boxing_codec * boxing_ftf_interleaving_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config ); 
-    boxing_codec_ftf_interleaving * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_ftf_interleaving);
+    boxing_codec_ftf_interleaving * codec = malloc(sizeof(boxing_codec_ftf_interleaving));
     boxing_codec_init_base((boxing_codec *)codec);
     codec->base.free = boxing_ftf_interleaving_free;
     codec->base.is_error_correcting = DFALSE;
@@ -129,7 +128,7 @@ void boxing_ftf_interleaving_free(boxing_codec * codec)
     boxing_codec_release_base(codec);
     free_ftf_buffer(ftf_codec->encode_buffer);
     free_ftf_buffer(ftf_codec->decode_buffer);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 

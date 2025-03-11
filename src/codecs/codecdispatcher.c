@@ -17,7 +17,6 @@
 #include "boxing/codecs/codecdispatcher.h"
 #include "boxing/globals.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/platform/types.h"
 #include "boxing/config.h"
 #include "boxing/utils.h"
@@ -259,7 +258,7 @@ DBOOL boxing_codecdispatcher_is_data_striped(const boxing_config * config)
 
 boxing_codecdispatcher * boxing_codecdispatcher_create(uint32_t packet_size, uint32_t modulation_levels, const boxing_config * config, const char * scheme/* = FORWARD_ERROR_CORRECTION_PROCESS*/)
 {
-    boxing_codecdispatcher *dispatcher = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codecdispatcher);
+    boxing_codecdispatcher *dispatcher = malloc(sizeof(boxing_codecdispatcher));
     dispatcher->codeing_scheme = scheme;
     if (dispatcher->codeing_scheme == NULL)
     {
@@ -345,9 +344,9 @@ void boxing_codecdispatcher_free(boxing_codecdispatcher * dispatcher)
     {
         boxing_codec_release(GVECTORN(&dispatcher->encode_codecs, boxing_codec *, i));
     }
-    boxing_memory_free(dispatcher->encode_codecs.buffer);
-    boxing_memory_free(dispatcher->decode_codecs.buffer);
-    boxing_memory_free(dispatcher);
+    free(dispatcher->encode_codecs.buffer);
+    free(dispatcher->decode_codecs.buffer);
+    free(dispatcher);
 }
 
 

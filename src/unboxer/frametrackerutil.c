@@ -20,7 +20,6 @@
 #include    "boxing/unboxer/histogramutils.h"
 #include    "boxing/math/dsp.h"
 #include    "boxing/math/math.h"
-#include    "boxing/platform/memory.h"
 #include    "gvector.h"
 
 //  SYSTEM INCLUDES
@@ -50,7 +49,7 @@ const boxing_float FRAME_GEOMETRY_BORDER_THRESHOLD = 0.30f;
 static void         median_filter(boxing_float * location, int height, int size);
 static void         find_max_location_rate(const boxing_float * data, int width, boxing_float reference, boxing_float sampling_rate, boxing_float * location, int height);
 static void         find_max_location_loc(const boxing_float * data, int width, boxing_float reference, boxing_float * location, int height);
-static void         calculate_maxmin(const boxing_image8 * image, const boxing_pointi * corner_mark, boxing_float x_sampling_rate, float y_sampling_rate, float * max, float * min);
+static void         calculate_maxmin(const boxing_image8 * image, const boxing_pointi * corner_mark, boxing_float x_sampling_rate, boxing_float y_sampling_rate, boxing_float * max, boxing_float * min);
 static DBOOL        track_reference_bar_location(gvector * samples, boxing_double * locations, unsigned int locations_size, boxing_float sampling_rate, boxing_float reference_point);
 static boxing_float calculate_average(const boxing_float * matrix, int width, int x_location, int y_location, const boxing_pointi * dimension);
 static boxing_float vertical_displacement(int x, int y, int i, int j, float k, float l, const boxing_matrixf * displacement_matix);
@@ -107,7 +106,7 @@ boxing_pointf boxing_frame_tracker_util_find_h_reference_bar_edge(const boxing_i
         inc = -1;
     }
 
-    boxing_float * samples = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, length);
+    boxing_float *samples = calloc(length, sizeof(boxing_float));
     int radius = (int)(25 * x_sampling_rate);
     // sample data
     int y = start.y;
@@ -138,7 +137,7 @@ boxing_pointf boxing_frame_tracker_util_find_h_reference_bar_edge(const boxing_i
     // find location
     find_max_location_rate(samples, length, 0, y_sampling_rate, &location, 1);
     // recalc location
-    boxing_memory_free(samples);
+    free(samples);
     boxing_pointf return_value = {(boxing_float)start.x, (boxing_float)(location*inc)};
     return return_value;
 }
@@ -182,8 +181,8 @@ void boxing_frame_tracker_util_track_vertical_border(const boxing_image8 * image
 
     unsigned int data_size_y = dimension.y;
     unsigned int data_size_x = dimension.x;
-    boxing_float * data = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, (data_size_y * data_size_x));
-    boxing_float * locations = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, data_size_y);
+    boxing_float *data = calloc(data_size_y * data_size_x, sizeof(boxing_float));
+    boxing_float *locations = calloc(data_size_y, sizeof(boxing_float));
 
     const boxing_float right_scan_filter[2] = { -1.0f, 1.0f };
     const boxing_float left_scan_filter[2] = { 1.0f, -1.0f };
@@ -243,8 +242,8 @@ void boxing_frame_tracker_util_track_vertical_border(const boxing_image8 * image
         border_location[i + location_y] = (boxing_float)(locations[i] + location_x);
         assert( isfinite( border_location[i + location_y] ) );
     }
-    boxing_memory_free(locations);
-    boxing_memory_free(data);
+    free(locations);
+    free(data);
 }
 
 
@@ -331,7 +330,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
     direction = dir_norm;
     gvector * samples = gvector_create(sizeof(int), (size_t)(bar_points_size * sample_rate));
 
-    boxing_double * locations = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_double, bar_points_size);
+    boxing_double *locations = calloc(bar_points_size, sizeof(boxing_double));
     boxing_pointf pos = start;
     int perpendicular_sample_start = -perpendicular_samples / 2;
     int perpendicular_sample_end = perpendicular_samples + perpendicular_sample_start;
@@ -340,7 +339,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
 
     if (!track_reference_bar_location(samples, locations, bar_points_size, sample_rate, reference))
     {
-        boxing_memory_free(locations);
+        free(locations);
         gvector_free(samples);
         return DFALSE;
     }
@@ -393,7 +392,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
             DLOG_INFO("Negative shift detected. Compensating... " );
             if(!track_reference_bar_location(samples, locations, bar_points_size, sample_rate, reference+sample_rate))
             {
-                boxing_memory_free(locations);
+                free(locations);
                 gvector_free(samples);
                 return DFALSE;
             }
@@ -407,7 +406,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
             DLOG_INFO("(boxing_frame_tracker_util_track_reference_bar) Positive shift detected. Compensating... ");
             if(!track_reference_bar_location(samples, locations, bar_points_size, sample_rate, reference-sample_rate))
             {
-                boxing_memory_free(locations);
+                free(locations);
                 gvector_free(samples);
                 return DFALSE;
             }
@@ -424,7 +423,7 @@ DBOOL boxing_frame_tracker_util_track_reference_bar(
         bar_points[i].x = (boxing_float)(direction.x*locations[i]) + start.x;
         bar_points[i].y = (boxing_float)(direction.y*locations[i]) + start.y;
     }
-    boxing_memory_free(locations);
+    free(locations);
     gvector_free(samples);
 
     return DTRUE;
@@ -671,8 +670,8 @@ boxing_pointi boxing_frame_tracker_util_find_corner_mark(
     int location_x = location.x;
     int location_y = location.y;
 
-    boxing_float * matrix_black = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, (dimension_y * dimension_x));
-    boxing_float * matrix_white = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, (dimension_y * dimension_x));
+    boxing_float *matrix_black = calloc(dimension_y * dimension_x, sizeof(boxing_float));
+    boxing_float *matrix_white = calloc(dimension_y * dimension_x, sizeof(boxing_float));
 
     // calculate max and min
     int histogram_min = BOXING_PIXEL_MIN;
@@ -748,8 +747,8 @@ boxing_pointi boxing_frame_tracker_util_find_corner_mark(
 
         }
     }
-    boxing_memory_free(matrix_black);
-    boxing_memory_free(matrix_white);
+    free(matrix_black);
+    free(matrix_white);
     
     DLOG_INFO3( "Corner mark match factor (x=%i y=%i) = %f", location_x, location_y, sqrt(min)/(subpattern_dimension.x*2*subpattern_dimension.y*2) );
 
@@ -1054,8 +1053,8 @@ static void median_filter(boxing_float * location, int height, int size)
     if (size > height)
         size = height;
 
-    boxing_float *values = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, size);
-    boxing_float *result = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, height);
+    boxing_float *values = calloc((unsigned)size, sizeof(boxing_float));
+    boxing_float *result = calloc((unsigned)height, sizeof(boxing_float));
 
     int center = size / 2;
 
@@ -1081,8 +1080,8 @@ static void median_filter(boxing_float * location, int height, int size)
     // copyback
     memcpy(location, result, sizeof(boxing_float)*height);
 
-    boxing_memory_free(result);
-    boxing_memory_free(values);
+    free(result);
+    free(values);
 }
 
 static boxing_float vertical_displacement(int x, int y, int i, int j, float k, float l, const boxing_matrixf * displacement_matix)
@@ -1137,10 +1136,10 @@ static void find_max_location_rate(const boxing_float * data, int width, boxing_
         edge_average += data[k * width + (int)pos] / (boxing_float)height;
     }
 
-    boxing_float *edge_vector = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, height);
-    boxing_float *edge_pow_vector = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, height);
-    boxing_float *coeffs127 = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, 127);
-    boxing_float *coeffs41 = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, 127);
+    boxing_float *edge_vector = calloc(height, sizeof(boxing_float));
+    boxing_float *edge_pow_vector = calloc(height, sizeof(boxing_float));
+    boxing_float *coeffs127 = calloc(127, sizeof(boxing_float));
+    boxing_float *coeffs41 = calloc(127, sizeof(boxing_float));
     for (int i = 0; i < 127; ++i)
     {
         coeffs127[i] = (1.0f / 127.0f);
@@ -1179,9 +1178,9 @@ static void find_max_location_rate(const boxing_float * data, int width, boxing_
         }
         boxing_dsp_filtfilt(edge_pow_vector, height, edge_pow_vector, height, coeffs41, 41);
     }
-    boxing_memory_free(coeffs41);
+    free(coeffs41);
     coeffs41 = NULL;
-    boxing_memory_free(coeffs127);
+    free(coeffs127);
     coeffs127 = NULL;
 
 
@@ -1255,8 +1254,8 @@ static void find_max_location_rate(const boxing_float * data, int width, boxing_
             drop_out = DFALSE;
         }
     }
-    boxing_memory_free(edge_pow_vector);
-    boxing_memory_free(edge_vector);
+    free(edge_pow_vector);
+    free(edge_vector);
 
     median_filter(location, height, 101);
 }
@@ -1361,7 +1360,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
     // make sure we use odd number of filter coeffs
     filter_order += (filter_order % 2 == 0) ? 1 : 0;
 
-    boxing_float * filter_coefficients = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, filter_order);
+    boxing_float *filter_coefficients = calloc(filter_order, sizeof(boxing_float));
     boxing_float center_frequency = 0.5f;
     boxing_float bandwidth = 0.18f;
 
@@ -1372,7 +1371,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
 
     gvector_resize(samples, (unsigned int)(samples->size + filter_order / 2));
 
-    boxing_float * sync = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, samples->size);
+    boxing_float *sync = calloc(samples->size, sizeof(boxing_float));
 
     /* filter the reference bar */
     boxing_dsp_filtfilt_int((int*)samples->buffer, (unsigned int)samples->size, sync, (unsigned int)samples->size, filter_coefficients, filter_order);
@@ -1380,7 +1379,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
     /* create a lowpass filter for mearuring the enery in the reference bar signal. */
     boxing_dsp_low_pass_filter(0.41f, sampling_rate, filter_coefficients, filter_order);
 
-    boxing_float * energy = BOXING_MEMORY_ALLOCATE_TYPE_ARRAY(boxing_float, samples->size);
+    boxing_float *energy = calloc(samples->size, sizeof(boxing_float));
     memcpy(energy, sync, samples->size * sizeof(boxing_float));
     boxing_float max_enery = energy[0];
     for (unsigned int i = 0; i < samples->size; ++i)
@@ -1396,7 +1395,7 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
         }
     }
 
-    boxing_memory_free(filter_coefficients);
+    free(filter_coefficients);
     filter_coefficients = NULL;
 
     /* normalize energy measure */
@@ -1513,9 +1512,9 @@ static DBOOL track_reference_bar_location(gvector * samples, boxing_double * loc
         index += inc;
 
     }
-    boxing_memory_free(energy);
+    free(energy);
     energy = NULL;
-    boxing_memory_free(sync);
+    free(sync);
     sync = NULL;
 
     /* generate the remaining locations in case not all are found */

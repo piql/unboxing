@@ -16,7 +16,6 @@
 //
 #include "boxing/graphics/label.h"
 #include "boxing/string.h"
-#include "boxing/platform/memory.h"
 
 //  DEFINES
 //
@@ -192,7 +191,7 @@ void boxing_label_init(boxing_label * label, const char * text, enum boxing_alig
 
 void boxing_label_set_label(boxing_label * label, const char * text)
 {
-    boxing_memory_free(label->label);
+    free(label->label);
     label->label = boxing_string_clone(text);
 }
 
@@ -209,7 +208,7 @@ void boxing_label_set_label(boxing_label * label, const char * text)
 static void label_free(boxing_component * label)
 {
     boxing_component_free(label);
-    boxing_memory_free(SMEMBER(label));
+    free(SMEMBER(label));
 }
 
 static void render(boxing_component * label, boxing_painter * painter)

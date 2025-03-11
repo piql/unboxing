@@ -17,7 +17,6 @@
 #include "boxing/config.h"
 #include "boxing/globals.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/utils.h"
 #include "g_variant.h"
 
@@ -120,7 +119,7 @@ const char * PROPERTIES_SEPARATOR              = ",";
 
 boxing_config * boxing_config_create()
 {
-    boxing_config * return_value = BOXING_MEMORY_ALLOCATE_TYPE(boxing_config);
+    boxing_config * return_value = malloc(sizeof(boxing_config));
     return_value->groups =  g_hash_table_new_full(g_str_hash, g_str_equal, boxing_utils_g_hash_table_destroy_item_string, boxing_utils_g_hash_table_destroy_item_ghash);
     return_value->aliases =  g_hash_table_new_full(g_str_hash, g_str_equal, boxing_utils_g_hash_table_destroy_item_string, boxing_utils_g_hash_table_destroy_item_string);
     return return_value;
@@ -193,7 +192,7 @@ void boxing_config_free(boxing_config * config)
         }
         else 
         {
-            boxing_memory_free(config);
+            free(config);
         }
     }
 }

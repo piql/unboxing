@@ -16,7 +16,6 @@
 //
 #include "boxing/codecs/2dpam.h"
 #include "boxing/log.h"
-#include "boxing/platform/memory.h"
 #include "boxing/image8.h"
 #include "boxing/unboxer/horizontalmeasures.h"
 
@@ -214,7 +213,7 @@ static boxing_codec_syncpointinserter * create_syncpointinserter(GHashTable * pr
 boxing_codec * boxing_codec_2dpam_create(GHashTable * properties, const boxing_config * config)
 {
     BOXING_UNUSED_PARAMETER( config );
-    boxing_codec_2dpam * codec = BOXING_MEMORY_ALLOCATE_TYPE(boxing_codec_2dpam);
+    boxing_codec_2dpam * codec = malloc(sizeof(boxing_codec_2dpam));
     boxing_codec_init_base((boxing_codec *)codec);
 
     codec->syncpointinserter = create_syncpointinserter(properties, config);
@@ -249,7 +248,7 @@ void boxing_codec_2dpam_free(boxing_codec * codec)
 {
     boxing_codec_syncpointinserter_free((boxing_codec *)(((boxing_codec_2dpam *)codec)->syncpointinserter));
     boxing_codec_release_base(codec);
-    boxing_memory_free(codec);
+    free(codec);
 }
 
 
