@@ -71,7 +71,6 @@ boxing_unboxer_utility *boxing_unboxer_utility_create(
     // Create structure of boxing configuration parameters
     utility->parameters = malloc(sizeof(boxing_unboxer_parameters));
     boxing_unboxer_parameters_init(utility->parameters);
-    memset(utility->parameters, 0, sizeof utility->parameters);
 
     // Set the format
     utility->parameters->format = format;
