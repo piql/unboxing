@@ -35,6 +35,13 @@ typedef enum
     BOXING_METADATA_CONTENT_TYPES_CONTROLFRAME = 4,
 } boxing_metadata_content_types;
 
+#define BOXING_METADATA_CONTENT_TYPE_STR(bmct)                                 \
+  ((bmct) == BOXING_METADATA_CONTENT_TYPES_TOC            ? "TOC"              \
+   : (bmct) == BOXING_METADATA_CONTENT_TYPES_DATA         ? "DATA"             \
+   : (bmct) == BOXING_METADATA_CONTENT_TYPES_VISUAL       ? "VISUAL"           \
+   : (bmct) == BOXING_METADATA_CONTENT_TYPES_CONTROLFRAME ? "CONTROLFRAME"     \
+                                                          : "UNKNOWN")
+
 typedef enum
 {
     BOXING_METADATA_TYPE_UNKNOWN           = 0xffff,

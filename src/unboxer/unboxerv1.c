@@ -1147,7 +1147,7 @@ static int dunboxerv1_load_data_from_image(
         boxing_metadata_list_append_item(metadata_list, (boxing_metadata_item *)content_type);
 
         // should this be handled with a switch ??
-        DLOG_WARNING("(dunboxerv1_load_data_from_image) Metadata does not contain content type, defaulting to fallback_metadata_content_type");
+        DLOG_WARNING1("(dunboxerv1_load_data_from_image) Metadata does not contain content type, defaulting to fallback_metadata_content_type (%s)", BOXING_METADATA_CONTENT_TYPE_STR(fallback_metadata_content_type));
     }
     
     // Analogue data?
