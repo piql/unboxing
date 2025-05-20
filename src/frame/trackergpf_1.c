@@ -651,7 +651,7 @@ static void tracker_gpf_1_free(boxing_tracker * tracker)
 
 static int validate_coordinate(int width, int w_margin, int height, int h_margin, struct boxing_pointi_s *location)
 {
-    return ((location->x+w_margin >= width) || (location->x < w_margin) || (location->y+h_margin >= height ) || (location->y < h_margin));
+    return ((location->x+w_margin > width) || (location->x < w_margin) || (location->y+h_margin > height ) || (location->y < h_margin));
 }
 
 
@@ -691,8 +691,8 @@ static int track_frame_analog_mode(boxing_tracker_gpf * tracker, const boxing_im
 #endif
 
     float raw_margin = definition.corner_mark_symbol/2 + definition.border_gap + definition.border;
-    int w_margin = (int)ceil( BASEBASEMEMBER(x_sampling_rate)*raw_margin) + 1;
-    int h_margin = (int)ceil(BASEBASEMEMBER(y_sampling_rate)*raw_margin) + 1;
+    int w_margin = (int)ceil( BASEBASEMEMBER(x_sampling_rate)*raw_margin);
+    int h_margin = (int)ceil(BASEBASEMEMBER(y_sampling_rate)*raw_margin);
     res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.top_left);
     res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.top_right);
     res |= validate_coordinate(input_image->width, w_margin, input_image->height, h_margin, &corner_marks.bottom_left);

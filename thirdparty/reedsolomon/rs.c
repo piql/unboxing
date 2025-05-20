@@ -247,8 +247,8 @@ static void decode_16(rs_codec *rs, gvector * data, gvector * data_decode, unsig
 
     for (int position = 0, position_next = 0; position < (int)data->size; position += (block_size), position_next += message_size)
     {
-        uint32_t * codeword = malloc(sizeof(uint32_t) * block_size);
-        uint32_t * syndrome_bytes = malloc(sizeof(uint32_t) * parity_size);
+        uint32_t *codeword = calloc(block_size, sizeof(uint32_t));
+        uint32_t *syndrome_bytes = calloc(parity_size, sizeof(uint32_t));
         for (uint32_t i = 0; i < (block_size); i++)
         {
             codeword[i] = (uint32_t)data_pointer[i + position];
