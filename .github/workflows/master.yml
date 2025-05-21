@@ -14,27 +14,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
     - name: Install dependencies
       run: |
-        set -e
-        apt-get update -y
-        apt-get install -y git autoconf gcc pkg-config check
+        apt-get update
+        apt-get -y install -y autoconf build-essential check pkg-config
 
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1
+        submodules: 'recursive'
 
     - name: Configure
       run: |
-        set -e
         ./autogen.sh
         ./configure
 
     - name: Build
       run: |
-        set -e
         make
-        make install
         make check
