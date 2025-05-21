@@ -10,14 +10,14 @@ name: master
 jobs:
   build:
     name: Build on Linux
-    container: ubuntu:noble
-    runs-on: ubuntu-latest
+    container: gcc:15.1.0
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Install dependencies
       run: |
         apt-get update
-        apt-get -y install -y autoconf build-essential check git pkg-config
+        apt-get -y install check
 
     - name: Checkout
       uses: actions/checkout@v4
