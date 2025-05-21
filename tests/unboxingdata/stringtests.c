@@ -568,7 +568,7 @@ BOXING_START_TEST(boxing_string_trim_test3)
 
     boxing_string_trim(&temp_string);
 
-    BOXING_ASSERT(boxing_string_equal(temp_string, "      ") == DTRUE);
+    BOXING_ASSERT(boxing_string_equal(temp_string, "") == DTRUE);
 
     boxing_string_free(temp_string);
 }
