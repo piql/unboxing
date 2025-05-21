@@ -708,7 +708,9 @@ static int boxing_metadata_item_uint32_deserialize(boxing_metadata_item * item, 
     item->base.size = betohs(*data_u16++);
 
     boxing_metadata_item_u32 *item_u32 = (boxing_metadata_item_u32 *)item;
-    item_u32->value = betohl(*(uint32_t *)data_u16);
+    uint32_t tmp;
+    memcpy(&tmp, data_u16, sizeof(uint32_t));
+    item_u32->value = betohl(tmp);
 
     return METADATA_BASE_SIZE + item->base.size;
 }
@@ -743,7 +745,9 @@ static int boxing_metadata_item_uint64_deserialize(boxing_metadata_item *item, c
     item->base.size = betohs(*data_u16++);
 
     boxing_metadata_item_u64 *item_u64 = (boxing_metadata_item_u64 *)item;
-    item_u64->value = betohll(*(uint64_t *)data_u16);
+    uint64_t tmp;
+    memcpy(&tmp, data_u16, sizeof(uint64_t));
+    item_u64->value = betohll(tmp);
 
     return METADATA_BASE_SIZE + item->base.size;
 }
