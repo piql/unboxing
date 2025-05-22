@@ -64,8 +64,6 @@ static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, cha
 {
     int n, c;
 
-    mod2sparse_cols(H);
-
     /* Initialize probability and likelihood ratios, and find initial guess. */
 
     initprp(H, lratio, dblk, bprb);
