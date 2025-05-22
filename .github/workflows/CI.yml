@@ -1,0 +1,32 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-24.04
+    container: gcc:15.1.0
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get -y install check
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: "recursive"
+
+      - name: Configure
+        run: |
+          ./autogen.sh
+          ./configure
+
+      - name: Build
+        run: make
+
+      - name: Test
+        run: make check
