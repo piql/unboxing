@@ -62,9 +62,9 @@ static DBOOL codec_decode(void * codec, gvector * data, gvector * erasures, boxi
  */
 static unsigned ldpc_decode_prprp(mod2sparse *H, double *lratio, char *dblk, char *pchk, double *bprb, int max_iter)
 {
-    int N, n, c;
+    int n, c;
 
-    N = mod2sparse_cols(H);
+    mod2sparse_cols(H);
 
     /* Initialize probability and likelihood ratios, and find initial guess. */
 
@@ -169,27 +169,6 @@ static void print_generator_check_info(mod2sparse *H, gen_matrix *gen_matrix)
             (double)c / M, (double)c2 / M, (double)(c + c2) / M);
     }
 }
-
-
-static mod2sparse *mod2sparse_clone(mod2sparse *matrix)
-{
-    if (!matrix)
-    {
-        return NULL;
-    }
-
-    mod2sparse *clone = mod2sparse_allocate(matrix->n_rows, matrix->n_cols);
-
-    if (!clone)
-    {
-        return NULL;
-    }
-
-    mod2sparse_copy(matrix, clone);
-
-    return clone;
-}
-
 
 typedef enum
 { 
