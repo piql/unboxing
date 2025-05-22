@@ -33,6 +33,7 @@
 //  SYSTEM INCLUDES
 //
 #include    <math.h>
+#include    <string.h>
 
 //  DEFINES
 //
@@ -296,27 +297,27 @@ boxing_tracker_gpf_1 * boxing_tracker_gpf_1_create(boxing_frame_gpf_1 * generic_
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(BOXING_SAMPLE_CONTAINER_METADATA), tracker->base.metadata_sampler);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(BOXING_SAMPLE_BAR_CALIBRATION),    tracker->base.calibration_bar_sampler);
 
-    size_t strlen_bar = boxing_string_length(BOXING_SAMPLE_BAR_REFERENCE);
-    size_t strlen_marks = boxing_string_length(BOXING_SAMPLE_CORNERMARKS);
-    char * strbuf = boxing_string_allocate(BOXING_MATH_MAX(strlen_bar, strlen_marks) + 20); 
+    size_t strlen_bar = strlen(BOXING_SAMPLE_BAR_REFERENCE);
+    size_t strlen_marks = strlen(BOXING_SAMPLE_CORNERMARKS);
+    char *strbuf = malloc(BOXING_MATH_MAX(strlen_bar, strlen_marks) + 20 + 1);
     memcpy(strbuf, BOXING_SAMPLE_BAR_REFERENCE, strlen_bar);
-    memcpy(strbuf + strlen_bar, ".left", boxing_string_length(".left") + 1);
+    memcpy(strbuf + strlen_bar, ".left", strlen(".left") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->left_reference_bar_sampler);
-    memcpy(strbuf + strlen_bar, ".right", boxing_string_length(".right") + 1);
+    memcpy(strbuf + strlen_bar, ".right", strlen(".right") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->right_reference_bar_sampler);
-    memcpy(strbuf + strlen_bar, ".top", boxing_string_length(".top") + 1);
+    memcpy(strbuf + strlen_bar, ".top", strlen(".top") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->top_reference_bar_sampler);
-    memcpy(strbuf + strlen_bar, ".bottom", boxing_string_length(".bottom") + 1);
+    memcpy(strbuf + strlen_bar, ".bottom", strlen(".bottom") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->bottom_reference_bar_sampler);
 
     memcpy(strbuf, BOXING_SAMPLE_CORNERMARKS, strlen_marks);
-    memcpy(strbuf + strlen_marks, ".top.left", boxing_string_length(".top.left") + 1);
+    memcpy(strbuf + strlen_marks, ".top.left", strlen(".top.left") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->top_left_corner_mark_sampler);
-    memcpy(strbuf + strlen_marks, ".top.right", boxing_string_length(".top.right") + 1);
+    memcpy(strbuf + strlen_marks, ".top.right", strlen(".top.right") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->top_right_corner_mark_sampler);
-    memcpy(strbuf + strlen_marks, ".bottom.left", boxing_string_length(".bottom.left") + 1);
+    memcpy(strbuf + strlen_marks, ".bottom.left", strlen(".bottom.left") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->bottom_left_corner_mark_sampler);
-    memcpy(strbuf + strlen_marks, ".bottom.right", boxing_string_length(".bottom.right") + 1);
+    memcpy(strbuf + strlen_marks, ".bottom.right", strlen(".bottom.right") + 1);
     g_hash_table_replace(tracker->base.base.container_sampler_list, boxing_string_clone(strbuf),   tracker->bottom_right_corner_mark_sampler);
 
     free(strbuf);

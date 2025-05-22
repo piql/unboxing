@@ -59,15 +59,11 @@ struct boxing_frame_s * boxing_generic_frame_factory_create(const boxing_config 
         DLOG_INFO( "Key 'type' is missing from config" );
         return NULL;
     }
-    if(boxing_string_equal("GPFv1.0", typestr))
-    {
-        return generic_frame_gpf_1(config);
-    }
-    else if (boxing_string_equal("GPFv1.1", typestr))
-    {
-        return generic_frame_gpf_1(config);
-    }
-    else if (boxing_string_equal("GPFv1.2", typestr))
+    if (
+        strcmp("GPFv1.0", typestr) == 0 ||
+        strcmp("GPFv1.1", typestr) == 0 ||
+        strcmp("GPFv1.2", typestr) == 0
+    )
     {
         return generic_frame_gpf_1(config);
     }
@@ -154,7 +150,7 @@ static boxing_frame * generic_frame_gpf_1(const boxing_config * config)
     const char * description              = get_parameter_string(config, "FormatInfo",  "description",              "");
 
     const char * frame_format_version = get_parameter_string(config, "FrameFormat", "type", "GPFv1.0");
-    if (boxing_string_equal("GPFv1.0", frame_format_version))
+    if (strcmp("GPFv1.0", frame_format_version) == 0)
     {
         reference_bar_sync_distance = -1;
         reference_bar_sync_offset = 0;
@@ -182,12 +178,12 @@ static boxing_frame * generic_frame_gpf_1(const boxing_config * config)
     {
         gvector * list_process = boxing_config_parse_list_properties((boxing_config *)config, "CodecDispatcher", "DataCodingScheme");
 
-        if ((boxing_string_equal("GPFv1.0", frame_format_version) == DTRUE) || (boxing_string_equal("GPFv1.1", frame_format_version) == DTRUE))
+        if ((strcmp("GPFv1.0", frame_format_version) == 0) || (strcmp("GPFv1.1", frame_format_version) == 0))
         {
             for (unsigned int i = 0; i < list_process->size; i++)
             {
                 char * class_name_str = GVECTORN(list_process, char *, i);
-                if (boxing_string_equal(class_name_str, "SyncPointInserter") && boxing_config_is_set(config, class_name_str, "codec"))
+                if (strcmp(class_name_str, "SyncPointInserter") == 0 && boxing_config_is_set(config, class_name_str, "codec"))
                 {
                     const int sync_point_distance_pixel = get_parameter_int(config, "SyncPointInserter", "SyncPointDistancePixel", 100);
                     const int sync_point_radius_pixel = get_parameter_int(config, "SyncPointInserter", "SyncPointRadiusPixel", 2);

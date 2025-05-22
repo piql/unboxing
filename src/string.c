@@ -46,7 +46,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
         return NULL;
     }
 
-    if (*separator == '\0' || boxing_string_length(separator) > boxing_string_length(string))
+    if (*separator == '\0' || strlen(separator) > strlen(string))
     {
         char * return_string = boxing_string_clone(string);
         gvector * return_vector = gvector_create_pointers(1);
@@ -55,7 +55,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
     }
 
     size_t number_items = 1;
-    size_t separator_size = boxing_string_length(separator);
+    size_t separator_size = strlen(separator);
     size_t new_string_size;
     const char * current = string;
     const char * start = string;
@@ -94,7 +94,7 @@ gvector * boxing_string_split(const char * string, const char * separator)
         if (*separator_current == '\0')
         {
             new_string_size = current - start - separator_size;
-            new_string = boxing_string_allocate(new_string_size);
+            new_string = malloc(new_string_size + 1);
             memcpy(new_string, start, new_string_size);
             new_string[new_string_size] = '\0';
             GVECTORN(return_value, char*, number_items) = new_string;
@@ -121,14 +121,14 @@ gvector * boxing_string_split(const char * string, const char * separator)
         new_string_size = current - start;
     }
     
-    new_string = boxing_string_allocate( new_string_size );
+    new_string = malloc( new_string_size + 1 );
     memcpy(new_string, start, new_string_size);
     new_string[new_string_size] = '\0';
     GVECTORN(return_value, char*, number_items) = new_string;
     ++number_items;
     if (*separator_current == '\0')
     {
-        new_string = boxing_string_allocate(0);
+        new_string = boxing_string_clone("");
         GVECTORN(return_value, char*, number_items) = new_string;
     }
     return return_value;
@@ -139,124 +139,19 @@ gvector * boxing_string_split(const char * string, const char * separator)
 /*!
  *  \brief Create a string copy.
  *
- *  Function create a copy of input string and return it.
+ *  Function to allocate a copy of an input string and return it.
  *
  *  \param[in]  string  Input string.
  *  \return Copy of input string or NULL on error.
  */
 
-char *boxing_string_clone(const char *string)
-{
-    if (string == NULL)
-    {
-        return NULL;
-    }
-
-    size_t string_size;
-    char * return_value;
-    string_size = boxing_string_length(string) + 1;
-    return_value = calloc(string_size, sizeof(char));
-    memcpy(return_value, string, string_size);
-    return return_value;
-}
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \brief Allocate string
- *
- *  Allocate memory for the string with given string size.
- *  Return instance of allocated string.
- *
- *  \param[in]  length  String length.
- *  \return instance of allocated string.
- */
-
-char *boxing_string_allocate( size_t length )
-{
-    char *string = calloc(length + 1, sizeof(char));
-    string[0] = '\0';
-    return string;
-}
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \brief Frees string.
- *
- *  Frees string memory.
- *
- *  \param[in]  string  String.
- */
-
-void boxing_string_free( char *string )
-{
-    free(string);
-}
-
-
-//----------------------------------------------------------------------------
-/*! \brief Copy string
- *
- *  The  boxing_string_copy() function copies the string pointed to by source, including the
- *  terminating null byte ('\\0'), to the buffer pointed to by destination. The strings
- *  may not overlap, and the destination string must be large enough to
- *  receive the copy.
- *
- *  \param[out]  destination   Destination string
- *  \param[in]   source        Source string
- */
-
-void boxing_string_copy( char * destination, const char * source )
-{
-    if (destination == NULL || source == NULL)
-    {
-        return;
-    }
-
-    while ( *source != '\0' )
-    {
-        *destination = *source;
-        destination++;
-        source++;
-    }
-    *destination = '\0';
-}
-
-
-//----------------------------------------------------------------------------
-/*!
- *  \brief Compare strings.
- *
- *  Compare two strings.
- *
- *  \param[in]   str1  First string.
- *  \param[in]   str2  Second string.
- *  \return sign of identity of the input strings.
- */
-
-DBOOL boxing_string_equal(const char * str1, const char * str2)
-{
-    if ( str1 == NULL && str2 == NULL )
-    {
-        return DTRUE;
-    }
-
-    if ( str1 == NULL || str2 == NULL )
-    {
-        return DFALSE;
-    }
-
-    while (*str1 != '\0')
-    {
-        if (*str1 != *str2)
-        {
-            return DFALSE;
-        }
-        ++str1;
-        ++str2;
-    }
-    return *str1 == *str2;
+char *boxing_string_clone(const char *string) {
+    if (string == NULL) return NULL;
+    size_t len = strlen(string);
+    char *copy = malloc(len + 1);
+    if (copy == NULL) return NULL;
+    memcpy(copy, string, len + 1);
+    return copy;
 }
 
 
@@ -314,124 +209,6 @@ DBOOL boxing_string_to_integer(int * value, const char * string)
 
     return DTRUE;
 }
-
-
-//----------------------------------------------------------------------------
-/*! \brief Get string length.
- *
- *  The boxing_string_length() function calculates the length of the string s, not
- *  including the terminating '\\0' character.
- *
- *  \param[in]  s  '\\0' terminated string
- *  \return Number of characters in s.
- */
-
-size_t boxing_string_length(const char *s)
-{
-    if (s == NULL)
-    {
-        return 0;
-    }
-
-    size_t length = 0;
-    while ( *s != '\0' )
-    {
-        s++;
-        length++;
-    }
-    return length;
-}
-
-
-//----------------------------------------------------------------------------
-/*! \brief Removes spaces at the beginning and end
- *
- *  Removes spaces at the beginning and end of the string.
- *
- *  \param[in,out]  string  A pointer to a string pointer.
- */
-
-void boxing_string_trim(char** string)
-{
-    char* input_string_pointer = *string;
-
-    if (input_string_pointer == NULL)
-    {
-        return;
-    }
-
-    if (boxing_string_length(input_string_pointer) == 0)
-    {
-        return;
-    }
-
-    size_t start_index = 0;
-    while (input_string_pointer[start_index] == '\n' || input_string_pointer[start_index] == '\r' || input_string_pointer[start_index] == ' ')
-    {
-        start_index++;
-    }
-
-    size_t end_index = boxing_string_length(input_string_pointer);
-    while ((input_string_pointer[end_index - 1] == '\n' || input_string_pointer[end_index - 1] == '\r' || input_string_pointer[end_index - 1] == ' ') && end_index > 0 && end_index > start_index)
-    {
-        end_index--;
-    }
-
-    boxing_string_cut(string, start_index, end_index);
-}
-
-
-//----------------------------------------------------------------------------
-/*! \brief Get substring
- *
- *  Reallocates string to substring given by start_index and end_index.
- *
- *  \param[in,out]  string       A pointer to a string pointer.
- *  \param[in]      start_index  The index to which the function must be cut beginning of the string.
- *  \param[in]      end_index    The index after which the function needs to truncate the end of the string.
- */
-
-void boxing_string_cut(char** string, size_t start_index, size_t end_index)
-{
-    if (*string == NULL || start_index > end_index)
-    {
-        return;
-    }
-
-    if (start_index == end_index)
-    {
-        char* new_string = boxing_string_allocate(1);
-        new_string[0] = '\0';
-        *string = new_string;
-        return;
-    }
-
-    size_t string_size = boxing_string_length(*string);
-    if (start_index >= string_size || end_index > string_size)
-    {
-        return;
-    }
-
-    if (start_index == 0 && end_index == string_size)
-    {
-        return;
-    }
-
-    size_t new_string_size = end_index - start_index + 1;
-    char* new_string = boxing_string_allocate(new_string_size);
-    char* input_string = *string;
-
-    for (size_t i = 0; i < new_string_size - 1; i++)
-    {
-        new_string[i] = input_string[i + start_index];
-    }
-
-    new_string[new_string_size - 1] = '\0';
-
-    boxing_string_free(input_string);
-    *string = new_string;
-}
-
 
 //----------------------------------------------------------------------------
 /*!

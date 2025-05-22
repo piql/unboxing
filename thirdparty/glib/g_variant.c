@@ -531,7 +531,7 @@ static boxing_pointi string_to_pointi(const char * str, DBOOL * success)
     {
         return return_value;
     }
-    char * buffer = boxing_string_allocate(i);
+    char *buffer = malloc(i + 1);
     memcpy(buffer, str, i - 1);
     buffer[i] = 0;
     return_value.x = atoi(buffer);

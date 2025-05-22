@@ -5,7 +5,6 @@ testunboxing_CFLAGS = \
    $(AM_CFLAGS) \
    $(CHECKLIB_CFLAGS) \
    -I${top_srcdir}/inc \
-   -I${top_srcdir}/inc/boxing \
    -I${top_srcdir}/thirdparty/glib \
    -I${top_srcdir}/tests/testutils/inc
 

@@ -114,11 +114,11 @@ boxing_codec * boxing_interleaving_create(GHashTable * properties, const boxing_
     }
     
     const char * symbol_type_str = g_variant_if_string(symbol_type);
-    if (boxing_string_equal(symbol_type_str, PARAM_NAME_SYMBOL_TYPE_BIT))
+    if (strcmp(symbol_type_str, PARAM_NAME_SYMBOL_TYPE_BIT) == 0)
     {
         CODEC_MEMBER(interleaving_symbol) = BOXING_INTERLEAVING_SYMBOL_BIT;
     }
-    else if (boxing_string_equal(symbol_type_str, PARAM_NAME_SYMBOL_TYPE_BYTE))
+    else if (strcmp(symbol_type_str, PARAM_NAME_SYMBOL_TYPE_BYTE) == 0)
     {
         CODEC_MEMBER(interleaving_symbol) = BOXING_INTERLEAVING_SYMBOL_BYTE;
     }

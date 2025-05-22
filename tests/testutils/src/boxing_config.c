@@ -172,7 +172,7 @@ static config_structure* find_boxing_format(const char* boxing_format_name)
     for (unsigned int i = 0; i < count; i++)
     {
         const char* format_name = get_format_name(boxing_formats[i]);
-        if (format_name && boxing_string_equal(format_name, boxing_format_name) == DTRUE)
+        if (format_name && strcmp(format_name, boxing_format_name) == 0)
         {
             return boxing_formats[i];
         }
@@ -184,7 +184,7 @@ static config_structure* find_boxing_format(const char* boxing_format_name)
     for (unsigned int i = 0; i < count; i++)
     {
         const char* format_name = get_format_name(boxing_control_frame_formats[i]);
-        if (format_name && boxing_string_equal(format_name, boxing_format_name) == DTRUE)
+        if (format_name && strcmp(format_name, boxing_format_name) == 0)
         {
             return boxing_control_frame_formats[i];
         }
@@ -208,12 +208,12 @@ static const char* get_format_name(config_structure* config)
     config_class * temp_classes = config->classes;
     for (unsigned int i = 0; i < config->count; i++)
     {
-        if (boxing_string_equal("FormatInfo", temp_classes->name) == DTRUE)
+        if (strcmp("FormatInfo", temp_classes->name) == 0)
         {
             config_pair* temp_pairs = temp_classes->pairs;
             for (unsigned int j = 0; j < temp_classes->count; j++)
             {
-                if (boxing_string_equal("name", temp_pairs->key) == DTRUE)
+                if (strcmp("name", temp_pairs->key) == 0)
                 {
                     return temp_pairs->value;
                 }

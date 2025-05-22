@@ -109,7 +109,7 @@ boxing_codec * boxing_codec_cipher_create(GHashTable * properties, const boxing_
     }
 
     const char * key_str = g_variant_if_string(key);
-    if (key_str != NULL && boxing_string_equal(key_str, "auto"))
+    if (key_str != NULL && strcmp(key_str, "auto") == 0)
     {
         CODEC_MEMBER(auto_key) = DTRUE;
         CODEC_MEMBER(key) = 1;

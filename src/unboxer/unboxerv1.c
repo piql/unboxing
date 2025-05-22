@@ -134,7 +134,7 @@ int boxing_dunboxerv1_setup_config(boxing_dunboxerv1 * unboxer)
     }
 
     const char * frame_format_version = boxing_generic_frame_get_format(unboxer->frame);
-    if ((boxing_string_equal("GPFv1.0", frame_format_version) == DTRUE) || (boxing_string_equal("GPFv1.1", frame_format_version) == DTRUE))
+    if ((strcmp("GPFv1.0", frame_format_version) == 0) || (strcmp("GPFv1.1", frame_format_version) == 0))
     {
         unboxer->quantize_data_on_load = DTRUE;
     }
@@ -329,11 +329,11 @@ boxing_codecdispatcher * boxing_dunboxerv1_dispatcher(const boxing_unboxer * unb
         return NULL;    
     }
 
-   if(boxing_string_equal(coding_scheme, CODEC_DISPATCHER_DATA_CODING_SCHEME) == DTRUE)
+   if(strcmp(coding_scheme, CODEC_DISPATCHER_DATA_CODING_SCHEME) == 0)
     {
         dispatcher = ((boxing_dunboxerv1 *)unboxer)->codec;
     } 
-    else if(boxing_string_equal(coding_scheme, CODEC_DISPATCHER_METADATA_CODING_SCHEME) == DTRUE)
+    else if(strcmp(coding_scheme, CODEC_DISPATCHER_METADATA_CODING_SCHEME) == 0)
     {
         dispatcher = ((boxing_dunboxerv1 *)unboxer)->metadata_codec;
     }
@@ -422,7 +422,7 @@ static int dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * data, b
         boxing_codec_cipher codec_cipher_copy;
         // make a copy of the codec to ensure reentrancy
         boxing_codec * codec = boxing_codecdispatcher_get_decode_codec(the_dispatcher, step);
-        if( boxing_string_equal(codec->name, "Cipher") )
+        if( strcmp(codec->name, "Cipher") == 0 )
         {
             memcpy(&codec_cipher_copy, codec, sizeof(boxing_codec_cipher));
             codec = (boxing_codec *)&codec_cipher_copy;

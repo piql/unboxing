@@ -23,6 +23,7 @@
 //  SYSTEM INCLUDES
 //
 #include <stdio.h>
+#include <string.h>
 
 
 // PRIVATE INTERFACE
@@ -331,7 +332,7 @@ DBOOL boxing_config_is_equal(const boxing_config * a, const boxing_config * b)
             continue;
         }
 
-        if (b_alias == NULL || !boxing_string_equal(b_alias, a->aliases->values[i]))
+        if (b_alias == NULL || strcmp(b_alias, a->aliases->values[i]) != 0)
         {
             return DFALSE;
         }
@@ -386,7 +387,7 @@ void boxing_config_set_property(boxing_config * config, const char * group, cons
     GHashTable * class_property;
     const char * alias_name;
     int i;
-    if (!boxing_string_equal(key, CONFIG_XML_KEY_ALIAS)) 
+    if (strcmp(key, CONFIG_XML_KEY_ALIAS) != 0)
     {
         class_hash = g_hash_table_lookup(config->groups, group);
         if (class_hash == NULL)

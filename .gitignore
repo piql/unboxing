@@ -20,7 +20,13 @@ doc/
 libunboxing-*
 unboxingdata.tag
 tests/unboxer/unboxer
+tests/static_unboxer/static_unboxer
 tests/unboxingdata/testunboxing
 tests/unboxer/unboxer.exe
+tests/unboxer/*.log
+tests/unboxer/*.trs
+tests/static_unboxer/static_unboxer.exe
 tests/unboxingdata/testunboxing.exe
+tests/unboxingdata/*.log
+tests/unboxingdata/*.trs
 unboxingdata.xml

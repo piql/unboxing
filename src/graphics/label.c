@@ -17,6 +17,9 @@
 #include "boxing/graphics/label.h"
 #include "boxing/string.h"
 
+// SYSTEM INCLUDES
+#include <string.h>
+
 //  DEFINES
 //
 
@@ -220,7 +223,7 @@ static void render(boxing_component * label, boxing_painter * painter)
 
     const int max_position = ((SMEMBER(alignment) == BOXING_ALIGN_HORIZONTAL) ? width : height) - 6;
     int pos = 0;
-    size_t label_length = boxing_string_length(SMEMBER(label));
+    size_t label_length = strlen(SMEMBER(label));
     int foreground_color = boxing_component_get_foreground_color(label);
     int background_color = boxing_component_get_background_color(label);
     for(char * it = SMEMBER(label); it != SMEMBER(label) + label_length; it++, pos += 6)

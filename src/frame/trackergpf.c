@@ -169,7 +169,7 @@ boxing_sampler * boxing_tracker_get_container_sampler(struct boxing_tracker_s * 
 
 DBOOL boxing_tracker_is_type(boxing_tracker * tracker, const char * type)
 {
-    return boxing_string_equal( tracker->type, type );
+    return strcmp( tracker->type, type ) == 0;
 }
 
 

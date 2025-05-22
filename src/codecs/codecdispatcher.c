@@ -21,6 +21,9 @@
 #include "boxing/config.h"
 #include "boxing/utils.h"
 
+// SYSTEM INCLUDES
+#include <string.h>
+
 //  DEFINES
 //
 #define CODEC_MULTI_FRAME_CLASS_NAME "MultiFrameFormat"
@@ -278,12 +281,12 @@ boxing_codecdispatcher * boxing_codecdispatcher_create(uint32_t packet_size, uin
     dispatcher->config = config;
 
     // required backward compatibility
-    if (boxing_string_equal(dispatcher->codeing_scheme, "DataCodingScheme") &&
+    if (strcmp(dispatcher->codeing_scheme, "DataCodingScheme") == 0 &&
         !boxing_config_is_set(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, dispatcher->codeing_scheme))
     {
         dispatcher->codeing_scheme = FORWARD_ERROR_CORRECTION_PROCESS;
     } 
-    else if(boxing_string_equal(dispatcher->codeing_scheme, "MetadataCodingScheme") &&
+    else if(strcmp(dispatcher->codeing_scheme, "MetadataCodingScheme") == 0 &&
         !boxing_config_is_set(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, dispatcher->codeing_scheme))
     {
         dispatcher->codeing_scheme = CODEC_DISPATCHER_METADATA_CODING_SCHEME;
@@ -318,7 +321,7 @@ void boxing_codecdispatcher_callback_setup(boxing_codecdispatcher * codec_dispat
             boxing_codec * codec = boxing_codecdispatcher_get_decode_codec(codec_dispatcher, step);
             for (unsigned int j = 0; callbacks[j].name != NULL; ++j)
             {
-                if (boxing_string_equal(callbacks[j].name, codec->name))
+                if (strcmp(callbacks[j].name, codec->name) == 0)
                 {
                     codec->encode_cb = callbacks[j].encode;
                     codec->decode_cb = callbacks[j].decode;
@@ -896,11 +899,11 @@ static void initialize(boxing_codecdispatcher *dispatcher)
     if (boxing_config_is_set(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, "order"))
     {
         const char * str_order  = boxing_config_property(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, "order");
-        if (boxing_string_equal(str_order, "decode"))
+        if (strcmp(str_order, "decode") == 0)
         {
             dispatcher->order = BOXING_CODEC_ORDER_DECODE;
         }
-        else if (boxing_string_equal(str_order, "encode"))
+        else if (strcmp(str_order, "encode") == 0)
         {
             dispatcher->order = BOXING_CODEC_ORDER_ENCODE;
         }
@@ -914,11 +917,11 @@ static void initialize(boxing_codecdispatcher *dispatcher)
     if (boxing_config_is_set(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, "symbolAlignment"))
     {
         const char * symbol_alignement_str = boxing_config_property(dispatcher->config, CODEC_DISPATCHER_CLASS_NAME, "symbolAlignment");
-        if (boxing_string_equal(symbol_alignement_str, "byte"))
+        if (strcmp(symbol_alignement_str, "byte") == 0)
         {
             dispatcher->symbol_alignment = BOXING_CODEC_SYMBOL_ALIGNMENT_BYTE;
         }
-        else if (boxing_string_equal(symbol_alignement_str, "bit"))
+        else if (strcmp(symbol_alignement_str, "bit") == 0)
         {
             dispatcher->symbol_alignment = BOXING_CODEC_SYMBOL_ALIGNMENT_BIT;
         }
@@ -960,7 +963,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
                     if (it != NULL)
                     {
                         const char * it_string = g_variant_if_string(it);
-                        if (it_string != NULL && boxing_string_equal(it_string, "auto"))
+                        if (it_string != NULL && strcmp(it_string, "auto") == 0)
                         {
                             g_variant_set_uint(it, dispatcher->color_depth);
                         }
@@ -969,7 +972,7 @@ static void initialize(boxing_codecdispatcher *dispatcher)
                     if (it != NULL)
                     {
                         const char * it_string = g_variant_if_string(it);
-                        if (it_string != NULL && boxing_string_equal(it_string, "auto"))
+                        if (it_string != NULL && strcmp(it_string, "auto") == 0)
                         {
                             g_variant_set_uint(it, dispatcher->multi_frame_size);
                         }

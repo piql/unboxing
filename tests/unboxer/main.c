@@ -19,6 +19,7 @@
 #include "boxing/unboxer_utility.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #if defined (D_OS_WIN32)
 #include <io.h>
 #else
@@ -256,7 +257,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
     int arg_index = 1;
     while (arg_index < argc)
     {
-        if (boxing_string_equal(argv[arg_index], "-i") == DTRUE)
+        if (strcmp(argv[arg_index], "-i") == 0)
         {
             while (++arg_index < argc && argv[arg_index][0] != '-')
             {
@@ -270,7 +271,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
                 parameters.input_end_index = arg_index - 1;
             }
         }
-        else if (boxing_string_equal(argv[arg_index], "-s") == DTRUE)
+        else if (strcmp(argv[arg_index], "-s") == 0)
         {
             if (argc <= arg_index + 2)
             {
@@ -287,7 +288,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
 	    parameters.y_size = y;
             arg_index++;
         }
-        else if (boxing_string_equal(argv[arg_index], "-f") == DTRUE)
+        else if (strcmp(argv[arg_index], "-f") == 0)
         {
             if (argc <= arg_index + 1)
             {
@@ -300,7 +301,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
             parameters.format = argv[++arg_index];
             arg_index++;
         }
-        else if (boxing_string_equal(argv[arg_index], "-o") == DTRUE)
+        else if (strcmp(argv[arg_index], "-o") == 0)
         {
             if (argc <= arg_index + 1)
             {
@@ -314,7 +315,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
             parameters.output = argv[++arg_index];
             arg_index++;
         }
-        else if (boxing_string_equal(argv[arg_index++], "-is_raw") == DTRUE)
+        else if (strcmp(argv[arg_index++], "-is_raw") == 0)
         {
             parameters.is_raw = DTRUE;
         }
@@ -352,7 +353,7 @@ static command_line_parameters get_parameters(int argc, char *argv[])
 
 static DBOOL has_wildcard(char* file_name)
 {
-    for (unsigned int i = 0; i < boxing_string_length(file_name); i++)
+    for (unsigned int i = 0; i < strlen(file_name); i++)
     {
         if (file_name[i] == '%' || file_name[i] == '*')
         {
@@ -441,7 +442,7 @@ static int unbox_file(const char* file_name, command_line_parameters input_param
 
 static void replace_wildcard(char* file_name)
 {
-    for (unsigned int i = 0; i < boxing_string_length(file_name); i++)
+    for (unsigned int i = 0; i < strlen(file_name); i++)
     {
         if (file_name[i] == '*')
         {
@@ -494,7 +495,7 @@ int main(int argc, char *argv[])
             printf("Input file wildcard: '%s'\n", file_name);
             
             while (1) {
-                char* current_file_name = boxing_string_allocate(boxing_string_length(file_name) + 8);
+                char* current_file_name = malloc(strlen(file_name) + 8 + 1);
                 sprintf(current_file_name, file_name, current_file);
 
                 {
@@ -509,7 +510,7 @@ int main(int argc, char *argv[])
                 }
 
                 result = unbox_file(current_file_name, parameters, utility);
-                boxing_string_free(current_file_name);
+                free(current_file_name);
 
                 if (result != BOXING_UNBOXER_OK) break;
 

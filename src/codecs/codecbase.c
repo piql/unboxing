@@ -28,6 +28,7 @@
 #include "boxing/codecs/bchcodec.h"
 #include "boxing/utils.h"
 #include <stdio.h>
+#include <string.h>
 #include "mod2sparse.h"
 #include "mod2dense.h"
 #include "rcode.h"
@@ -285,55 +286,55 @@ static DBOOL init_capacity(boxing_codec *codec, int size)
 
 boxing_codec * boxing_codec_create(const char *codec_name, GHashTable * properties, const boxing_config * config)
 {
-    if (boxing_string_equal(codec_name, "Interleaving"))
+    if (strcmp(codec_name, "Interleaving") == 0)
     {
         return boxing_interleaving_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, "Cipher"))
+    else if (strcmp(codec_name, "Cipher") == 0)
     {
         return boxing_codec_cipher_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, "ReedSolomon"))
+    else if (strcmp(codec_name, "ReedSolomon") == 0)
     {
         return boxing_codec_reedsolomon_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, "Modulator"))
+    else if (strcmp(codec_name, "Modulator") == 0)
     {
         return boxing_codec_modulator_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, "SyncPointInserter"))
+    else if (strcmp(codec_name, "SyncPointInserter") == 0)
     {
         return boxing_codec_syncpointinserter_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_crc32_name))
+    else if (strcmp(codec_name, codec_crc32_name) == 0)
     {
         return boxing_crc32_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_crc64_name))
+    else if (strcmp(codec_name, codec_crc64_name) == 0)
     {
         return boxing_crc64_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_ftf_interleaving_name))
+    else if (strcmp(codec_name, codec_ftf_interleaving_name) == 0)
     {
         return boxing_ftf_interleaving_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_packet_header_name))
+    else if (strcmp(codec_name, codec_packet_header_name) == 0)
     {
         return boxing_codec_packet_header_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_2dpam_name))
+    else if (strcmp(codec_name, codec_2dpam_name) == 0)
     {
         return boxing_codec_2dpam_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_symbol_converter_name))
+    else if (strcmp(codec_name, codec_symbol_converter_name) == 0)
     {
         return boxing_codec_symbol_converter_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_bch_name))
+    else if (strcmp(codec_name, codec_bch_name) == 0)
     {
         return boxing_codec_bch_create(properties, config);
     }
-    else if (boxing_string_equal(codec_name, codec_ldpc_name))
+    else if (strcmp(codec_name, codec_ldpc_name) == 0)
     {
         return boxing_codec_ldpc_create(properties, config);
     }

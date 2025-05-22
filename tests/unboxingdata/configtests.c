@@ -40,7 +40,7 @@ static void do_test()
     boxing_config_set_property(config, test_group, test_key_pointf, test_key_pointf_value);
     
     BOXING_ASSERT(boxing_config_property(config, test_group, "nonexisting") == NULL);
-    BOXING_ASSERT(boxing_string_equal(boxing_config_property(config, test_group, test_key_string), test_key_string_value ) == DTRUE);
+    BOXING_ASSERT(strcmp(boxing_config_property(config, test_group, test_key_string), test_key_string_value ) == 0);
     BOXING_ASSERT(boxing_config_property_int(config, test_group, test_key_uint) == (int)test_key_uint_value);
     BOXING_ASSERT(boxing_config_property_uint(config, test_group, test_key_uint) == test_key_uint_value);
     BOXING_ASSERT(boxing_config_is_set(config, test_group, test_key_string));
