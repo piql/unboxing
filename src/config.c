@@ -118,7 +118,7 @@ const char * PROPERTIES_SEPARATOR              = ",";
  * \return New config instance.
  */
 
-boxing_config * boxing_config_create()
+boxing_config * boxing_config_create(void)
 {
     boxing_config * return_value = malloc(sizeof(boxing_config));
     return_value->groups =  g_hash_table_new_full(g_str_hash, g_str_equal, boxing_utils_g_hash_table_destroy_item_string, boxing_utils_g_hash_table_destroy_item_ghash);
@@ -354,7 +354,7 @@ DBOOL boxing_config_is_equal(const boxing_config * a, const boxing_config * b)
  * \return pointer to the global config instance.
  */
 
-boxing_config * boxing_config_instance()
+boxing_config * boxing_config_instance(void)
 {
     if (!is_instance_initialized)
     {

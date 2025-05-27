@@ -181,12 +181,6 @@ void boxing_dsp_filter(const boxing_float *in, unsigned int in_size, boxing_floa
         for(int n = 0; n < size; n++)
         {
             m[index] = (boxing_float)in[0];
-            boxing_float y = 0.0f;
-            for(int i = 0; i < size; i++)
-            {   
-                y += m[(index+i)%size]*filter_coefficients[i];
-            }
-
             //update index
             index = (index + size -1 ) % size;
         }
@@ -235,12 +229,6 @@ void boxing_dsp_filter_int(const int *in, unsigned int in_size, int *out, const 
         for (int n = 0; n < size; n++)
         {
             m[index] = (boxing_float)in[0];
-            boxing_float y = 0.0f;
-            for (int i = 0; i < size; i++)
-            {
-                y += m[(index + i) % size] * filter_coefficients[i];
-            }
-
             //update index
             index = (index + size - 1) % size;
         }

@@ -46,7 +46,7 @@ typedef struct boxing_dunboxerv1_s
     DBOOL                                 quantize_data_on_load;
 } boxing_dunboxerv1;
 
-boxing_dunboxerv1 *     boxing_dunboxerv1_create();
+boxing_dunboxerv1 *     boxing_dunboxerv1_create(void);
 void                    boxing_dunboxerv1_destroy(boxing_dunboxerv1 * unboxer);
 int                     boxing_dunboxerv1_setup_config(boxing_dunboxerv1 * unboxer);
 int                     boxing_dunboxerv1_process(boxing_dunboxerv1 * unboxer, gvector * data,

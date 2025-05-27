@@ -63,7 +63,7 @@ struct boxing_metadata_item_s;
 
 typedef int(*deserialize_metadata_item)(struct boxing_metadata_item_s * item, const char *data, int size);
 typedef int(*serialize_metadata_item)(char *data, int size, struct boxing_metadata_item_s * item);
-typedef struct boxing_metadata_item_s* (*create_metadata_item)();
+typedef struct boxing_metadata_item_s* (*create_metadata_item)(void);
 typedef void(*free_metadata_item)(struct boxing_metadata_item_s * item);
 
 typedef struct boxing_metadata_item_base_s
@@ -129,7 +129,7 @@ typedef boxing_metadata_item_u16 boxing_metadata_item_content_symbol_size;
 
 typedef GHashTable boxing_metadata_list;
 
-boxing_metadata_list *   boxing_metadata_list_create();
+boxing_metadata_list *   boxing_metadata_list_create(void);
 void                     boxing_metadata_list_free(boxing_metadata_list * list);
 int                      boxing_metadata_list_deserialize(boxing_metadata_list * list, const char *data, size_t size);
 gvector *                boxing_metadata_list_serialize(boxing_metadata_list * list);

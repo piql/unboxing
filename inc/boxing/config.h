@@ -37,12 +37,12 @@ struct config_structure_s;
   
 extern const char * PROPERTIES_SEPARATOR;
 
-boxing_config *   boxing_config_create();
+boxing_config *   boxing_config_create(void);
 boxing_config *   boxing_config_create_from_structure(struct config_structure_s* structure);    
 void              boxing_config_free(boxing_config * config);
 boxing_config *   boxing_config_clone(const boxing_config * config);
 DBOOL             boxing_config_is_equal(const boxing_config *a, const boxing_config *b);
-boxing_config *   boxing_config_instance();
+boxing_config *   boxing_config_instance(void);
 void              boxing_config_set_property(boxing_config * config, const char * group, const char * key, const char * value);
 void              boxing_config_set_property_uint(boxing_config * config, const char * group, const char * key, unsigned int value);
 

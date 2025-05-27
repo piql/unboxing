@@ -39,7 +39,7 @@ typedef struct boxing_painter_s
     boxing_paintdevice * device;
 } boxing_painter;
 
-boxing_painter * boxing_painter_create();
+boxing_painter * boxing_painter_create(void);
 void             boxing_painter_free(boxing_painter * painter);
 
 void boxing_painter_init(boxing_painter * painter, boxing_paintdevice * device);

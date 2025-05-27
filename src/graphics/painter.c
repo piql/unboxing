@@ -63,7 +63,7 @@ static void set_callbacks(boxing_painter *painter);
  *  \return instance of allocated boxing_painter structure.
  */
 
-boxing_painter * boxing_painter_create()
+boxing_painter * boxing_painter_create(void)
 {
     boxing_painter *painter = malloc(sizeof(boxing_painter));
     return painter;

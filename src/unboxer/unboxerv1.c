@@ -86,7 +86,7 @@ static int      dunboxerv1_decode_step(boxing_dunboxerv1 * unboxer, gvector * da
  *  \return instance of allocated boxing_dunboxerv1 structure.
  */
 
-boxing_dunboxerv1 *boxing_dunboxerv1_create()
+boxing_dunboxerv1 *boxing_dunboxerv1_create(void)
 {
     boxing_dunboxerv1 *unboxer = malloc(sizeof(boxing_dunboxerv1));
     unboxer->frame = NULL;
