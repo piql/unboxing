@@ -421,11 +421,17 @@ int g_variant_to_bool(const g_variant * variant)
         case G_VARIANT_DOUBLE:
             return *(double *)variant->data != 0;
             break;
-        case G_VARIANT_STRING:
-            {
-                int temp_result = strcasecmp((char *)variant->data, "true");
-                return temp_result == 0; 
-            }
+        case G_VARIANT_STRING: {
+          return (((char *)variant->data)[0] == 'T' ||
+                  ((char *)variant->data)[0] == 't') &&
+                 (((char *)variant->data)[1] == 'R' ||
+                  ((char *)variant->data)[1] == 'r') &&
+                 (((char *)variant->data)[2] == 'U' ||
+                  ((char *)variant->data)[2] == 'u') &&
+                 (((char *)variant->data)[3] == 'E' ||
+                  ((char *)variant->data)[3] == 'e') &&
+                 ((char *)variant->data)[4] == '\0';
+        }
         case G_VARIANT_POINTI:
             return DFALSE;
     }
