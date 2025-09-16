@@ -56,7 +56,7 @@
  *  \return instance of allocated boxing_histogram array.
  */
 
-boxing_histogram boxing_histogram_create()
+boxing_histogram boxing_histogram_create(void)
 {
     boxing_histogram utils = calloc(BOXING_HISTOGRAM_SIZE, sizeof(int));
     memset(utils, 0, sizeof(int) * BOXING_HISTOGRAM_SIZE);

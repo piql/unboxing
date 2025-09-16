@@ -33,9 +33,6 @@
 
 #if defined(BOXING_USE_C99_LIBRARIES) || defined(BOXING_USE_C89_LIBRARIES)
 #   include <stdint.h>
-#   if !defined (__cplusplus)
-#       define  inline __inline
-#   endif
 #else
     typedef unsigned int     size_t;
     typedef char             int8_t;

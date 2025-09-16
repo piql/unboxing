@@ -29,7 +29,7 @@ extern "C" {
 
 typedef struct dcrc32_s dcrc32;
 
-dcrc32 *           boxing_math_crc32_create_def();
+dcrc32 *           boxing_math_crc32_create_def(void);
 dcrc32 *           boxing_math_crc32_create(boxing_uint32 seed, boxing_uint32 polynom);
 void               boxing_math_crc32_free(dcrc32 * dcrc32);
 boxing_uint32      boxing_math_crc32_calc_crc(dcrc32 * dcrc32, const char * data, unsigned int size);

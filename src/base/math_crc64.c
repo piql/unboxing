@@ -71,7 +71,7 @@ struct dcrc64_s
  *  \return instance of allocated dcrc64 structure.
  */
 
-dcrc64 * boxing_math_crc64_create_def()
+dcrc64 * boxing_math_crc64_create_def(void)
 {
     return boxing_math_crc64_create(0, POLY_CRC_64);
 }

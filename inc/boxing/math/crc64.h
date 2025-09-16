@@ -25,7 +25,7 @@ extern "C" {
 #define POLY_CRC_64 0x42F0E1EBA9EA3693ULL
 typedef struct dcrc64_s dcrc64;
 
-dcrc64 *      boxing_math_crc64_create_def();
+dcrc64 *      boxing_math_crc64_create_def(void);
 dcrc64 *      boxing_math_crc64_create(boxing_uint64 seed, boxing_uint64 polynom);
 void          boxing_math_crc64_free(dcrc64 * dcrc64);
 boxing_uint64 boxing_math_crc64_calc_crc(dcrc64 * dcrc64, const char * data, unsigned int size);

@@ -30,7 +30,7 @@ typedef struct boxing_frame_util_s
 } boxing_frame_util;
 
 
-boxing_frame_util * boxing_frame_util_create();
+boxing_frame_util * boxing_frame_util_create(void);
 void                boxing_frame_util_destroy(boxing_abstract_frame_util * util);
 
 #ifdef __cplusplus

@@ -2034,7 +2034,12 @@ g_str_hash (gconstpointer v)
 guint
 g_direct_hash (gconstpointer v)
 {
-  return GPOINTER_TO_UINT (v);
+  union {
+    const void *p;
+    int i;
+  } x;
+  x.p = v;
+  return x.i;
 }
 
 /**

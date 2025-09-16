@@ -93,7 +93,7 @@ struct dcrc32_s
  *  \return instance of allocated dcrc32 structure.
  */
 
-dcrc32 * boxing_math_crc32_create_def()
+dcrc32 * boxing_math_crc32_create_def(void)
 {
     return boxing_math_crc32_create(0, POLY_CRC_32C);
 }

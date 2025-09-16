@@ -27,7 +27,7 @@ extern "C" {
 
 typedef int* boxing_histogram; 
 
-boxing_histogram boxing_histogram_create();
+boxing_histogram boxing_histogram_create(void);
 void             boxing_histogram_free(boxing_histogram histogram);
 void             boxing_histogram_reset(boxing_histogram histogram);
 void             boxing_histogram_calc_hist(boxing_histogram histogram, const boxing_image8 * image, const boxing_pointi *point, const boxing_pointi *dimension);

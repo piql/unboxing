@@ -55,7 +55,7 @@ static DBOOL abstract_frame_util_initialize(struct boxing_abstract_frame_util_s 
  *  \return instance of allocated boxing_frame_util structure.
  */
 
-boxing_frame_util *boxing_frame_util_create()
+boxing_frame_util *boxing_frame_util_create(void)
 {
     boxing_frame_util *util = malloc(sizeof(boxing_frame_util));
     util->base.correct_frame_geometry = NULL;
