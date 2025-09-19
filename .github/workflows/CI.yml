@@ -30,3 +30,17 @@ jobs:
 
       - name: Test
         run: make check
+
+      - name: Upload libunboxing
+        uses: actions/upload-artifact@v4
+        with:
+          name: libunboxing
+          path: src/libunboxing.a
+
+      - name: Upload unboxer binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: unboxers
+          path: |
+            tests/static_unboxer/static_unboxer
+            tests/unboxer/unboxer
