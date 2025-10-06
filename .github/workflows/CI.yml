@@ -6,7 +6,6 @@ jobs:
   build:
     name: Build & Test
     runs-on: ubuntu-24.04
-    container: gcc:15.1.0
 
     steps:
       - name: Install dependencies
@@ -22,25 +21,21 @@ jobs:
 
       - name: Configure
         run: |
-          ./autogen.sh
-          ./configure
+          cmake -Bbuild
 
       - name: Build
-        run: make
+        run: cmake --build build -j
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: unboxing
+          path: |
+            build/libtestutils.a
+            build/libunboxing.a
+            build/static_unboxer
+            build/testunboxing
+            build/unboxer
 
       - name: Test
-        run: make check
-
-      - name: Upload libunboxing
-        uses: actions/upload-artifact@v4
-        with:
-          name: libunboxing
-          path: src/libunboxing.a
-
-      - name: Upload unboxer binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: unboxers
-          path: |
-            tests/static_unboxer/static_unboxer
-            tests/unboxer/unboxer
+        run: ctest -j6 --test-dir build

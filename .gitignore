@@ -30,3 +30,4 @@ tests/unboxingdata/testunboxing.exe
 tests/unboxingdata/*.log
 tests/unboxingdata/*.trs
 unboxingdata.xml
+build
