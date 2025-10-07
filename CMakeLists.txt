@@ -51,8 +51,8 @@ add_library(unboxing
     src/matrix.c
     src/metadata.c
     src/string.c
-    src/unboxer.c
     src/unboxer_utility.c
+    src/unboxer.c
     src/unboxer/cornermark.c
     src/unboxer/datapoints.c
     src/unboxer/filter.c
