@@ -26,10 +26,6 @@
 #endif
 #include "boxing_config.h"
 
-//  DEFINES
-//
-//#define LOGGING_ENABLED // Enables log output from the unboxing library
-
 #if defined ( D_OS_WIN32 )
 #define DFSEEK _fseeki64
 #define DFTELL _ftelli64
@@ -524,7 +520,6 @@ int main(int argc, char *argv[])
     return result;
 }
 
-#if defined (LOGGING_ENABLED)
 void boxing_log( int log_level, const char * string )
 {
     printf( "%d : %s\n", log_level, string );
@@ -541,10 +536,6 @@ void boxing_log_args( int log_level, const char * format, ... )
 
     va_end(args);
 }
-#else
-void boxing_log(int log_level, const char * string) { BOXING_UNUSED_PARAMETER(log_level); BOXING_UNUSED_PARAMETER(string); }
-void boxing_log_args(int log_level, const char * format, ...) { BOXING_UNUSED_PARAMETER(log_level); BOXING_UNUSED_PARAMETER(format); }
-#endif // LOGGING_ENABLED
 
 void(*boxing_log_custom)(int log_level, const char * string) = NULL;
 void(*boxing_log_args_custom)(int log_level, const char * format, va_list args) = NULL;

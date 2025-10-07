@@ -15,7 +15,6 @@
 //  DEFINES
 //
 #define BOXINGLIB_CALLBACK
-#define LOGGING_ENABLED
 
 //  PROJECT INCLUDES
 //
@@ -246,7 +245,6 @@ int main(int argc, char *argv[])
 }
 
 
-#if defined (LOGGING_ENABLED)
 void boxing_log( int log_level, const char * string )
 {
     printf( "%d : %s\n", log_level, string );
@@ -263,10 +261,6 @@ void boxing_log_args( int log_level, const char * format, ... )
 
     va_end(args);
 }
-#else
-void boxing_log(int log_level, const char * string) { BOXING_UNUSED_PARAMETER(log_level); BOXING_UNUSED_PARAMETER(string); }
-void boxing_log_args(int log_level, const char * format, ...) { BOXING_UNUSED_PARAMETER(log_level); BOXING_UNUSED_PARAMETER(format); }
-#endif // LOGGING_ENABLED
 
 //void(*boxing_log_custom)(int log_level, const char * string) = NULL;
 //void(*boxing_log_args_custom)(int log_level, const char * format, va_list args) = NULL;
