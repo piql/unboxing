@@ -137,8 +137,16 @@ if(BUILD_TESTING)
     target_include_directories(testunboxing PRIVATE tests/testutils/inc)
     target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
 
+    add_executable(bch_test
+        thirdparty/bch/bch.c
+        thirdparty/bch/bch_test.c
+    )
+
+    target_include_directories(bch_test PRIVATE inc)
+
     add_test(NAME testunboxing COMMAND testunboxing)
     add_test(NAME static_unboxer COMMAND static_unboxer)
+    add_test(NAME bch_test COMMAND bch_test)
     add_test(NAME unboxer_4kv6 COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6.image8 -s 12288 6878 -f 4kv6 -o out-4kv6.dat)
     add_test(NAME unboxer_4kv9 COMMAND unboxer -i ../tests/testdata/12288x6879_4kv9.image8 -s 12288 6879 -f 4kv9 -o out-4kv9.dat)
     add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
