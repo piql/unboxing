@@ -38,6 +38,7 @@ add_library(unboxing
     src/graphics/genericframe.c
     src/graphics/genericframefactory.c
     src/graphics/genericframegpf_1.c
+    src/graphics/image8paintdevice.c
     src/graphics/label.c
     src/graphics/metadatabar.c
     src/graphics/painter.c
@@ -53,6 +54,7 @@ add_library(unboxing
     src/string.c
     src/unboxer_utility.c
     src/unboxer.c
+    src/unboxer/adaptive_filter.c
     src/unboxer/cornermark.c
     src/unboxer/datapoints.c
     src/unboxer/filter.c
