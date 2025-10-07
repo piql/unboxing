@@ -132,7 +132,6 @@ if(BUILD_TESTING)
         tests/unboxingdata/testsmain.c
     )
 
-    target_compile_definitions(testunboxing PRIVATE UNIT_TESTS_ENABLED)
     target_include_directories(testunboxing PRIVATE tests/testutils/inc)
     target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
 
