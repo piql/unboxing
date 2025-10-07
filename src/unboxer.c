@@ -26,15 +26,11 @@
 //
 
 //---------------------------------------------------------------------------- 
-/*! \mainpage Boxing Library
+/*! \mainpage Unboxing Library
  *  \brief Functions for decoding analog and digital data. 
  *
- *  The boxing library has functions for coding (\ref boxing) and decoding (\ref unboxing) 
+ *  The unboxing library has functions for decoding (\ref unboxing) 
  *  digital and analog data.
- *  
- *  The \ref boxer (boxing/boxer.h) is the top level API for boxing data. It takes a byte array
- *  as input and converts it to raw-images. The layout of the raw-image and the
- *  coding of the digital data is defined by the \ref config.
  *
  *  The \ref unboxer (boxing/unboxer.h) takes sampled input images, and decodes 
  *  in two steps: extract and decode. The extract step locates the frame within the image, 
