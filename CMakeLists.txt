@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(unboxing)
 
-enable_testing()
-
-# unboxing library
+# Exports:
+#   libraries: unboxing, testutils
+#   executables: static_unboxer, unboxer, testunboxing
 
 add_library(unboxing
     src/base/math_crc32.c
@@ -100,45 +100,46 @@ set_property(SOURCE src/codecs/codecbase.c APPEND PROPERTY INCLUDE_DIRECTORIES $
 set_property(SOURCE thirdparty/LDPC-codes/rand.c APPEND PROPERTY COMPILE_DEFINITIONS RAND_FILE="randfile")
 
 target_include_directories(unboxing PUBLIC inc thirdparty/glib)
-target_include_directories(unboxing INTERFACE inc thirdparty/glib)
 
-# testutils library
 
 add_library(testutils tests/testutils/src/boxing_config.c)
 target_include_directories(testutils PUBLIC tests/testutils/inc)
 
 target_link_libraries(testutils unboxing)
 
-# static_unboxer
+if(PROJECT_IS_TOP_LEVEL)
+    set(BUILD_TESTING ON)
+endif()
 
-add_executable(static_unboxer tests/static_unboxer/main.c)
-target_link_libraries(static_unboxer testutils)
+if(BUILD_TESTING)
+    enable_testing()
+    add_executable(static_unboxer tests/static_unboxer/main.c)
+    target_link_libraries(static_unboxer testutils)
 
-# unboxer
 
-add_executable(unboxer tests/unboxer/main.c)
-target_link_libraries(unboxer testutils)
+    add_executable(unboxer tests/unboxer/main.c)
+    target_link_libraries(unboxer testutils)
 
-# testunboxing
 
-add_executable(testunboxing
-    tests/unboxingdata/configtests.c
-    tests/unboxingdata/crctests.c
-    tests/unboxingdata/image8tests.c
-    tests/unboxingdata/mathtests.c
-    tests/unboxingdata/matrixtests.c
-    tests/unboxingdata/metadatatests.c
-    tests/unboxingdata/stringtests.c
-    tests/unboxingdata/testsmain.c
-)
+    add_executable(testunboxing
+        tests/unboxingdata/configtests.c
+        tests/unboxingdata/crctests.c
+        tests/unboxingdata/image8tests.c
+        tests/unboxingdata/mathtests.c
+        tests/unboxingdata/matrixtests.c
+        tests/unboxingdata/metadatatests.c
+        tests/unboxingdata/stringtests.c
+        tests/unboxingdata/testsmain.c
+    )
 
-target_compile_definitions(testunboxing PRIVATE UNIT_TESTS_ENABLED)
-target_include_directories(testunboxing PUBLIC tests/testutils/inc)
-target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
+    target_compile_definitions(testunboxing PRIVATE UNIT_TESTS_ENABLED)
+    target_include_directories(testunboxing PRIVATE tests/testutils/inc)
+    target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
 
-add_test(NAME testunboxing        COMMAND testunboxing)
-add_test(NAME static_unboxer      COMMAND static_unboxer)
-add_test(NAME unboxer_4kv6        COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6.image8 -s 12288 6878 -f 4kv6 -o out-4kv6.dat)
-add_test(NAME unboxer_4kv9        COMMAND unboxer -i ../tests/testdata/12288x6879_4kv9.image8 -s 12288 6879 -f 4kv9 -o out-4kv9.dat)
-add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
-add_test(NAME unboxer_4kv6_raw    COMMAND unboxer -i ../tests/testdata/4kv6_*d.raw -f 4kv6 -s 4096 2160 -o out_4kv6_raw.dat -is_raw)
+    add_test(NAME testunboxing COMMAND testunboxing)
+    add_test(NAME static_unboxer COMMAND static_unboxer)
+    add_test(NAME unboxer_4kv6 COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6.image8 -s 12288 6878 -f 4kv6 -o out-4kv6.dat)
+    add_test(NAME unboxer_4kv9 COMMAND unboxer -i ../tests/testdata/12288x6879_4kv9.image8 -s 12288 6879 -f 4kv9 -o out-4kv9.dat)
+    add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
+    add_test(NAME unboxer_4kv6_raw COMMAND unboxer -i ../tests/testdata/4kv6_*d.raw -f 4kv6 -s 4096 2160 -o out_4kv6_raw.dat -is_raw)
+endif()
