@@ -94,7 +94,7 @@ dcrc64 * boxing_math_crc64_create(boxing_uint64 seed, boxing_uint64 polynom)
 {
 
     dcrc64 * dcrc = malloc(sizeof(dcrc64));
-    DFATAL(dcrc, "Out of memory");
+    if (!dcrc) return dcrc;
 
     dcrc->crc = seed;
 
