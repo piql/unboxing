@@ -159,4 +159,12 @@ if(BUILD_TESTING)
     add_test(NAME unboxer_4kv9 COMMAND unboxer -i ../tests/testdata/12288x6879_4kv9.image8 -s 12288 6879 -f 4kv9 -o out-4kv9.dat)
     add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
     add_test(NAME unboxer_4kv6_raw COMMAND unboxer -i ../tests/testdata/4kv6_*d.raw -f 4kv6 -s 4096 2160 -o out_4kv6_raw.dat -is_raw)
+
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/doc/html/index.html"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMAND doxygen doxygen.dox
+        DEPENDS doxygen.dox
+    )
+    add_custom_target(doxygen ALL DEPENDS doc/html/index.html)
 endif()
