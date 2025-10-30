@@ -108,6 +108,8 @@ static int unboxing_complete_callback(void * user, int* res, boxing_stats_decode
 static int save_output_data(gvector* output_data, const char * output_file_name)
 {
     // Save output data to the file
+    (void)output_data;
+    (void)output_file_name;
 
     return 0;
 }
@@ -188,6 +190,7 @@ static int metadata_complete_callback(void * user, int* res, boxing_metadata_lis
 
 static int unbox_data(const unsigned char* data, unsigned int data_size, boxing_unboxer_utility* utility)
 {
+    (void)data_size;
     const unsigned width = 4096/4;
     const unsigned height = 2160/4;
 
@@ -221,7 +224,7 @@ static int unbox_data(const unsigned char* data, unsigned int data_size, boxing_
  *
  */
 
-int main(int argc, char *argv[])
+int main(void)
 {
     DBOOL is_raw = DTRUE;
     const char* format_name = "4k-controlframe-v7";

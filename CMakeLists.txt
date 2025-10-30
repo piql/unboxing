@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project(unboxing)
+project(unboxing C)
 
-# Exports:
-#   libraries: unboxing, testutils
-#   executables: static_unboxer, unboxer, testunboxing
+set(WARNINGS -Wall -Wextra -Wpedantic -pedantic-errors -Wformat-overflow=2 -Wstrict-overflow=2 -Werror)
 
 add_library(unboxing
     src/base/math_crc32.c
@@ -86,28 +84,29 @@ add_library(unboxing
     thirdparty/reedsolomon/galois_field.c
     thirdparty/reedsolomon/rs.c
 )
-
+target_compile_options(unboxing PRIVATE ${WARNINGS})
+target_include_directories(unboxing PUBLIC inc thirdparty/glib)
 target_link_libraries(unboxing m)
 
 set_property(SOURCE src/unboxer.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/src/unboxer)
-
 set_property(SOURCE src/codecs/bchcodec.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/bch)
 set_property(SOURCE src/codecs/ldpccodec.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/LDPC-codes)
 set_property(SOURCE src/codecs/reedsolomon.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/reedsolomon)
-
 set_property(SOURCE src/codecs/codecbase.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/bch)
 set_property(SOURCE src/codecs/codecbase.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/LDPC-codes)
 set_property(SOURCE src/codecs/codecbase.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/reedsolomon)
-
 set_property(SOURCE thirdparty/LDPC-codes/rand.c APPEND PROPERTY COMPILE_DEFINITIONS RAND_FILE="randfile")
 
-target_include_directories(unboxing PUBLIC inc thirdparty/glib)
-
-
 add_library(testutils tests/testutils/src/boxing_config.c)
+target_compile_options(testutils PRIVATE ${WARNINGS})
 target_include_directories(testutils PUBLIC tests/testutils/inc)
-
 target_link_libraries(testutils unboxing)
+
+set_target_properties(testutils unboxing PROPERTIES
+    C_EXTENSIONS OFF
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+)
 
 if(PROJECT_IS_TOP_LEVEL)
     set(BUILD_TESTING ON)
@@ -115,11 +114,14 @@ endif()
 
 if(BUILD_TESTING)
     enable_testing()
+
     add_executable(static_unboxer tests/static_unboxer/main.c)
+    target_compile_options(static_unboxer PRIVATE ${WARNINGS})
     target_link_libraries(static_unboxer testutils)
 
 
     add_executable(unboxer tests/unboxer/main.c)
+    target_compile_options(unboxer PRIVATE ${WARNINGS})
     target_link_libraries(unboxer testutils)
 
 
@@ -133,7 +135,7 @@ if(BUILD_TESTING)
         tests/unboxingdata/stringtests.c
         tests/unboxingdata/testsmain.c
     )
-
+    target_compile_options(testunboxing PRIVATE ${WARNINGS})
     target_include_directories(testunboxing PRIVATE tests/testutils/inc)
     target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
 
@@ -141,8 +143,14 @@ if(BUILD_TESTING)
         thirdparty/bch/bch.c
         thirdparty/bch/bch_test.c
     )
-
+    target_compile_options(bch_test PRIVATE ${WARNINGS})
     target_include_directories(bch_test PRIVATE inc)
+
+    set_target_properties(bch_test static_unboxer testunboxing unboxer PROPERTIES
+        C_EXTENSIONS OFF
+        C_STANDARD 99
+        C_STANDARD_REQUIRED ON
+    )
 
     add_test(NAME testunboxing COMMAND testunboxing)
     add_test(NAME static_unboxer COMMAND static_unboxer)

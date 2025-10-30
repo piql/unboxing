@@ -20,7 +20,7 @@ jobs:
           submodules: "recursive"
 
       - name: Configure
-        run: cmake -Bbuild
+        run: cmake -DCMAKE_BUILD_TYPE=Debug -Bbuild
 
       - name: Build
         run: cmake --build build -j
@@ -35,6 +35,7 @@ jobs:
             build/static_unboxer
             build/testunboxing
             build/unboxer
+            build/bch_test
 
       - name: Test
         run: ctest -j4 --test-dir build

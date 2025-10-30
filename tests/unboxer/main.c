@@ -31,8 +31,8 @@
 #define DFTELL _ftelli64
 #define access _access
 #else
-#define DFSEEK fseeko
-#define DFTELL ftello
+#define DFSEEK fseek
+#define DFTELL ftell
 #endif
 
 

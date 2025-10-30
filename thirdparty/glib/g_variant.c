@@ -291,7 +291,7 @@ unsigned long long g_variant_to_ulonglong(const g_variant * variant)
 
 char *g_variant_to_string(const g_variant *variant)
 {
-    char numberBuffer[100];
+    char numberBuffer[384];
     char *return_value = NULL;
     switch (variant->type)
     {

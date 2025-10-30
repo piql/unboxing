@@ -12,6 +12,8 @@
 **
 *****************************************************************************/
 
+#include <alloca.h>
+
 //  PROJECT INCLUDES
 //
 #include "adaptive_filter.h"
