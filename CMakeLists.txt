@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(unboxing C)
 
-set(WARNINGS -Wall -Wextra -Wpedantic -pedantic-errors -Wformat-overflow=2 -Wstrict-overflow=2 -Werror)
+if(WIN32)
+    set(WARNINGS /MP)
+else()
+    set(WARNINGS -Wall -Wextra -Wpedantic -pedantic-errors -Wformat-overflow=2 -Wstrict-overflow=2 -Werror)
+endif()
 
 add_library(unboxing
     src/base/math_crc32.c
@@ -86,7 +90,9 @@ add_library(unboxing
 )
 target_compile_options(unboxing PRIVATE ${WARNINGS})
 target_include_directories(unboxing PUBLIC inc thirdparty/glib)
-target_link_libraries(unboxing m)
+if(NOT WIN32)
+    target_link_libraries(unboxing m)
+endif()
 
 set_property(SOURCE src/unboxer.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/src/unboxer)
 set_property(SOURCE src/codecs/bchcodec.c APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/bch)
@@ -124,20 +130,23 @@ if(BUILD_TESTING)
     target_compile_options(unboxer PRIVATE ${WARNINGS})
     target_link_libraries(unboxer testutils)
 
-
-    add_executable(testunboxing
-        tests/unboxingdata/configtests.c
-        tests/unboxingdata/crctests.c
-        tests/unboxingdata/image8tests.c
-        tests/unboxingdata/mathtests.c
-        tests/unboxingdata/matrixtests.c
-        tests/unboxingdata/metadatatests.c
-        tests/unboxingdata/stringtests.c
-        tests/unboxingdata/testsmain.c
-    )
-    target_compile_options(testunboxing PRIVATE ${WARNINGS})
-    target_include_directories(testunboxing PRIVATE tests/testutils/inc)
-    target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
+    if(NOT WIN32)
+        add_executable(testunboxing
+            tests/unboxingdata/configtests.c
+            tests/unboxingdata/crctests.c
+            tests/unboxingdata/image8tests.c
+            tests/unboxingdata/mathtests.c
+            tests/unboxingdata/matrixtests.c
+            tests/unboxingdata/metadatatests.c
+            tests/unboxingdata/stringtests.c
+            tests/unboxingdata/testsmain.c
+        )
+        target_compile_options(testunboxing PRIVATE ${WARNINGS})
+        target_include_directories(testunboxing PRIVATE tests/testutils/inc)
+        target_link_libraries(testunboxing unboxing -lcheck -lsubunit)
+        add_test(NAME testunboxing COMMAND testunboxing)
+        set_target_properties(testunboxing PROPERTIES C_EXTENSIONS OFF C_STANDARD 99 C_STANDARD_REQUIRED ON)
+    endif()
 
     add_executable(bch_test
         thirdparty/bch/bch.c
@@ -146,13 +155,12 @@ if(BUILD_TESTING)
     target_compile_options(bch_test PRIVATE ${WARNINGS})
     target_include_directories(bch_test PRIVATE inc)
 
-    set_target_properties(bch_test static_unboxer testunboxing unboxer PROPERTIES
+    set_target_properties(bch_test static_unboxer unboxer PROPERTIES
         C_EXTENSIONS OFF
         C_STANDARD 99
         C_STANDARD_REQUIRED ON
     )
 
-    add_test(NAME testunboxing COMMAND testunboxing)
     add_test(NAME static_unboxer COMMAND static_unboxer)
     add_test(NAME bch_test COMMAND bch_test)
     add_test(NAME unboxer_4kv6 COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6.image8 -s 12288 6878 -f 4kv6 -o out-4kv6.dat)
@@ -160,11 +168,14 @@ if(BUILD_TESTING)
     add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
     add_test(NAME unboxer_4kv6_raw COMMAND unboxer -i ../tests/testdata/4kv6_*d.raw -f 4kv6 -s 4096 2160 -o out_4kv6_raw.dat -is_raw)
 
-    add_custom_command(
-        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/doc/html/index.html"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMAND doxygen doxygen.dox
-        DEPENDS doxygen.dox
-    )
-    add_custom_target(doxygen ALL DEPENDS doc/html/index.html)
+    if(NOT WIN32)
+
+        add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/doc/html/index.html"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMAND doxygen doxygen.dox
+            DEPENDS doxygen.dox
+        )
+        add_custom_target(doxygen ALL DEPENDS doc/html/index.html)
+    endif()
 endif()

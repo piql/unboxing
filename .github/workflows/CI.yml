@@ -5,10 +5,25 @@ on: [push, pull_request]
 jobs:
   build:
     name: Build & Test
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+        include:
+          - os: ubuntu-24.04
+            configure: cmake -DCMAKE_BUILD_TYPE=Debug -Bbuild
+            artifact_name: unboxing-debug-x86_64-linux
+            artifacts: build/bch_test build/libtestutils.a build/libunboxing.a build/static_unboxer build/testunboxing build/unboxer
+          - os: windows-2025
+            configure: cmake -Bbuild
+            artifact_name: unboxing-debug-x86_64-win32
+            artifacts: build/Debug/bch_test.exe build/Debug/bch_test.pdb build/Debug/static_unboxer.exe build/Debug/static_unboxer.pdb build/Debug/testutils.lib build/Debug/testutils.pdb build/Debug/unboxer.exe build/Debug/unboxer.pdb build/Debug/unboxing.lib build/Debug/unboxing.pdb
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Install dependencies
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt-get update
           sudo apt-get -y install check doxygen
@@ -20,7 +35,7 @@ jobs:
           submodules: "recursive"
 
       - name: Configure
-        run: cmake -DCMAKE_BUILD_TYPE=Debug -Bbuild
+        run: ${{ matrix.configure }}
 
       - name: Build
         run: cmake --build build -j
@@ -28,14 +43,9 @@ jobs:
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: unboxing
-          path: |
-            build/libtestutils.a
-            build/libunboxing.a
-            build/static_unboxer
-            build/testunboxing
-            build/unboxer
-            build/bch_test
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifacts }}
 
       - name: Test
+        if: ${{ matrix.os == 'windows-2025' }}
         run: ctest -j4 --test-dir build
