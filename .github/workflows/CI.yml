@@ -14,7 +14,13 @@ jobs:
             configure: cmake -DCMAKE_BUILD_TYPE=Debug -Bbuild
             build: cmake --build build -j
             artifact_name: unboxing-debug-x86_64-linux
-            artifacts: build/bch_test build/libtestutils.a build/libunboxing.a build/static_unboxer build/testunboxing build/unboxer
+            artifacts: |
+              build/bch_test
+              build/libtestutils.a
+              build/libunboxing.a
+              build/static_unboxer
+              build/testunboxing
+              build/unboxer
           - os: windows-2025
             configure: cmake -Bbuild
             build: cmake --build build --verbose
