@@ -19,7 +19,7 @@ jobs:
             configure: cmake -Bbuild
             build: cmake --build build --verbose
             artifact_name: unboxing-debug-x86_64-win32
-            artifacts: build/Debug/bch_test.exe build/Debug/bch_test.pdb build/Debug/static_unboxer.exe build/Debug/static_unboxer.pdb build/Debug/testutils.lib build/Debug/testutils.pdb build/Debug/unboxer.exe build/Debug/unboxer.pdb build/Debug/unboxing.lib build/Debug/unboxing.pdb
+            artifacts: build/Debug/*
 
     runs-on: ${{ matrix.os }}
 
@@ -43,7 +43,6 @@ jobs:
         run: ${{ matrix.build }}
 
       - name: Upload binaries
-        if : ${{ matrix.os != 'windows-2025' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
