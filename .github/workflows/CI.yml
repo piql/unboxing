@@ -12,10 +12,12 @@ jobs:
         include:
           - os: ubuntu-24.04
             configure: cmake -DCMAKE_BUILD_TYPE=Debug -Bbuild
+            build: cmake --build build -j
             artifact_name: unboxing-debug-x86_64-linux
             artifacts: build/bch_test build/libtestutils.a build/libunboxing.a build/static_unboxer build/testunboxing build/unboxer
           - os: windows-2025
             configure: cmake -Bbuild
+            build: cmake --build build --verbose
             artifact_name: unboxing-debug-x86_64-win32
             artifacts: build/Debug/bch_test.exe build/Debug/bch_test.pdb build/Debug/static_unboxer.exe build/Debug/static_unboxer.pdb build/Debug/testutils.lib build/Debug/testutils.pdb build/Debug/unboxer.exe build/Debug/unboxer.pdb build/Debug/unboxing.lib build/Debug/unboxing.pdb
 
@@ -38,14 +40,15 @@ jobs:
         run: ${{ matrix.configure }}
 
       - name: Build
-        run: cmake --build build -j
+        run: ${{ matrix.build }}
 
       - name: Upload binaries
+        if : ${{ matrix.os != 'windows-2025' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifacts }}
 
       - name: Test
-        if: ${{ matrix.os == 'windows-2025' }}
+        if: ${{ matrix.os != 'windows-2025' }}
         run: ctest -j4 --test-dir build
