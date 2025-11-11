@@ -4,6 +4,8 @@ project(unboxing C)
 
 if(WIN32)
     set(WARNINGS /MP)
+elseif(APPLE)
+    set(WARNINGS -Wall -Wextra -Wpedantic -pedantic-errors -Wformat-overflow -Wstrict-overflow=2 -Werror)
 else()
     set(WARNINGS -Wall -Wextra -Wpedantic -pedantic-errors -Wformat-overflow=2 -Wstrict-overflow=2 -Werror)
 endif()
