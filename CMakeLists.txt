@@ -92,7 +92,9 @@ add_library(unboxing
 )
 target_compile_options(unboxing PRIVATE ${WARNINGS})
 target_include_directories(unboxing PUBLIC inc thirdparty/glib)
-if(NOT WIN32)
+if(WIN32)
+    target_compile_definitions(unboxing PRIVATE _CRT_SECURE_NO_WARNINGS)
+else()
     target_link_libraries(unboxing m)
 endif()
 
@@ -131,6 +133,9 @@ if(BUILD_TESTING)
     add_executable(unboxer tests/unboxer/main.c)
     target_compile_options(unboxer PRIVATE ${WARNINGS})
     target_link_libraries(unboxer testutils)
+    if(WIN32)
+        target_compile_definitions(unboxer PRIVATE _CRT_SECURE_NO_WARNINGS)
+    endif()
 
     if(NOT WIN32 AND NOT APPLE)
         add_executable(testunboxing

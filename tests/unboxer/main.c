@@ -398,7 +398,7 @@ static int unbox_file(const char* file_name, command_line_parameters input_param
     // Files size must match image dimensions
     if (file_size != (boxing_int64)(width * height))
     {
-        printf("File '%s' size (%lld) does not match with input image dimensions (width=%lu height=%lu).\n", file_name, (unsigned long long)file_size, width, height);
+        printf("File '%s' size (%lld) does not match with input image dimensions (width=%zu height=%zu).\n", file_name, (unsigned long long)file_size, width, height);
         return -1;
     }
 
