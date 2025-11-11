@@ -130,7 +130,7 @@ if(BUILD_TESTING)
     target_compile_options(unboxer PRIVATE ${WARNINGS})
     target_link_libraries(unboxer testutils)
 
-    if(NOT WIN32)
+    if(NOT WIN32 AND NOT APPLE)
         add_executable(testunboxing
             tests/unboxingdata/configtests.c
             tests/unboxingdata/crctests.c
@@ -168,7 +168,7 @@ if(BUILD_TESTING)
     add_test(NAME unboxer_4kv6_analog COMMAND unboxer -i ../tests/testdata/12288x6878_4kv6_analog.image8 -s 12288 6878 -f 4kv6 -o out-4kv6_analog.dat)
     add_test(NAME unboxer_4kv6_raw COMMAND unboxer -i ../tests/testdata/4kv6_*d.raw -f 4kv6 -s 4096 2160 -o out_4kv6_raw.dat -is_raw)
 
-    if(NOT WIN32)
+    if(NOT WIN32 AND NOT APPLE)
 
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/doc/html/index.html"
