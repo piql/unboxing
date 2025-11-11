@@ -97,7 +97,7 @@ boxing_config * boxing_create_boxing_config(const char* format_name)
 *  \return the number of boxing formats.
 */
 
-int boxing_get_format_count()
+int boxing_get_format_count(void)
 {
     return CONFIG_ARRAY_SIZE(boxing_formats);
 }
@@ -129,7 +129,7 @@ const char* boxing_get_configuration_name(int index)
  *  \return the number of control frame formats.
  */
 
-int boxing_get_control_frame_format_count()
+int boxing_get_control_frame_format_count(void)
 {
     return CONFIG_ARRAY_SIZE(boxing_control_frame_formats);
 }

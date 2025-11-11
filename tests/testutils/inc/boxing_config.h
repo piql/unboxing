@@ -24,9 +24,9 @@ extern "C" {
 struct config_structure_s;
   
 boxing_config*    boxing_create_boxing_config(const char* format_name);
-int               boxing_get_format_count();
+int               boxing_get_format_count(void);
 const char*       boxing_get_configuration_name(int index);
-int               boxing_get_control_frame_format_count();
+int               boxing_get_control_frame_format_count(void);
 const char*       boxing_get_control_frame_configuration_name(int index);
 
 #ifdef __cplusplus
