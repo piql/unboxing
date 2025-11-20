@@ -85,10 +85,10 @@ The following 3rd party libraries are included:
 
 The following dependencies must be installed to compile:
 
-- autoconf
-- automake
-- libcheck
-- doxygen (for documentation)
+- [Git](https://git-scm.com/)
+- [CMake](https://cmake.org/)
+- [libcheck](https://libcheck.github.io/check/)
+- [doxygen](https://www.doxygen.nl/) (for documentation)
 
 For detailed copyright and licencing description, inspect source code under
 thirdparty/.
@@ -96,11 +96,10 @@ thirdparty/.
 ## Installation
 
 ```sh
-git clone https://github.com/piql/boxing
-cd boxing
-./autogen.sh
-./configure
-make
+git clone https://github.com/piql/unboxing
+cd unboxing
+cmake -Bbuild
+cmake --build build
 ```
 
 ## iVM
@@ -111,9 +110,7 @@ providing an unabmbigious and compact implementation description.
 
 The boxing library is one of the formats the iVM natively supports.
 
-To target the iVM and use the ivm64 compiler:
-
-    CC=ivm64-gcc CFLAGS="-DBOXING_USE_C99_LIBRARIES" ./configure --host=ivm64
+Targeting the iVM compiler since switching to CMake is untested.
 
 ## Sample Applications
 
