@@ -70,6 +70,7 @@ add_library(unboxing
     src/unboxer/syncpoints.c
     src/unboxer/unboxerv1.c
     src/utils.c
+    src/viewport.c
     thirdparty/bch/bch.c
     thirdparty/glib/g_variant.c
     thirdparty/glib/ghash.c
