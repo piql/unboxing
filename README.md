@@ -96,10 +96,11 @@ thirdparty/.
 ## Installation
 
 ```sh
-git clone https://github.com/piql/unboxing
+git clone --recursive https://github.com/piql/unboxing
 cd unboxing
 cmake -Bbuild
-cmake --build build
+cmake --build build -j
+ctest -j4 --test-dir build
 ```
 
 ## iVM
