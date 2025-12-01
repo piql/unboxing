@@ -103,6 +103,8 @@ cmake --build build -j
 ctest -j4 --test-dir build
 ```
 
+Note: If don't want to compile with tests, run: `cmake -Bbuild -DBUILD_TESTING=OFF` in the configure stage. In this case `doxygen` is not needed as a dependency.
+
 ## iVM
 
 The iVM virtual machine is a minimal execution environment for file format

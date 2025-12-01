@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(unboxing C)
 
+option(BUILD_TESTING "Build tests" ON)
+
 if(WIN32)
     set(WARNINGS /MP)
 elseif(APPLE)
@@ -118,10 +120,6 @@ set_target_properties(testutils unboxing PROPERTIES
     C_STANDARD_REQUIRED ON
 )
 
-if(PROJECT_IS_TOP_LEVEL)
-    set(BUILD_TESTING ON)
-endif()
-
 if(BUILD_TESTING)
     enable_testing()
 
@@ -183,6 +181,6 @@ if(BUILD_TESTING)
             COMMAND doxygen doxygen.dox
             DEPENDS doxygen.dox
         )
-        add_custom_target(doxygen ALL DEPENDS doc/html/index.html)
+        add_custom_target(doxygen_unboxing ALL DEPENDS doc/html/index.html)
     endif()
 endif()
