@@ -79,9 +79,8 @@ static uint32_t correct_errors_erasures(rs_codec *rs, uint32_t *codeword, uint32
 
 rs_codec *rs_create(int message_size, int parity_size, uint32_t prime_plonomial)
 {
-    rs_codec *rs = malloc(sizeof(rs_codec));
-    memset(rs, 0, sizeof *rs);
-    
+    rs_codec *rs = calloc(1, sizeof(rs_codec));
+
     rs->galois_field = gf_create(prime_plonomial);
     if (rs->galois_field->alphabet_size < (1 << 9))
     {
